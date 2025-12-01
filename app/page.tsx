@@ -5,7 +5,10 @@ import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import WeatherCard from "@/components/WeatherCard";
 import AboutSection from "@/components/AboutSection";
+import ToursSection from "@/components/Tours";
 import ActivityCarousel from "@/components/TouristActivity";
+import DestinationsCarousel from "@/components/Destination";
+import Footer from "@/components/Footer";
 
 export default function Home() {
 	const weather = {
@@ -84,7 +87,14 @@ export default function Home() {
 
 			<AboutSection />
 
+			<ToursSection />
+
 			<ActivityCarousel />
+
+			<DestinationsCarousel />
+
+			<Footer />
+
 		</main>
 	);
 }

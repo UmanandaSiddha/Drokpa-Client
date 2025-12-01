@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { TemperatureLogo, HumidityLogo, WindLogo, AirLogo, RainLogo } from "@/assets";
+import Link from "next/link";
 
 type Weather = {
     location: string;
@@ -26,7 +27,7 @@ export default function WeatherCard({ weather }: { weather: Weather }) {
                 </div>
 
                 <div className="w-full flex justify-end md:hidden pr-4">
-                    <a href="#" className="text-sm text-gray-500 underline">View on AccuWeather »</a>
+                    <Link href={"/"} className="text-sm text-gray-500 underline">View on AccuWeather »</Link>
                 </div>
             </div>
 

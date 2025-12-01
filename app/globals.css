@@ -78,6 +78,15 @@
 	--sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Utility to hide native scrollbars (used by the mobile activity carousel) */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
 /* Ensure consistent box-sizing and a default spacing variable so Tailwind spacing works as expected */
 html, body, * {
 	box-sizing: border-box;

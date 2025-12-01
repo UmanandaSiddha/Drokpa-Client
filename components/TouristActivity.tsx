@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
@@ -152,45 +154,19 @@ const ActivityCarousel: React.FC = () => {
 	const handleDesktopScroll = () => updateIndexFromScroll(carouselRefDesktop, false);
 	const handleMobileScroll = () => updateIndexFromScroll(carouselRefMobile, true);
 
-	const scrollToIndex = (index: number) => {
-		// pick target based on viewport width
-		const isDesktop = typeof window !== 'undefined' ? window.innerWidth >= 640 : true;
-		const ref = isDesktop ? carouselRefDesktop : carouselRefMobile;
-		if (!ref.current) return;
-		if (isDesktop) {
-			const first = ref.current.firstElementChild as HTMLElement | null;
-			const cardWidth = first?.clientWidth ?? 0;
-			const gap = 24;
-			const step = cardWidth + gap;
-			ref.current.scrollTo({ left: index * step, behavior: 'smooth' });
-		} else {
-			ref.current.scrollTo({ left: index * ref.current.clientWidth, behavior: 'smooth' });
-		}
-		setCurrentIndex(index);
-		// permanent stop autoplay after manual jump
-		setIsAutoplayEnabled(false);
-	};
 
-	// choose which carousel to control based on viewport width
+
 	const getActiveCarouselRef = () => {
 		if (typeof window === "undefined") return carouselRefDesktop;
 		return window.innerWidth >= 640 ? carouselRefDesktop : carouselRefMobile;
 	};
 
 	const handleSaveWishlist = () => {
-		console.log(
-			"Saved wishlist:",
-			wishlistName,
-			"for activity:",
-			selectedActivity
-		);
 		setWishlistName("");
 		setWishlistModal(false);
 	};
 
-	const goToDetails = (id: number) => {
-		// navigate(`/activity/${id}`);
-	};
+
 
 	return (
 		<section
@@ -209,7 +185,7 @@ const ActivityCarousel: React.FC = () => {
 						scrollLeft(ref);
 						setIsAutoplayEnabled(false);
 					}}
-						className="bg-white/90 p-2 rounded-full shadow-md hover:bg-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#005246]"
+						className="bg-white/90 p-2 rounded-full shadow-md hover:bg-white transition-colors"
 						aria-label="Previous"
 					>
 						<ChevronLeft size={20} className="text-[#005246]" />
@@ -221,7 +197,7 @@ const ActivityCarousel: React.FC = () => {
 						scrollRight(ref);
 						setIsAutoplayEnabled(false);
 					}}
-						className="bg-white p-2 rounded-full shadow-md hover:bg-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#005246]"
+						className="bg-white p-2 rounded-full shadow-md hover:bg-white transition-colors"
 						aria-label="Next"
 					>
 						<ChevronRight size={20} className="text-[#005246]" />
@@ -246,7 +222,7 @@ const ActivityCarousel: React.FC = () => {
 					{activities.map((activity) => (
 						<motion.div
 							key={activity.id}
-							className="relative shrink-0 rounded-xl overflow-hidden cursor-pointer group bg-gray-200 snap-start shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#005246] h-[300px] md:h-[360px] lg:h-[420px]"
+							className="relative shrink-0 rounded-xl overflow-hidden cursor-pointer group bg-gray-200 snap-start shadow-lg h-[300px] md:h-[360px] lg:h-[420px]"
 							style={{ flex: "0 0 calc(25% - 18px)" }}
 							whileHover={{ scale: 1.03 }}
 							transition={{ type: "spring", stiffness: 220 }}
@@ -308,7 +284,7 @@ const ActivityCarousel: React.FC = () => {
 					{activities.map((activity) => (
 						<motion.div
 							key={activity.id}
-							className="relative shrink-0 rounded-xl overflow-hidden cursor-pointer group bg-gray-200 snap-center h-[380px] md:h-[420px]"
+							className="relative shrink-0 rounded-xl overflow-hidden cursor-pointer group bg-gray-200 snap-center h-[420px]"
 							style={{ flex: '0 0 100%' }}
 							whileTap={{ scale: 0.97 }}
 							transition={{ type: "spring", stiffness: 200 }}

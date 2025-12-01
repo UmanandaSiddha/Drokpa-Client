@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { DrokpaLogo, DrokpaWhiteLogo } from "@/assets";
+import Link from "next/link";
 
 export default function Nav() {
     const [scrolled, setScrolled] = useState(false);
@@ -34,10 +35,10 @@ export default function Nav() {
                 </div>
 
                 <nav className={`hidden md:flex gap-8 items-center ${textClass}`}>
-                    <a className="text-base font-medium hover:underline" href="#">Home</a>
-                    <a className="text-base font-medium hover:underline" href="#">Explore</a>
-                    <a className="text-base font-medium hover:underline" href="#">Pricing</a>
-                    <a className="text-base font-medium hover:underline" href="#">About</a>
+                    <Link href={"/"} className="text-base font-medium hover:underline">Home</Link>
+                    <Link href={"/"} className="text-base font-medium hover:underline">Explore</Link>
+                    <Link href={"/"} className="text-base font-medium hover:underline">Pricing</Link>
+                    <Link href={"/"} className="text-base font-medium hover:underline">About</Link>
                 </nav>
 
                 <div className="flex items-center gap-3">
