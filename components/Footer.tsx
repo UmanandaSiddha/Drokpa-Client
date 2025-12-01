@@ -46,7 +46,7 @@ export default function Footer() {
                         <form className="flex gap-2">
                             <label htmlFor="email" className="sr-only">Email</label>
                             <input id="email" type="email" placeholder="your@email.com" className="flex-1 px-3 py-2 rounded-md bg-white/10 placeholder-white/70 text-white outline-none" />
-                            <button type="submit" className="bg-white text-[#044036] px-3 py-2 rounded-md font-semibold">Join</button>
+                            <button type="submit" className="bg-white text-(--brand-green) px-3 py-2 rounded-md font-semibold">Join</button>
                         </form>
 
                         <div className="mt-4 flex items-center gap-3">

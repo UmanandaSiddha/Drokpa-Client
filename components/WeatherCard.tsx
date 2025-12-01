@@ -23,7 +23,7 @@ export default function WeatherCard({ weather }: { weather: Weather }) {
                 </div>
                 <div className="flex flex-col">
                     <div className="text-sm text-gray-500 dark:text-gray-300">{weather.location}</div>
-                    <div className="text-xl md:text-3xl font-bold text-black dark:text-white">{weather.temp}</div>
+                    <div className="text-xl md:text-3xl font-bold text-(--brand-green) dark:text-white">{weather.temp}</div>
                 </div>
 
                 <div className="w-full flex justify-end md:hidden pr-4">

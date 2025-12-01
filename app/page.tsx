@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import WeatherCard from "@/components/WeatherCard";
@@ -8,6 +9,7 @@ import AboutSection from "@/components/AboutSection";
 import ToursSection from "@/components/Tours";
 import ActivityCarousel from "@/components/TouristActivity";
 import DestinationsCarousel from "@/components/Destination";
+import Memories from "@/components/Memories";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -28,30 +30,45 @@ export default function Home() {
 
 	const [title, setTitle] = useState(slides[0].name);
 	const [description, setDescription] = useState(slides[0].description || "");
-	const [isFading, setIsFading] = useState(false);
 
 	return (
 		<main>
-			<Hero slides={slides} onSlideChange={(s) => {
-				if (s.name === title) return;
-				setIsFading(true);
-				setTimeout(() => {
+			<Hero
+				slides={slides}
+				onSlideChange={(s) => {
+					if (s.name === title) return;
 					setTitle(s.name);
 					setDescription(s.description || "");
-					setIsFading(false);
-				}, 350);
-			}}>
+				}}
+			>
 				<Nav />
 
 				<div className="flex-1 flex items-center">
 					<div className="container-wide mx-auto text-white z-10">
 						<div className="max-w-3xl">
-							<h1 className={`text-5xl md:text-[120px] lg:text-[200px] font-semibold leading-tight drop-shadow-lg transition-transform duration-500 ease-in-out ${isFading ? 'opacity-0 -translate-x-6' : 'opacity-100 translate-x-0'}`}>
-								{title}
-							</h1>
-							<p className={`mt-2 italic text-lg md:text-xl text-white/80 transition-transform duration-500 ease-in-out ${isFading ? 'opacity-0 -translate-x-3' : 'opacity-100 translate-x-0'}`}>
-								{description || 'where the first light kisses the mountains and prayers drift with the mist an echo of serenity woven into the heart of the Himalayas'}
-							</p>
+							<AnimatePresence mode="wait">
+								<motion.h1
+										key={title}
+										initial={{ opacity: 0, x: -48 }}
+										animate={{ opacity: 1, x: 0 }}
+										exit={{ opacity: 0, x: 48 }}
+										transition={{ duration: 0.45, ease: "easeInOut" }}
+										className="text-5xl md:text-[96px] lg:text-[140px] font-semibold leading-tight tracking-tight drop-shadow-lg"
+									>
+									{title}
+								</motion.h1>
+
+								<motion.p
+									key={description}
+									initial={{ opacity: 0, x: -24 }}
+									animate={{ opacity: 1, x: 0 }}
+									exit={{ opacity: 0, x: 24 }}
+									transition={{ duration: 0.35, ease: "easeInOut" }}
+									className="mt-3 italic text-base md:text-lg lg:text-xl text-white/80 leading-relaxed max-w-xl"
+								>
+									{description || 'where the first light kisses the mountains and prayers drift with the mist an echo of serenity woven into the heart of the Himalayas'}
+								</motion.p>
+							</AnimatePresence>
 
 							<div className="mt-8 max-w-lg">
 								<div className="flex gap-2 items-center bg-white/10 backdrop-blur rounded-lg p-1">
@@ -59,7 +76,7 @@ export default function Home() {
 										className="flex-1 bg-transparent placeholder-white/80 text-white p-3 rounded-md outline-none"
 										placeholder="Search for a place, city or activity"
 									/>
-									<button className="bg-white text-black px-4 py-2 rounded-md font-semibold">
+									<button className="bg-white text-(--brand-green) px-4 py-2 rounded-md font-semibold">
 										Search
 									</button>
 								</div>
@@ -92,6 +109,8 @@ export default function Home() {
 			<ActivityCarousel />
 
 			<DestinationsCarousel />
+
+			<Memories />
 
 			<Footer />
 

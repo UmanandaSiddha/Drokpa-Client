@@ -2,7 +2,7 @@
 
 export default function AboutSection() {
     return (
-        <section className="py-20 bg-white dark:bg-black overflow-hidden">
+        <section className="py-20 bg-linear-to-b from-white via-emerald-50 to-white dark:bg-black overflow-hidden">
             <div className="container-wide mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-10">
                     {/* Image / visual column */}
@@ -18,7 +18,7 @@ export default function AboutSection() {
 
                             <div className="absolute -left-6 -bottom-6 md:-left-10 md:-bottom-10 bg-linear-to-br from-[#E6F6F0] to-white rounded-full w-24 h-24 md:w-32 md:h-32 opacity-90 shadow-lg pointer-events-none" />
 
-                            <div className="absolute -right-6 -top-6 md:-right-10 md:-top-10 bg-[#005246] text-white rounded-full w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shadow-lg">
+                            <div className="absolute -right-6 -top-6 md:-right-10 md:-top-10 bg-(--brand-green) text-white rounded-full w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shadow-lg">
                                 <div className="text-center">
                                     <div className="text-sm md:text-base font-semibold">Trusted</div>
                                     <div className="text-xs md:text-sm opacity-90">Local Guides</div>
@@ -29,7 +29,7 @@ export default function AboutSection() {
 
                     {/* Content column */}
                     <div className="px-2 md:px-0">
-                        <h4 className="text-sm uppercase tracking-wide text-[#005246] font-semibold">Travel, Simplified</h4>
+                        <h4 className="text-sm uppercase tracking-wide text-(--brand-green) font-semibold">Travel, Simplified</h4>
                         <h2 className="mt-3 text-4xl md:text-6xl font-extrabold leading-tight bg-clip-text text-transparent bg-linear-to-r from-[#0f5132] to-[#2aa66a]">
                             DROKPA
                         </h2>
@@ -41,10 +41,10 @@ export default function AboutSection() {
                         </p>
 
                         <div className="mt-6 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                            <button className="inline-flex items-center gap-2 bg-[#005246] text-white px-5 py-3 rounded-full text-sm shadow-lg hover:bg-[#004536] transition-colors">
+                            <button className="inline-flex items-center gap-2 bg-(--brand-green) text-white px-5 py-3 rounded-full text-sm shadow-lg hover:bg-[#004536] transition-colors">
                                 Book a Trip
                             </button>
-                            <button className="inline-flex items-center gap-2 border border-[#d1e9e0] text-[#005246] bg-white/60 px-4 py-2 rounded-full text-sm hover:bg-white transition-colors">
+                            <button className="inline-flex items-center gap-2 border border-[#d1e9e0] text-(--brand-green) bg-white/60 px-4 py-2 rounded-full text-sm hover:bg-white transition-colors">
                                 Learn More
                             </button>
                         </div>

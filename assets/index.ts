@@ -1,5 +1,6 @@
 export { default as DrokpaLogo } from './drokpa.svg';
 export { default as DrokpaWhiteLogo } from './drokpa_white.svg';
+export { default as DrokpaGreenLogo } from './drokpa_green.svg';
 
 export { default as TemperatureLogo } from './temperature.svg';
 export { default as WindLogo } from './wind.svg';
