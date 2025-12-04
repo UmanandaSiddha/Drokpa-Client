@@ -154,8 +154,6 @@ const ActivityCarousel: React.FC = () => {
 	const handleDesktopScroll = () => updateIndexFromScroll(carouselRefDesktop, false);
 	const handleMobileScroll = () => updateIndexFromScroll(carouselRefMobile, true);
 
-
-
 	const getActiveCarouselRef = () => {
 		if (typeof window === "undefined") return carouselRefDesktop;
 		return window.innerWidth >= 640 ? carouselRefDesktop : carouselRefMobile;
@@ -165,8 +163,6 @@ const ActivityCarousel: React.FC = () => {
 		setWishlistName("");
 		setWishlistModal(false);
 	};
-
-
 
 	return (
 		<section id="activities" className="w-full py-12 lg:py-16 relative overflow-hidden bg-linear-to-b from-white via-[rgba(0,82,70,0.06)] to-white">

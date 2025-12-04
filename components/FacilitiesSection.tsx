@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+
 import { DrokpaGreenLogo } from "@/assets";
 import {
 	Bed,

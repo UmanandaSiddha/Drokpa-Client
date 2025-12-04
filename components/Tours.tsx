@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Star, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -187,7 +187,7 @@ export default function ToursSection() {
                                             <ChevronLeft className="w-6 h-6 text-(--brand-green)" />
                                         </button>
 
-                                            <div className="px-3 text-sm font-semibold text-(--brand-green) dark:text-gray-300">
+                                        <div className="px-3 text-sm font-semibold text-(--brand-green) dark:text-gray-300">
                                             {tours[index].title}
                                         </div>
 

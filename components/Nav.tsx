@@ -41,7 +41,7 @@ export default function Nav() {
                     <Link href={"/"} className="text-base font-medium hover:underline">About</Link>
                 </nav>
 
-               <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
                     <button
                         className={`hidden md:inline-block px-4 py-2 
                         rounded-full border 
@@ -59,7 +59,7 @@ export default function Nav() {
                     >
                         Sign up
                     </button>
-                    </div>
+                </div>
 
             </div>
         </header>

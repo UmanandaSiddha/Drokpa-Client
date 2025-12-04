@@ -23,18 +23,18 @@ export default function WeatherCard({ weather }: { weather: Weather }) {
             shadow-lg 
             w-full 
             sm:mb-12
-            mb-.5
+            mb-0.5
             max-w-2xl 
             p-3 sm:p-4 
-            mx-2 sm:mx-0 
+            mx-0 
             flex flex-col sm:flex-row 
             items-start sm:items-center 
-            gap-4
+            gap-3
         ">
             {/* Left Section */}
             <div className="flex w-full sm:w-auto items-center gap-3 sm:gap-4">
                 <div className="rounded-lg p-1 sm:p-2 shrink-0">
-                    <Image src={TemperatureLogo} alt="temp" width={42} height={42} className="sm:w-[48px] sm:h-[48px]" />
+                    <Image src={TemperatureLogo} alt="temp" width={42} height={42} className="sm:w-12 sm:h-12" />
                 </div>
 
                 <div className="flex flex-col">
@@ -45,14 +45,23 @@ export default function WeatherCard({ weather }: { weather: Weather }) {
                         {weather.temp}
                     </div>
                 </div>
+
+                <div className="w-full sm:w-auto flex justify-end">
+                    <Link
+                        href="/"
+                        className="text-xs sm:text-sm text-gray-500 underline sm:hidden block"
+                    >
+                        View on AccuWeather »
+                    </Link>
+                </div>
             </div>
 
             {/* Divider */}
-            <div className="hidden sm:block self-stretch w-[2px] bg-gray-300 dark:bg-gray-600 rounded-sm mx-2" />
+            <div className="hidden sm:block self-stretch w-0.5 bg-gray-300 dark:bg-gray-600 rounded-sm mx-2" />
 
             {/* Weather Info Grid */}
             <div className="flex-1 w-full">
-                <div className="grid grid-cols-2 gap-3 p-2 sm:p-3">
+                <div className="grid grid-cols-4 md:grid-cols-2 gap-2 p-2 sm:p-3">
 
                     {/* Humidity */}
                     <div className="flex items-center gap-2">
@@ -99,8 +108,8 @@ export default function WeatherCard({ weather }: { weather: Weather }) {
 
             {/* AccuWeather Link (Top-right on larger screens, bottom on mobile) */}
             <div className="w-full sm:w-auto flex justify-end">
-                <Link 
-                    href="/" 
+                <Link
+                    href="/"
                     className="text-xs sm:text-sm text-gray-500 underline hidden sm:block"
                 >
                     View on AccuWeather »
