@@ -52,14 +52,14 @@ const FacilitiesSection = () => {
 				</div>
 
 				{/* DIVIDER WITH LOGO */}
-				<div className="relative w-full my-8 flex items-center justify-center">
-					<div className="w-full border-t border-gray-300"></div>
+				<div className="w-full my-8 flex items-center justify-center">
+					<div className="w-[45%] border-t border-green-800" />
 
-					<div className="absolute inset-0 flex justify-center items-center">
-						<div className="px-4">
-							<Image src={DrokpaGreenLogo} alt="logo" width={44} height={44} />
-						</div>
+					<div className="flex justify-center items-center px-4">
+						<Image src={DrokpaGreenLogo} alt="logo" width={48} height={48} />
 					</div>
+
+					<div className="w-[45%] border-t border-green-800" />
 				</div>
 
 				{/*  FACILITIES GRID */}
