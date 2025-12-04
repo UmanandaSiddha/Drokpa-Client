@@ -11,6 +11,7 @@ import ActivityCarousel from "@/components/TouristActivity";
 import DestinationsCarousel from "@/components/Destination";
 import Memories from "@/components/Memories";
 import Footer from "@/components/Footer";
+import FacilitiesSection from "@/components/FacilitiesSection";
 
 export default function Home() {
 	const weather = {
@@ -48,13 +49,13 @@ export default function Home() {
 						<div className="max-w-3xl">
 							<AnimatePresence mode="wait">
 								<motion.h1
-										key={title}
-										initial={{ opacity: 0, x: -48 }}
-										animate={{ opacity: 1, x: 0 }}
-										exit={{ opacity: 0, x: 48 }}
-										transition={{ duration: 0.45, ease: "easeInOut" }}
-										className="text-5xl md:text-[96px] lg:text-[140px] font-semibold leading-tight tracking-tight drop-shadow-lg"
-									>
+									key={title}
+									initial={{ opacity: 0, x: -48 }}
+									animate={{ opacity: 1, x: 0 }}
+									exit={{ opacity: 0, x: 48 }}
+									transition={{ duration: 0.45, ease: "easeInOut" }}
+									className="text-5xl md:text-[96px] lg:text-[140px] font-semibold leading-tight tracking-tight drop-shadow-lg"
+								>
 									{title}
 								</motion.h1>
 
@@ -85,21 +86,24 @@ export default function Home() {
 					</div>
 				</div>
 
-				<div className="pb-16 z-10 flex justify-start pointer-events-auto">
-					<div className="w-full container-wide">
-						<WeatherCard
-							weather={{
-								location: weather.location,
-								temp: weather.temp,
-								condition: weather.condition,
-								humidity: weather.humidity,
-								wind: "5 kph",
-								rain: "0%",
-								aqi: "73",
-							}}
-						/>
+				<div className="pb-16 z-5 flex pointer-events-auto">
+					<div className="container-wide mx-auto text-white z-10">
+						<div className="max-w-3xl">
+							<WeatherCard
+								weather={{
+									location: weather.location,
+									temp: weather.temp,
+									condition: weather.condition,
+									humidity: weather.humidity,
+									wind: "5 kph",
+									rain: "0%",
+									aqi: "73",
+								}}
+							/>
+						</div>
 					</div>
 				</div>
+
 			</Hero>
 
 			<AboutSection />
@@ -109,6 +113,8 @@ export default function Home() {
 			<ActivityCarousel />
 
 			<DestinationsCarousel />
+
+			<FacilitiesSection />
 
 			<Memories />
 

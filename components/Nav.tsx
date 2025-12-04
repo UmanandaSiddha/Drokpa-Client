@@ -41,12 +41,26 @@ export default function Nav() {
                     <Link href={"/"} className="text-base font-medium hover:underline">About</Link>
                 </nav>
 
-                <div className="flex items-center gap-3">
-                    <button className={`hidden md:inline-block px-4 py-2 rounded-md border ${scrolled ? 'border-(--brand-green)' : 'border-white/30'} ${textClass} bg-transparent hover:opacity-90`}>
+               <div className="flex items-center gap-3">
+                    <button
+                        className={`hidden md:inline-block px-4 py-2 
+                        rounded-full border 
+                        ${scrolled ? 'border-(--brand-green)' : 'border-white/30'} 
+                        ${textClass} bg-transparent hover:opacity-90`}
+                    >
                         Sign in
                     </button>
-                    <button className={signUpClass}>Sign up</button>
-                </div>
+
+                    <button
+                        className={`px-4 py-2 
+                        rounded-full border 
+                        ${scrolled ? 'border-(--brand-green) bg-(--brand-green) text-white' : 'border-white/30 bg-white text-black'} 
+                        hover:opacity-90`}
+                    >
+                        Sign up
+                    </button>
+                    </div>
+
             </div>
         </header>
     );

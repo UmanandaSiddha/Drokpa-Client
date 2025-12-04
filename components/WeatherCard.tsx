@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { TemperatureLogo, HumidityLogo, WindLogo, AirLogo, RainLogo } from "@/assets";
 import Link from "next/link";
+import { TemperatureLogo, HumidityLogo, WindLogo, AirLogo, RainLogo } from "@/assets";
 
 type Weather = {
     location: string;
@@ -16,100 +16,96 @@ type Weather = {
 
 export default function WeatherCard({ weather }: { weather: Weather }) {
     return (
-        <div className="weather-card-card rounded-xl bg-white/95 dark:bg-black/75 shadow-lg w-full max-w-2xl p-2 md:p-4 mx-4 sm:mx-0 flex flex-col md:flex-row items-start md:items-center gap-3">
-            <div className="flex w-full md:w-auto items-center md:items-center gap-2 md:gap-4">
-                <div className="bg-transparent rounded-lg p-1 md:p-2 shrink-0">
-                    <Image src={TemperatureLogo} alt="temp" width={48} height={48} />
+        <div className="
+            weather-card-card 
+            rounded-xl 
+            bg-white/95 dark:bg-black/75 
+            shadow-lg 
+            w-full 
+            sm:mb-12
+            mb-.5
+            max-w-2xl 
+            p-3 sm:p-4 
+            mx-2 sm:mx-0 
+            flex flex-col sm:flex-row 
+            items-start sm:items-center 
+            gap-4
+        ">
+            {/* Left Section */}
+            <div className="flex w-full sm:w-auto items-center gap-3 sm:gap-4">
+                <div className="rounded-lg p-1 sm:p-2 shrink-0">
+                    <Image src={TemperatureLogo} alt="temp" width={42} height={42} className="sm:w-[48px] sm:h-[48px]" />
                 </div>
+
                 <div className="flex flex-col">
-                    <div className="text-sm text-gray-500 dark:text-gray-300">{weather.location}</div>
-                    <div className="text-xl md:text-3xl font-bold text-(--brand-green) dark:text-white">{weather.temp}</div>
-                </div>
-
-                <div className="w-full flex justify-end md:hidden pr-4">
-                    <Link href={"/"} className="text-sm text-gray-500 underline">View on AccuWeather »</Link>
+                    <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-300">
+                        {weather.location}
+                    </div>
+                    <div className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-white">
+                        {weather.temp}
+                    </div>
                 </div>
             </div>
 
-            <div className="hidden md:block self-stretch w-0.5 md:w-[3px] bg-gray-300 dark:bg-gray-600 rounded-sm mx-2" />
+            {/* Divider */}
+            <div className="hidden sm:block self-stretch w-[2px] bg-gray-300 dark:bg-gray-600 rounded-sm mx-2" />
 
+            {/* Weather Info Grid */}
             <div className="flex-1 w-full">
-                <div className="hidden sm:grid grid-cols-2 gap-2 items-stretch">
-                    <div className="flex items-center gap-2 p-1">
-                        <div className="bg-black rounded-md p-1 flex items-center justify-center">
-                            <Image src={HumidityLogo} alt="humidity" width={24} height={24} />
+                <div className="grid grid-cols-2 gap-3 p-2 sm:p-3">
+
+                    {/* Humidity */}
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center bg-[#B5A26D] rounded-lg p-2 w-10 h-10">
+                            <Image src={HumidityLogo} alt="humidity" width={20} height={20} />
                         </div>
-                        <div>
-                            <div className="text-sm text-gray-500">0%</div>
-                            <div className="text-xs text-gray-400">Humidity</div>
-                        </div>
+                        <span className="text-sm sm:text-base font-semibold text-black">
+                            {weather.humidity}
+                        </span>
                     </div>
 
-                    <div className="flex items-center gap-2 p-1">
-                        <div className="bg-black rounded-md p-1 flex items-center justify-center">
-                            <Image src={RainLogo} alt="rain" width={24} height={24} />
+                    {/* Rain */}
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center w-10 h-10 bg-[#B5A26D] rounded-lg">
+                            <Image src={RainLogo} alt="rain" width={20} height={20} />
                         </div>
-                        <div>
-                            <div className="text-sm text-gray-500">0%</div>
-                            <div className="text-xs text-gray-400">Precipitation</div>
-                        </div>
+                        <span className="text-sm sm:text-base font-semibold text-black">
+                            {String(weather.rain).replace("%", "")}%
+                        </span>
                     </div>
 
-                    <div className="flex items-center gap-2 p-1">
-                        <div className="bg-black rounded-md p-1 flex items-center justify-center">
-                            <Image src={WindLogo} alt="wind" width={24} height={24} />
+                    {/* Wind */}
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center w-10 h-10 bg-[#B5A26D] rounded-lg">
+                            <Image src={WindLogo} alt="wind" width={20} height={20} />
                         </div>
-                        <div>
-                            <div className="text-sm text-gray-500">5 kph</div>
-                            <div className="text-xs text-gray-400">Wind</div>
-                        </div>
+                        <span className="text-sm sm:text-base font-semibold text-black">
+                            {String(weather.wind).replace("%", "")}%
+                        </span>
                     </div>
 
-                    <div className="flex items-center gap-2 p-1">
-                        <div className="bg-black rounded-md p-1 flex items-center justify-center">
-                            <Image src={AirLogo} alt="air" width={24} height={24} />
+                    {/* Air Quality */}
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center w-10 h-10 bg-[#B5A26D] rounded-lg">
+                            <Image src={AirLogo} alt="air" width={20} height={20} />
                         </div>
-                        <div>
-                            <div className="text-sm text-gray-500">73</div>
-                            <div className="text-xs text-gray-400">Air quality</div>
-                        </div>
+                        <span className="text-sm sm:text-base font-semibold text-black">
+                            {String(weather.aqi).replace("%", "")} AQI
+                        </span>
                     </div>
-                </div>
 
-                <div className="sm:hidden overflow-x-auto no-scrollbar">
-                    <div className="flex gap-3 items-center px-1">
-                        <div className="flex flex-row items-center gap-2 p-2 min-w-[72px]" title="Humidity">
-                            <div className="bg-black rounded-md p-2 flex items-center justify-center">
-                                <Image src={HumidityLogo} alt="humidity" width={20} height={20} />
-                            </div>
-                            <div className="text-md text-gray-700">0%</div>
-                        </div>
-
-                        <div className="flex flex-row items-center gap-2 p-2 min-w-[72px]" title="Precipitation">
-                            <div className="bg-black rounded-md p-2 flex items-center justify-center">
-                                <Image src={RainLogo} alt="rain" width={20} height={20} />
-                            </div>
-                            <div className="text-md text-gray-700">0%</div>
-                        </div>
-
-                        <div className="flex flex-row items-center gap-2 p-2 min-w-[72px]" title="Wind">
-                            <div className="bg-black rounded-md p-2 flex items-center justify-center">
-                                <Image src={WindLogo} alt="wind" width={20} height={20} />
-                            </div>
-                            <div className="text-md text-gray-700">5 kph</div>
-                        </div>
-
-                        <div className="flex flex-row items-center gap-2 p-2 min-w-[72px]" title="Air quality">
-                            <div className="bg-black rounded-md p-2 flex items-center justify-center">
-                                <Image src={AirLogo} alt="air" width={20} height={20} />
-                            </div>
-                            <div className="text-md text-gray-700">73</div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            <div className="ml-4 text-sm text-gray-500 underline hidden sm:block">View on AccuWeather »</div>
+            {/* AccuWeather Link (Top-right on larger screens, bottom on mobile) */}
+            <div className="w-full sm:w-auto flex justify-end">
+                <Link 
+                    href="/" 
+                    className="text-xs sm:text-sm text-gray-500 underline hidden sm:block"
+                >
+                    View on AccuWeather »
+                </Link>
+            </div>
         </div>
     );
 }

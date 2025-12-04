@@ -31,7 +31,7 @@ const DestinationsCarousel: React.FC = () => {
             image: "https://as2.ftcdn.net/v2/jpg/02/89/78/09/1000_F_289780977_ddR62UNRz65v851cAlWkISM30XpCSjTv.jpg",
             rating: 4.8,
             duration: "3-4 days",
-            price: "₹8,000",
+            price: "₹X,000",
             description: "Experience the spiritual serenity of one of India's largest monasteries",
             highlights: ["Buddhist Culture", "Mountain Views", "Ancient Architecture"]
         },
@@ -42,7 +42,7 @@ const DestinationsCarousel: React.FC = () => {
             image: "https://as2.ftcdn.net/v2/jpg/07/73/26/11/1000_F_773261187_obGCeDXM5AWGCJVs5Ji0CiXNzMzxPgVo.jpg",
             rating: 4.9,
             duration: "2-3 days",
-            price: "₹6,500",
+            price: "₹X,000",
             description: "Journey through breathtaking high-altitude mountain passes",
             highlights: ["Snow Peaks", "Alpine Lakes", "Adventure"]
         },
@@ -53,7 +53,7 @@ const DestinationsCarousel: React.FC = () => {
             image: "https://as1.ftcdn.net/v2/jpg/03/32/30/44/1000_F_332304458_8BEoi8CzerJDKcFXAvQwh6ccPBgjftRd.jpg",
             rating: 4.7,
             duration: "1-2 days",
-            price: "₹4,500",
+            price: "₹X,000",
             description: "Visit the historic Indo-China border with stunning valley views",
             highlights: ["Border Tourism", "Historical Significance", "Scenic Beauty"]
         },
@@ -64,7 +64,7 @@ const DestinationsCarousel: React.FC = () => {
             image: "https://as2.ftcdn.net/v2/jpg/07/38/88/69/1000_F_738886983_YwzBgr7BWErqU5xr3LGaEm7W0aYlYAnn.jpg",
             rating: 4.6,
             duration: "2-3 days",
-            price: "₹7,200",
+            price: "₹X,000",
             description: "Crystal clear alpine lake surrounded by snow-capped mountains",
             highlights: ["Pristine Nature", "Photography", "Tranquility"]
         },
@@ -75,7 +75,7 @@ const DestinationsCarousel: React.FC = () => {
             image: "https://as1.ftcdn.net/v2/jpg/03/31/10/96/1000_F_331109677_ygW0RGH0zNaB2iIrQGrtKXcmqw9nzTOo.jpg",
             rating: 4.5,
             duration: "3-4 days",
-            price: "₹9,000",
+            price: "₹X,000",
             description: "Explore traditional villages and hot springs in scenic valleys",
             highlights: ["Hot Springs", "Local Culture", "Apple Orchards"]
         },
@@ -86,7 +86,7 @@ const DestinationsCarousel: React.FC = () => {
             image: "https://as1.ftcdn.net/v2/jpg/03/05/23/46/1000_F_305234611_W2dYUGyiTeOFgYHTguEZpewbHzHLYTXv.jpg",
             rating: 4.5,
             duration: "1 day",
-            price: "₹1,500",
+            price: "₹X,000",
             description: "Visit the breathtaking Jung Waterfall, surrounded by lush forests and serene landscapes. Perfect for nature lovers and photography enthusiasts.",
             highlights: ["Scenic Waterfall", "Trekking Trails", "Nature Photography"]
         },
@@ -97,7 +97,7 @@ const DestinationsCarousel: React.FC = () => {
             image: "https://as2.ftcdn.net/v2/jpg/17/72/71/37/1000_F_1772713747_RvLidj3YQSkvhumBb6NyKBzMXUWWQXgA.jpg",
             rating: 4.5,
             duration: "1 day",
-            price: "₹1,500",
+            price: "₹X,000",
             description: "Explore the serene Mago area, home to the historic Mago Monastery and surrounded by pristine rivers and lush greenery. Ideal for spiritual seekers and nature lovers alike.",
             highlights: ["Mago Monastery", "Riverside Views", "Nature Walks"]
         }
