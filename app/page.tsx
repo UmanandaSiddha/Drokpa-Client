@@ -11,6 +11,7 @@ import ActivityCarousel from "@/components/TouristActivity";
 import DestinationsCarousel from "@/components/Destination";
 import Memories from "@/components/Memories";
 import Footer from "@/components/Footer";
+import Homestays from "@/components/Homestays";
 
 export default function Home() {
   const weather = {
@@ -156,6 +157,8 @@ export default function Home() {
       <AboutSection />
 
       <ToursSection />
+
+      <Homestays />
 
       <ActivityCarousel />
 
