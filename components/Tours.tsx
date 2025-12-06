@@ -27,50 +27,11 @@ const tours: Tour[] = [
         rating: 4.8,
         highlights: ["Monasteries", "Local Food", "Guided Tours", "WaterFalls", "Lakes", "Snow Views"],
     },
-    {
-        id: 2,
-        title: "Tawang Cultural Circuit",
-        image: "/losar28.webp",
-        duration: "4 days",
-        price: "₹X,X00",
-        blurb: "Monasteries, homestays and curated cultural visits — perfect for first-time visitors. efdasfrds",
-        rating: 4.8,
-        highlights: ["Monasteries", "Local Food", "Guided Tours"],
-    },
-    {
-        id: 3,
-        title: "Sela Pass Sight Seeing",
-        image: "/selaimg.jpg",
-        duration: "3 days",
-        price: "₹X,000",
-        blurb: "A short high-altitude trek to snowy ridgelines — crisp air and big views. dfdds fdsfddas",
-        rating: 4.9,
-        highlights: ["Snow Views", "Short Trek", "Panoramas"],
-    },
-    {
-        id: 4,
-        title: "Dirang Valley Retreat",
-        image: "/sangti2.jpg",
-        duration: "5 days",
-        price: "₹X,000",
-        blurb: "Relaxed valley itinerary with hot springs, orchards and community stays. fsdaf ff sfs fsadfs",
-        rating: 4.7,
-        highlights: ["Hot Springs", "Village Walks", "Apple Orchards"],
-    },
-    {
-        id: 5,
-        title: "Mago Trip",
-        image: "/mago1.jpg",
-        duration: "1 day",
-        price: "₹X,000",
-        blurb: "A focused cultural visit to Mago Monastery with riverside views and short walks. fsdf wrfsdfsgf",
-        rating: 4.6,
-        highlights: ["Monastery", "Scenic Views", "Short Walks"],
-    },
 ];
 
 export default function ToursSection() {
     const [index, setIndex] = useState(0);
+    const hasMultiple = tours.length > 1;
     const ANIM_DUR = 700;
     const AUTOPLAY_MS = 6000;
     const timer = useRef<number | null>(null);
@@ -79,9 +40,10 @@ export default function ToursSection() {
     useEffect(() => {
         startAutoplay();
         return stopAutoplay;
-    }, [index]);
+    }, [index, hasMultiple]);
 
     function startAutoplay() {
+        if (!hasMultiple) return;
         stopAutoplay();
         timer.current = window.setTimeout(() => {
             goTo((index + 1) % tours.length);
@@ -192,7 +154,7 @@ export default function ToursSection() {
                                         </div>
                                     )}
 
-{/* 🔥 Updated Booking section below */}
+                                    {/* 🔥 Updated Booking section below */}
                                     <div className="mt-6 flex items-center gap-4">
                                         <div className="text-2xl font-bold text-(--brand-green)">
                                             {tours[index].price}
@@ -227,7 +189,7 @@ export default function ToursSection() {
                                             </div>
                                         )}
                                     </div>
-{/* 🔥 End updated section */}
+                                    {/* 🔥 End updated section */}
 
                                     <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 max-w-md">
                                         <strong className="text-gray-700 dark:text-gray-200">
@@ -238,11 +200,16 @@ export default function ToursSection() {
 
                                     <div className="mt-4 flex items-center gap-4">
                                         <button
-                                            onClick={() =>
-                                                goTo((index - 1 + tours.length) % tours.length)
-                                            }
+                                            onClick={() => {
+                                                if (!hasMultiple) return;
+                                                goTo((index - 1 + tours.length) % tours.length);
+                                            }}
                                             aria-label="Previous tour"
-                                            className="bg-white/90 p-2 rounded-full shadow hover:scale-105 transition-transform"
+                                            disabled={!hasMultiple}
+                                            className={`p-2 rounded-full shadow transition-transform ${hasMultiple
+                                                    ? "bg-white/90 hover:scale-105"
+                                                    : "bg-gray-200 dark:bg-gray-700 opacity-60 cursor-not-allowed"
+                                                }`}
                                         >
                                             <ChevronLeft className="w-6 h-6 text-(--brand-green)" />
                                         </button>
@@ -252,9 +219,16 @@ export default function ToursSection() {
                                         </div>
 
                                         <button
-                                            onClick={() => goTo((index + 1) % tours.length)}
+                                            onClick={() => {
+                                                if (!hasMultiple) return;
+                                                goTo((index + 1) % tours.length);
+                                            }}
                                             aria-label="Next tour"
-                                            className="bg-white/90 p-2 rounded-full shadow hover:scale-105 transition-transform"
+                                            disabled={!hasMultiple}
+                                            className={`p-2 rounded-full shadow transition-transform ${hasMultiple
+                                                    ? "bg-white/90 hover:scale-105"
+                                                    : "bg-gray-200 dark:bg-gray-700 opacity-60 cursor-not-allowed"
+                                                }`}
                                         >
                                             <ChevronRight className="w-6 h-6 text-(--brand-green)" />
                                         </button>

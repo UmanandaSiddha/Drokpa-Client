@@ -3,10 +3,20 @@
 import Image from "next/image";
 import {
     TemperatureLogo,
-    HumidityLogo,
-    WindLogo,
-    AirLogo,
-    RainLogo,
+    HumidityStatsLogo,
+    WindStatsLogo,
+    AirStatsLogo,
+    RainStatsLogo,
+    SunIconLogo,
+    MoonIconLogo,
+    CloudSunIconLogo,
+    CloudMoonIconLogo,
+    CloudIconLogo,
+    FogIconLogo,
+    RainIconLogo,
+    StormIconLogo,
+    SnowIconLogo,
+    SnowRainIconLogo,
 } from "@/assets";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -27,11 +37,27 @@ interface WeatherData {
             "co": number;
             "us-epa-index": number;
         };
-        condition: { text: string; icon: string };
+        condition: { text: string; code: number; icon: string };
         last_updated: string;
+        is_day: number;
     };
     location: { name: string; region: string; country: string };
 }
+
+const getWeatherIcon = (code: number, isDay: number) => {
+    const day = isDay === 1;
+
+    if (code === 1000) return day ? SunIconLogo : MoonIconLogo;
+    if (code === 1003) return day ? CloudSunIconLogo : CloudMoonIconLogo;
+    if ([1006, 1009].includes(code)) return CloudIconLogo;
+    if ([1030, 1135, 1147].includes(code)) return FogIconLogo;
+    if ([1150, 1153, 1180, 1183, 1186, 1063].includes(code)) return RainIconLogo;
+    if ([1189, 1192, 1195, 1273, 1276].includes(code)) return StormIconLogo;
+    if ([1210, 1213, 1216, 1219, 1114, 1066].includes(code)) return SnowIconLogo;
+    if ([1204, 1207, 1249, 1252].includes(code)) return SnowRainIconLogo;
+
+    return CloudIconLogo;
+};
 
 export default function WeatherCard({ place }: { place: string }) {
     const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -69,7 +95,6 @@ export default function WeatherCard({ place }: { place: string }) {
         </span>
     );
 
-    // 🔴 ERROR UI
     if (error) {
         return (
             <div className="p-4 w-full max-w-2xl text-center bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-xl">
@@ -90,6 +115,10 @@ export default function WeatherCard({ place }: { place: string }) {
         );
     }
 
+    const customIcon = weather && getWeatherIcon(
+        weather?.current.condition.code,
+        weather?.current.is_day
+    );
     const AQI = weather?.current?.air_quality?.["us-epa-index"] ?? "—";
 
     return (
@@ -97,7 +126,7 @@ export default function WeatherCard({ place }: { place: string }) {
 
             <div className="flex w-full sm:w-auto items-center gap-3 sm:gap-4">
                 <div className="rounded-lg p-1 sm:p-2 shrink-0">
-                    <Image src={`https:${weather?.current.condition.icon}` || TemperatureLogo} alt="temp" width={42} height={42} />
+                    <Image src={customIcon || TemperatureLogo} alt="temp" width={42} height={42} />
                 </div>
 
                 <div className="flex flex-col">
@@ -126,10 +155,10 @@ export default function WeatherCard({ place }: { place: string }) {
 
             <div className="flex-1 w-full">
                 <div className="grid grid-cols-4 md:grid-cols-2 gap-2 p-2 sm:p-3">
-                    <WeatherItem icon={HumidityLogo} value={formatValue(`${weather?.current.humidity}%`)} />
-                    <WeatherItem icon={RainLogo} value={formatValue(`${weather?.current.precip_mm}mm`)} />
-                    <WeatherItem icon={WindLogo} value={formatValue(`${weather?.current.wind_kph}km/h`)} />
-                    <WeatherItem icon={AirLogo} value={formatValue(`${AQI} AQI`)} />
+                    <WeatherItem icon={HumidityStatsLogo} value={formatValue(`${weather?.current.humidity}%`)} />
+                    <WeatherItem icon={RainStatsLogo} value={formatValue(`${weather?.current.precip_mm}mm`)} />
+                    <WeatherItem icon={WindStatsLogo} value={formatValue(`${weather?.current.wind_kph}km/h`)} />
+                    <WeatherItem icon={AirStatsLogo} value={formatValue(`${AQI} AQI`)} />
                 </div>
             </div>
 
