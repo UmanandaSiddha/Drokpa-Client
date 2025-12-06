@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   MapPin,
@@ -20,6 +20,8 @@ const Homestays: React.FC = () => {
   const router = useRouter();
   const [selectedLocation, setSelectedLocation] = useState<string>("all");
   const [favorites, setFavorites] = useState<number[]>([]);
+
+  const carouselRefMobile = useRef<HTMLDivElement>(null);
 
   const getAmenityIcon = (amenity: string) => {
     switch (amenity.toLowerCase()) {
@@ -68,52 +70,27 @@ const Homestays: React.FC = () => {
             Stay with local families and experience the warmth of Arunachal
             hospitality
           </p>
-
-          {/* Location Filter */}
-          {/* <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-            {locations.map((location) => (
-              <button
-                key={location.id}
-                onClick={() => setSelectedLocation(location.id)}
-                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${
-                  selectedLocation === location.id
-                    ? "bg-[#005246] text-white shadow-lg scale-105"
-                    : "bg-white text-gray-700 hover:bg-gray-100 shadow-md hover:shadow-lg"
-                }`}
-              >
-                {location.name}
-                <span className="ml-2 text-xs opacity-75">
-                  ({location.count})
-                </span>
-              </button>
-            ))}
-          </div> */}
         </div>
 
-        {/* Homestays Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        {/* Desktop Grid */}
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {filteredHomestays.map((homestay) => (
             <div
               key={homestay.id}
               onClick={() => handleHomestayClick(homestay.id)}
               className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-2 cursor-pointer"
             >
-              {/* Image Container */}
               <div className="relative overflow-hidden">
                 <img
                   src={homestay.image}
                   alt={homestay.name}
                   className="w-full h-48 sm:h-56 object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-
-                {/* Featured Badge */}
                 {homestay.featured && (
                   <div className="absolute top-4 left-4 bg-[#005246] text-white px-3 py-1 rounded-full text-xs font-semibold">
                     Featured
                   </div>
                 )}
-
-                {/* Favorite Button */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -129,17 +106,13 @@ const Homestays: React.FC = () => {
                     }`}
                   />
                 </button>
-
-                {/* Location Badge */}
                 <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
                   {locations.find((loc) => loc.id === homestay.location)?.name}
                 </div>
               </div>
 
-              {/* Content */}
               <div className="p-5 sm:p-6">
-                {/* Header */}
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-[#005246] transition-colors">
                     {homestay.name}
@@ -152,7 +125,6 @@ const Homestays: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Rating */}
                 <div className="flex items-center gap-2 mb-3">
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -165,12 +137,10 @@ const Homestays: React.FC = () => {
                   </span>
                 </div>
 
-                {/* Description */}
                 <p className="text-gray-600 text-sm mb-4 leading-relaxed">
                   {homestay.description}
                 </p>
 
-                {/* Amenities */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   {homestay.amenities.slice(0, 4).map((amenity, index) => (
                     <div
@@ -183,7 +153,6 @@ const Homestays: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Host Info */}
                 <div className="border-t pt-4 mb-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -212,7 +181,6 @@ const Homestays: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Book Button */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -227,12 +195,62 @@ const Homestays: React.FC = () => {
           ))}
         </div>
 
-        {/* Load More Button */}
-        {/* <div className="text-center mt-12">
-          <button className="bg-white text-[#005246] border-2 border-[#005246] font-semibold px-8 py-3 rounded-full hover:bg-[#005246] hover:text-white transition-all duration-300 shadow-md hover:shadow-lg">
-            Load More Homestays
-          </button>
-        </div> */}
+        {/* Mobile Swipeable Carousel */}
+        <div className="md:hidden overflow-x-auto py-4" ref={carouselRefMobile}>
+          <div className="flex gap-4 px-2">
+            {filteredHomestays.map((homestay) => (
+              <div
+                key={homestay.id}
+                onClick={() => handleHomestayClick(homestay.id)}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden min-w-[70%] sm:min-w-[60%] cursor-pointer flex-shrink-0"
+              >
+                <div className="relative">
+                  <img
+                    src={homestay.image}
+                    alt={homestay.name}
+                    className="w-full h-40 sm:h-44 object-cover"
+                  />
+                  {homestay.featured && (
+                    <div className="absolute top-2 left-2 bg-[#005246] text-white px-2 py-1 rounded-full text-xs font-semibold">
+                      Featured
+                    </div>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(homestay.id);
+                    }}
+                    className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1"
+                  >
+                    <Heart
+                      className={`w-4 h-4 ${
+                        favorites.includes(homestay.id)
+                          ? "fill-red-500 text-red-500"
+                          : "text-gray-600"
+                      }`}
+                    />
+                  </button>
+                  <div className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white px-2 py-0.5 rounded-full text-xs flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    {locations.find((loc) => loc.id === homestay.location)?.name}
+                  </div>
+                </div>
+                <div className="p-3">
+                  <h3 className="text-sm font-bold text-gray-900 mb-1">
+                    {homestay.name}
+                  </h3>
+                  <div className="text-xs text-[#005246] font-semibold mb-1">
+                    {homestay.price} / night
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
+                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    {homestay.rating} ({homestay.reviews})
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

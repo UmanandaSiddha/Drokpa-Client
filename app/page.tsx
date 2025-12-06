@@ -13,6 +13,7 @@ import Memories from "@/components/Memories";
 import Footer from "@/components/Footer";
 import FacilitiesSection from "@/components/FacilitiesSection";
 import Homestays from "@/components/Homestays";
+import HomestaysList from "@/components/HomestayList";
 
 const slides = [
   {

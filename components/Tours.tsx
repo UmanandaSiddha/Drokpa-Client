@@ -17,9 +17,12 @@ type Tour = {
 };
 
 const tours: Tour[] = [
-    {
+
+    
+
+      {
         id: 1,
-        title: "Tawang Cultural Circuit",
+        title: "Drokpa Expedation ",
         image: "/losar28.webp",
         duration: "4 days",
         price: "₹X,X00",
@@ -29,6 +32,16 @@ const tours: Tour[] = [
     },
     {
         id: 2,
+        title: "Tawang Cultural Circuit",
+        image: "/losar28.webp",
+        duration: "4 days",
+        price: "₹X,X00",
+        blurb: "Monasteries, homestays and curated cultural visits — perfect for first-time visitors. efdasfrds",
+        rating: 4.8,
+        highlights: ["Monasteries", "Local Food", "Guided Tours"],
+    },
+    {
+        id: 3,
         title: "Sela Pass Sight Seeing ",
         image: "/selaimg.jpg",
         duration: "3 days",
@@ -38,7 +51,7 @@ const tours: Tour[] = [
         highlights: ["Snow Views", "Short Trek", "Panoramas"],
     },
     {
-        id: 3,
+        id: 4,
         title: "Dirang Valley Retreat",
         image: "/sangti2.jpg",
         duration: "5 days",
@@ -48,7 +61,7 @@ const tours: Tour[] = [
         highlights: ["Hot Springs", "Village Walks", "Apple Orchards"],
     },
     {
-        id: 4,
+        id: 5,
         title: "Mago Trip",
         image: "/mago1.jpg",
         duration: "1 day",
@@ -165,9 +178,12 @@ export default function ToursSection() {
                                     <div className="mt-6 flex items-center gap-4">
                                         <div className="text-2xl font-bold text-(--brand-green)">{tours[index].price}</div>
                                         <div className="flex items-center gap-2">
-                                            <Link href={"/"}>
-                                                <p className="inline-flex items-center gap-2 bg-(--brand-green) text-white px-4 py-2 rounded-full text-sm hover:bg-[#044036] transition-colors shadow">Book now</p>
+                                            <Link href={`/tours/${tours[index].id}`}>
+                                                <p className="inline-flex items-center gap-2 bg-(--brand-green) text-white px-4 py-2 rounded-full text-sm hover:bg-[#044036] transition-colors shadow">
+                                                    Book now
+                                                </p>
                                             </Link>
+
                                             <Link href={"/"}>
                                                 <p className="text-sm text-gray-600 dark:text-gray-300 hover:underline">Details</p>
                                             </Link>

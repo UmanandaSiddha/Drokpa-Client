@@ -25,18 +25,16 @@ export default function Hero({ children, slides, intervalMs = 8000, onSlideChang
     // const [showBanner, setShowBanner] = useState(true);
     // const [bannerVisible, setBannerVisible] = useState(true);
 
-    // 🔔 Call slide change on mount
+
     useEffect(() => {
         onSlideChange?.(slidesList[index], index);
     }, []);
 
-    // 🔄 Auto Slide Change
     useEffect(() => {
         const t = setInterval(() => setIndex((i) => (i + 1) % slidesList.length), intervalMs);
         return () => clearInterval(t);
     }, [slidesList.length, intervalMs]);
 
-    // 🔔 Notify on each slide change
     useEffect(() => {
         onSlideChange?.(slidesList[index], index);
     }, [index]);
@@ -63,9 +61,8 @@ export default function Hero({ children, slides, intervalMs = 8000, onSlideChang
                     key={i}
                     aria-hidden
                     style={{ backgroundImage: `url(${s.image})` }}
-                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
-                        i === index ? "opacity-100 z-0" : "opacity-0 -z-10"
-                    }`}
+                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${i === index ? "opacity-100 z-0" : "opacity-0 -z-10"
+                        }`}
                 />
             ))}
 
@@ -77,6 +74,8 @@ export default function Hero({ children, slides, intervalMs = 8000, onSlideChang
                 {children}
             </div>
 
+
+            {/* BOTTOM RIGHT BANNER */}
             {/* {showBanner && bannerVisible && (
                 <div
                     className="hidden lg:flex flex-col w-80 bg-white/95 backdrop-blur-xl text-gray-900 
