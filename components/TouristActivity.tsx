@@ -17,67 +17,54 @@ const activities: Activity[] = [
   {
     id: 1,
     title: "Monastery Walk",
-    image:
-      "https://images.unsplash.com/photo-1605904583059-7880dad25595?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    image: "/monsatry walk.jpg",
     shortInfo: "Explore sacred monasteries.",
-    details:
-      "Experience the peaceful aura of ancient monasteries, interact with monks, and learn about Buddhist philosophy.",
+    details: "Experience the peaceful aura of ancient monasteries, interact with monks, and learn about Buddhist philosophy.",
   },
   {
     id: 2,
     title: "Mountain Trek",
-    image:
-      "https://plus.unsplash.com/premium_photo-1677002259522-111b3e74786f?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    image: "/the mago treak .jpg",
     shortInfo: "Explore scenic trails.",
-    details:
-      "Journey through breathtaking landscapes, lush forests, and serene mountain paths, perfect for nature lovers.",
+    details: "Journey through breathtaking landscapes, lush forests, and serene mountain paths, perfect for nature lovers.",
   },
   {
     id: 3,
     title: "Traditional Paper Making",
-    image:
-      "https://images.unsplash.com/photo-1719563014708-85b38508ee52?q=80&w=1165&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    image: "/papermaking.png",
     shortInfo: "Witness local traditions.",
-    details:
-      "Watch artisans craft handmade paper using ancient techniques passed down through generations.",
+    details: "Watch artisans craft handmade paper using ancient techniques passed down through generations.",
   },
   {
     id: 4,
     title: "Cultural Program",
-    image:
-      "https://images.unsplash.com/photo-1584137283390-2284026dc0e0?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    image: "/snow lion dance.jpeg",
     shortInfo: "Celebrate culture and tradition.",
-    details:
-      "Enjoy vibrant performances that bring local folklore and traditional costumes to life.",
+    details: "Enjoy vibrant performances that bring local folklore and traditional costumes to life.",
   },
   {
     id: 5,
     title: "The Mago Trek",
-    image:
-      "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    image: "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0",
     shortInfo: "Soar above the landscapes.",
-    details:
-      "Take in panoramic views from above during a peaceful sunrise hot air balloon ride.",
+    details: "Take in panoramic views from above during a peaceful sunrise hot air balloon ride.",
   },
   {
     id: 6,
     title: "Photowalk Through Village",
-    image:
-      "https://images.unsplash.com/photo-1745389501846-847843861794?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    shortInfo: "Peaceful and Heart Soothing Villages.",
-    details:
-      "Navigate exciting Villages and Explore the Things You have never seen.",
+    image: "/village walks.webp",
+    shortInfo: "Peaceful and heart-soothing villages.",
+    details: "Navigate exciting villages and explore things you have never seen.",
   },
   {
     id: 7,
     title: "Local Market Tour",
-    image:
-      "https://images.unsplash.com/photo-1728819748487-817bf96f4dba?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    shortInfo: "Taste /Dress and shop Local.",
-    details:
-      "Explore bustling markets filled with handicrafts, spices, and delicious street local food.",
+    image: "https://images.unsplash.com/photo-1728819748487-817bf96f4dba?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0",
+    shortInfo: "Taste, dress, and shop local.",
+    details: "Explore bustling markets filled with handicrafts, spices, and delicious street local food.",
   },
 ];
+
 
 const ActivityCarousel: React.FC = () => {
   const router = useRouter();
@@ -113,7 +100,6 @@ const ActivityCarousel: React.FC = () => {
         left: cardWidth + 24,
         behavior: "smooth",
       });
-      // update index when programmatically scrolling
       setCurrentIndex((i) => (i + 1) % activities.length);
     }
   };
@@ -123,12 +109,10 @@ const ActivityCarousel: React.FC = () => {
     setWishlistModal(true);
   };
 
-  // autoplay logic: scroll every interval unless paused or disabled by manual interaction
   useEffect(() => {
     const intervalMs = 4500;
     if (!isPaused && isAutoplayEnabled) {
       autoplayTimer.current = setInterval(() => {
-        // try desktop first, fallback to mobile
         if (carouselRefDesktop.current) scrollRight(carouselRefDesktop);
         else if (carouselRefMobile.current) scrollRight(carouselRefMobile);
       }, intervalMs);
@@ -142,7 +126,6 @@ const ActivityCarousel: React.FC = () => {
     };
   }, [isPaused, isAutoplayEnabled]);
 
-  // update currentIndex based on scroll position (desktop)
   const updateIndexFromScroll = (
     ref: React.RefObject<HTMLDivElement | null>,
     isMobile = false
@@ -156,17 +139,15 @@ const ActivityCarousel: React.FC = () => {
     } else {
       const first = el.firstElementChild as HTMLElement | null;
       const cardWidth = first?.clientWidth ?? 0;
-      const gap = 24; // matches gap-6
+      const gap = 24;
       const step = cardWidth + gap;
       const idx = Math.round(scrollLeftPos / (step || 1));
       setCurrentIndex(Math.min(Math.max(idx, 0), activities.length - 1));
     }
   };
 
-  const handleDesktopScroll = () =>
-    updateIndexFromScroll(carouselRefDesktop, false);
-  const handleMobileScroll = () =>
-    updateIndexFromScroll(carouselRefMobile, true);
+  const handleDesktopScroll = () => updateIndexFromScroll(carouselRefDesktop, false);
+  const handleMobileScroll = () => updateIndexFromScroll(carouselRefMobile, true);
 
   const getActiveCarouselRef = () => {
     if (typeof window === "undefined") return carouselRefDesktop;
@@ -181,7 +162,7 @@ const ActivityCarousel: React.FC = () => {
   return (
     <section
       id="activities"
-      className="w-full py-12 lg:py-16 relative overflow-hidden bg-linear-to-b from-white via-[rgba(0,82,70,0.06)] to-white"
+      className="w-full py-12 lg:py-16 relative overflow-hidden bg-white"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
         <div className="flex items-center justify-between mb-4">
@@ -189,7 +170,6 @@ const ActivityCarousel: React.FC = () => {
             Tourist Activities
           </h1>
 
-          {/* Nav buttons moved next to title (visible on all sizes) */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
@@ -217,13 +197,11 @@ const ActivityCarousel: React.FC = () => {
           </div>
         </div>
 
-        {/* Desktop / Tablet Carousel */}
+        {/* Desktop Carousel */}
         <div
-          className="hidden sm:block relative items-center"
+          className="hidden sm:block relative"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
-          onFocus={() => setIsPaused(true)}
-          onBlur={() => setIsPaused(false)}
         >
           <div
             ref={carouselRefDesktop}
@@ -234,45 +212,45 @@ const ActivityCarousel: React.FC = () => {
             {activities.map((activity) => (
               <motion.div
                 key={activity.id}
-                onClick={() => router.push("/activities/1")}
-                className="relative shrink-0 rounded-xl overflow-hidden cursor-pointer group bg-gray-200 snap-start shadow-lg h-[300px] md:h-[360px] lg:h-[420px]"
+                className="relative shrink-0 rounded-xl overflow-hidden cursor-pointer group snap-start shadow-lg h-[300px] md:h-[360px] lg:h-[420px]"
                 style={{ flex: "0 0 calc(25% - 18px)" }}
                 whileHover={{ scale: 1.03 }}
                 transition={{ type: "spring", stiffness: 220 }}
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setActiveCardId((prev) =>
-                      prev === activity.id ? null : activity.id
-                    );
-                  }
-                }}
               >
+                {/* Background Image */}
                 <img
                   src={activity.image}
                   alt={activity.title}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 focus-within:scale-110"
+                  className="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:blur-sm"
                   loading="lazy"
                 />
 
+                {/* Hover Overlay */}
                 <motion.div
-                  className="absolute inset-0 bg-linear-to-t from-black/70 to-transparent flex flex-col items-center justify-end text-center px-4 pb-6"
+                  className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   initial={{ opacity: 0 }}
                   whileHover={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
                 >
-                  <h3 className="text-lg font-bold text-white mb-2">
+                  <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2">
                     {activity.title}
                   </h3>
-                  <p className="text-sm text-white mb-2">
-                    {activity.shortInfo}
+                  <p className="text-sm md:text-base text-white mb-4 max-w-[200px]">
+                    {activity.details}
                   </p>
-                  <p className="text-xs text-white">{activity.details}</p>
+                  <button
+                    onClick={() => router.push(`/activities/${activity.id}`)}
+                    className="mt-2 px-4 py-2 bg-(--brand-green) text-white rounded-full hover:bg-[#004536] transition-colors"
+                  >
+                    Details
+                  </button>
                 </motion.div>
 
+                {/* Wishlist Button */}
                 <button
-                  onClick={() => openWishlistModal(activity)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openWishlistModal(activity);
+                  }}
                   className="absolute top-3 right-3 bg-white/80 p-2 rounded-full shadow hover:bg-white"
                   aria-label={`Add ${activity.title} to wishlist`}
                 >
@@ -284,73 +262,36 @@ const ActivityCarousel: React.FC = () => {
         </div>
 
         {/* Mobile Carousel */}
-        <div className="flex sm:hidden relative items-center ">
+        <div className="flex sm:hidden relative">
           <div
             ref={carouselRefMobile}
             onTouchStart={() => {
               setIsPaused(true);
-              // stop autoplay permanently on any manual interaction
               setIsAutoplayEnabled(false);
             }}
             onTouchEnd={() => setIsPaused(false)}
             onScroll={handleMobileScroll}
-            className="flex overflow-x-auto gap-6 px-4 sm:px-4 py-8 flex-1 scrollbar-hide touch-pan-x snap-x snap-mandatory"
+            className="flex overflow-x-auto gap-6 px-4 py-8 flex-1 scrollbar-hide touch-pan-x snap-x snap-mandatory"
           >
             {activities.map((activity) => (
               <motion.div
                 key={activity.id}
-                className="relative shrink-0 rounded-xl overflow-hidden cursor-pointer group bg-gray-200 snap-center h-[420px]"
+                className="relative shrink-0 rounded-xl overflow-hidden cursor-pointer group snap-center h-[420px]"
                 style={{ flex: "0 0 100%" }}
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 200 }}
-                onClick={() => {
-                  router.push("/activities/1");
-                  setActiveCardId((prev) =>
-                    prev === activity.id ? null : activity.id
-                  );
-                }}
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setActiveCardId((prev) =>
-                      prev === activity.id ? null : activity.id
-                    );
-                  }
-                }}
+                onClick={() => router.push(`/activities/${activity.id}`)}
               >
                 <img
                   src={activity.image}
                   alt={activity.title}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 focus-within:scale-110"
+                  className="absolute inset-0 w-full h-full object-cover"
                   loading="lazy"
                 />
-
-                {/* Description overlay */}
-                <motion.div
-                  className="absolute inset-0 bg-linear-to-t from-black/70 to-transparent flex flex-col items-center justify-end text-center px-3 pb-6"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: activeCardId === activity.id ? 1 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <h3 className="text-base font-bold text-white mb-1">
-                    {activity.title}
-                  </h3>
-                  <p className="text-sm text-white mb-1">
-                    {activity.shortInfo}
-                  </p>
-                  <p className="text-xs text-white">{activity.details}</p>
-                </motion.div>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openWishlistModal(activity);
-                  }}
-                  className="absolute top-2 right-2 bg-white/80 p-2 rounded-full shadow hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-(--brand-green)"
-                >
-                  <Heart className="text-(--brand-green)" size={18} />
-                </button>
+                <div className="absolute bottom-4 left-4 bg-black/50 p-3 rounded-lg text-white">
+                  <h3 className="font-bold">{activity.title}</h3>
+                  <p className="text-xs">{activity.shortInfo}</p>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -376,9 +317,7 @@ const ActivityCarousel: React.FC = () => {
                 </h2>
                 <p className="text-gray-600 mb-2">
                   Activity:{" "}
-                  <span className="font-semibold">
-                    {selectedActivity?.title}
-                  </span>
+                  <span className="font-semibold">{selectedActivity?.title}</span>
                 </p>
                 <input
                   type="text"

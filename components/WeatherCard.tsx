@@ -104,7 +104,7 @@ export default function WeatherCard({ place }: { place: string }) {
                     <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-300">
                         {weather?.location?.name}
                     </div>
-                    <div className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-white">
+                    <div className="text-2xl sm:text-3xl font-bold text-black dark:text-white">
                         {weather?.current?.temp_c}
                         <span className="hidden sm:inline">°C</span>
                     </div>
