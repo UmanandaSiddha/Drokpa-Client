@@ -20,14 +20,14 @@ import Image from "next/image";
 
 const tourData = {
     id: 1,
-    title: "Tawang Cultural Circuit",
+    title: "Drokpa Expedation ",
     subtitle: "Explore the Spiritual Heart of Arunachal Pradesh",
     duration: "4 Days / 3 Nights",
     location: "Tawang, Arunachal Pradesh",
-    price: "₹12,500",
+    price: "₹6,800",
     rating: 4.8,
     reviews: 156,
-    groupSize: "4-12 people",
+    groupSize: "10 people",
     images: [
         "/losar28.webp",
         "/selaimg.jpg",
@@ -42,50 +42,86 @@ const tourData = {
         "Local artisan workshops",
         "Guided heritage walks"
     ],
+
     itinerary: [
         {
             day: 1,
-            title: "Arrival & Orientation",
-            description: "Arrive at Tezpur. Drive to Bomdila (approx 5 hours). Check-in to hotel. Evening orientation session and welcome dinner with local cuisine.",
-            activities: ["Airport pickup", "Hotel check-in", "Orientation session", "Welcome dinner"],
-            meals: ["Dinner"]
+            title: "Tezpur → Dirang | Sangti Valley & Dirang Monastery",
+            description: [
+                "Departure from Tezpur ",
+                "Arrival at Dirang homestay",
+                "Visit to Sangti Valley",
+                "Visit to Dirang Monastery",
+                "Return to Dirang homestay"
+            ],
+            activities: [
+                "Road trip from Tezpur",
+                "Sangti Valley visit",
+                "Dirang Monastery exploration",
+                "Local homestay stay"
+            ],
+            meals: ["Breakfast"]
         },
         {
             day: 2,
-            title: "Bomdila to Tawang",
-            description: "Early morning departure to Tawang via Sela Pass (13,700 ft). Stop at Sela Lake for photography. Arrive Tawang by evening. Visit local market.",
-            activities: ["Sela Pass visit", "Sela Lake photography", "Drive to Tawang", "Market exploration"],
-            meals: ["Breakfast", "Lunch", "Dinner"]
+            title: "Dirang → Tawang | Sela Pass & Nuranang Waterfalls",
+            description: [
+                "Departure from Dirang homestay",
+                "Stop at Sela Pass for sightseeing",
+                "Visit to Jang (Nuranang) Waterfalls",
+                "Arrival at Tawang homestay"
+            ],
+            activities: [
+                "Sela Pass viewpoint",
+                "Photography at Sela Lake",
+                "Nuranang Waterfall",
+                "Settle in at Tawang"
+            ],
+            meals: ["Breakfast"]
         },
         {
             day: 3,
-            title: "Tawang Monastery & Culture",
-            description: "Full day exploring Tawang Monastery, meeting with monks, attending prayer sessions. Visit local artisan workshops. Evening cultural show.",
-            activities: ["Monastery tour", "Prayer session", "Artisan workshop", "Cultural show"],
-            meals: ["Breakfast", "Lunch", "Dinner"]
+            title: "Tawang Local Sightseeing",
+            description: [
+                "Visit Tawang Monastery",
+                "Visit War Memorial",
+                "Visit Buddha Park",
+                "Explore Tawang Market"
+            ],
+            activities: [
+                "Monastery visit",
+                "War Memorial",
+                "Buddha Park",
+                "Shopping & culture walk"
+            ],
+            meals: ["Breakfast"]
         },
         {
             day: 4,
-            title: "Departure",
-            description: "Morning at leisure for shopping or optional activities. Check-out and drive to Tezpur. Drop at airport for onward journey.",
-            activities: ["Free time", "Shopping", "Check-out", "Airport drop"],
+            title: "Return to Tezpur",
+            description: [
+                "Return road trip from Tawang to Tezpur"
+            ],
+            activities: [
+                "Scenic drive back to Tezpur"
+            ],
             meals: ["Breakfast"]
         }
     ],
+
     included: [
-        "Accommodation in 3-star hotels",
-        "All meals as per itinerary",
-        "Private vehicle for transfers",
-        "English-speaking guide",
-        "All entry fees and permits",
-        "Travel insurance"
+        "Accommodation in best homestays",
+        "Breakfast provided daily",
+        "Comfortable vehicle for all travel",
+        "Entry fees & Inner Line Permit included"
     ],
+
     excluded: [
-        "Airfare to/from Tezpur",
+        "Lunch & Dinner",
         "Personal expenses",
-        "Tips and gratuities",
-        "Additional activities not mentioned"
+        "Tips and additional activities not mentioned"
     ]
+
 };
 
 export default function TourBookingPage() {
@@ -130,15 +166,7 @@ export default function TourBookingPage() {
             {/* Hero Section with Image Gallery */}
             <section className="relative w-full bg-linear-to-b from-[rgba(0,82,70,0.08)] to-transparent">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-                    {/* Back Button */}
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-2 text-(--brand-green) hover:underline mb-6 group"
-                    >
-                        <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        Back to Tours
-                    </Link>
-
+                  
                     <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
                         {/* Image Gallery */}
                         <div className="space-y-4">
@@ -329,7 +357,7 @@ export default function TourBookingPage() {
                                             Number of Travelers
                                         </label>
                                         <div className="flex gap-2 flex-wrap">
-                                            {[1, 2, 3, 4, 5, 6].map(num => (
+                                            {[1, 2, 3, 4, 5, 6 ,7 ,8 ,9].map(num => (
                                                 <button
                                                     key={num}
                                                     type="button"

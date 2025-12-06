@@ -202,7 +202,7 @@ const Homestays: React.FC = () => {
               <div
                 key={homestay.id}
                 onClick={() => handleHomestayClick(homestay.id)}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden min-w-[70%] sm:min-w-[60%] cursor-pointer flex-shrink-0"
+                className="bg-white rounded-2xl shadow-lg overflow-hidden min-w-[70%] sm:min-w-[60%] cursor-pointer shrink-0"
               >
                 <div className="relative">
                   <img
