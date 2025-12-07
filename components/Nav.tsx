@@ -29,7 +29,7 @@ export default function Nav() {
         <header
             className={`w-full top-0 left-0 z-30 transition-all duration-300 ${navBgClass}`}
         >
-            <div className="container-wide mx-auto flex items-center justify-between py-4 px-4 md:px-0">
+            <div className="max-w-7xl mx-auto flex items-center justify-between py-4 px-4 sm:px-6 lg:px-8">
 
                 <div className="flex items-center gap-3">
                     <Image
@@ -37,6 +37,7 @@ export default function Nav() {
                         alt="logo"
                         width={44}
                         height={44}
+                        style={{ height: "auto" }}
                     />
                     <span className={`${textClass} font-bold text-xl`}>Drokpa</span>
                 </div>
@@ -123,6 +124,7 @@ export default function Nav() {
                                         alt="logo"
                                         width={40}
                                         height={40}
+                                        style={{ height: "auto" }}
                                     />
                                     <span className="text-(--brand-green) font-bold text-xl">Drokpa</span>
                                 </div>

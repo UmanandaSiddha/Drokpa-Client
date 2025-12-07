@@ -57,28 +57,22 @@ export default function Home() {
 					<div className="container-wide mx-auto text-white z-10">
 						<div className="max-w-3xl">
 							<AnimatePresence mode="wait">
-								<motion.h1
+								<motion.div
 									key={title}
 									initial={{ opacity: 0, x: -48 }}
 									animate={{ opacity: 1, x: 0 }}
 									exit={{ opacity: 0, x: 48 }}
 									transition={{ duration: 0.45, ease: "easeInOut" }}
-									className="text-5xl md:text-[96px] lg:text-[140px] font-semibold leading-tight tracking-tight drop-shadow-lg"
 								>
-									{title}
-								</motion.h1>
+									<h1 className="text-5xl md:text-[96px] lg:text-[140px] font-semibold leading-tight tracking-tight drop-shadow-lg">
+										{title}
+									</h1>
 
-								<motion.p
-									key={description}
-									initial={{ opacity: 0, x: -24 }}
-									animate={{ opacity: 1, x: 0 }}
-									exit={{ opacity: 0, x: 24 }}
-									transition={{ duration: 0.35, ease: "easeInOut" }}
-									className="mt-3 italic text-base md:text-lg lg:text-xl text-white/80 leading-relaxed max-w-xl"
-								>
-									{description ||
-										"where the first light kisses the mountains and prayers drift with the mist an echo of serenity woven into the heart of the Himalayas"}
-								</motion.p>
+									<p className="mt-3 italic text-base md:text-lg lg:text-xl text-white/80 leading-relaxed max-w-xl">
+										{description ||
+											"where the first light kisses the mountains and prayers drift with the mist an echo of serenity woven into the heart of the Himalayas"}
+									</p>
+								</motion.div>
 							</AnimatePresence>
 
 							<div className="mt-8 max-w-lg">
