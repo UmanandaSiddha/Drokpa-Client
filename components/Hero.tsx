@@ -24,7 +24,6 @@ export default function Hero({ children, slides, intervalMs = 8000, onSlideChang
     const [index, setIndex] = useState(0);
     // const [showBanner, setShowBanner] = useState(true);
     // const [bannerVisible, setBannerVisible] = useState(true);
-console.log("Current Slide :", slidesList[index]);
 
     useEffect(() => {
         onSlideChange?.(slidesList[index], index);

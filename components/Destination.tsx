@@ -106,7 +106,7 @@ const DestinationsCarousel: React.FC = () => {
             id: 8,
             name: "Shergaon ",
             location: "West Kameng, Arunachal Pradesh",
-            image: "/Shergoan.jpeg",
+            image: "/Shergaon.jpg",
             rating: 4.5,
             duration: "1 day",
             price: "₹X,000",
