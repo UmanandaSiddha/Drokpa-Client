@@ -42,7 +42,7 @@ export default function Home() {
   const [description, setDescription] = useState(slides[0].description || "");
 
   return (
-    <main>
+    <main className="data-scroll-container">
       <Hero
         slides={slides}
         onSlideChange={(s) => {
@@ -105,9 +105,13 @@ export default function Home() {
         </div>
       </Hero>
 
-      <AboutSection />
+      <section className="data-scroll-section m-32">
+        <AboutSection />
+      </section>
 
-      <ToursSection />
+      <section className="data-scroll-section">
+        <ToursSection />
+      </section>
 
       <ActivityCarousel />
 
