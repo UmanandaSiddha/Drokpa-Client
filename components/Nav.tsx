@@ -11,19 +11,19 @@ export default function Nav() {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
 
-    useEffect(() => {
-        const onScroll = () => {
-            setScrolled(window.scrollY > 30);
-        };
-        onScroll();
-        window.addEventListener("scroll", onScroll);
-        return () => window.removeEventListener("scroll", onScroll);
-    }, []);
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 30);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-    const textClass = scrolled ? "text-(--brand-green)" : "text-white";
-    const navBgClass = scrolled
-        ? "fixed bg-white/95 dark:bg-black/95 shadow-md backdrop-blur"
-        : "absolute bg-transparent";
+  const textClass = scrolled ? "text-(--brand-green)" : "text-white";
+  const navBgClass = scrolled
+    ? "fixed bg-white/95 dark:bg-black/95 shadow-md backdrop-blur"
+    : "absolute bg-transparent";
 
     return (
         <header
