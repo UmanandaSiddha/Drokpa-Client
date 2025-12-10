@@ -16,8 +16,8 @@ export default function Hero({ children, slides, intervalMs = 8000, onSlideChang
         { name: 'TAWANG', image: 'https://images.unsplash.com/photo-1648963799017-e007d04df934?q=80&w=1170&auto=format&fit=crop', description: 'High alpine valleys, monasteries and rugged snowy ridgelines.' },
         { name: 'BOMDILA', image: 'https://images.unsplash.com/photo-1639134956623-0d094b12b0dc?q=80&w=1170&auto=format&fit=crop', description: 'Terraced hills and snow-dusted peaks with rich cultural trails.' },
         { name: 'DIRANG', image: 'https://images.unsplash.com/photo-1668437824006-1be44600774b?q=80&w=1170&auto=format&fit=crop', description: 'River valleys framed by pine forests and snowy summits.' },
-        { name: 'DZOUKO', image: 'https://images.unsplash.com/photo-1648963798678-a921079b98b9?q=80&w=1202&auto=format&fit=crop', description: 'Famous high-altitude meadows and cold-weather blooms beneath peaks.' },
-        { name: 'TUMJUNG', image: 'https://images.unsplash.com/photo-1672399447224-b63b8f67b44d?q=80&w=1332&auto=format&fit=crop', description: 'Remote snowy passes and wide panoramas for quiet hikes.' },
+        { name: "Shergaon", image: "/Shergoan.jpeg", description: "Known for its apple orchards, warm people, and stunning mountain scenery." },
+        
     ];
 
     const slidesList = slides && slides.length > 0 ? slides : defaults;
@@ -25,18 +25,15 @@ export default function Hero({ children, slides, intervalMs = 8000, onSlideChang
     // const [showBanner, setShowBanner] = useState(true);
     // const [bannerVisible, setBannerVisible] = useState(true);
 
-    // 🔔 Call slide change on mount
     useEffect(() => {
         onSlideChange?.(slidesList[index], index);
     }, []);
 
-    // 🔄 Auto Slide Change
     useEffect(() => {
         const t = setInterval(() => setIndex((i) => (i + 1) % slidesList.length), intervalMs);
         return () => clearInterval(t);
     }, [slidesList.length, intervalMs]);
 
-    // 🔔 Notify on each slide change
     useEffect(() => {
         onSlideChange?.(slidesList[index], index);
     }, [index]);
@@ -63,9 +60,8 @@ export default function Hero({ children, slides, intervalMs = 8000, onSlideChang
                     key={i}
                     aria-hidden
                     style={{ backgroundImage: `url(${s.image})` }}
-                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
-                        i === index ? "opacity-100 z-0" : "opacity-0 -z-10"
-                    }`}
+                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${i === index ? "opacity-100 z-0" : "opacity-0 -z-10"
+                        }`}
                 />
             ))}
 
@@ -77,6 +73,8 @@ export default function Hero({ children, slides, intervalMs = 8000, onSlideChang
                 {children}
             </div>
 
+
+            {/* BOTTOM RIGHT BANNER */}
             {/* {showBanner && bannerVisible && (
                 <div
                     className="hidden lg:flex flex-col w-80 bg-white/95 backdrop-blur-xl text-gray-900 

@@ -68,7 +68,6 @@ export default function Footer() {
                 <div className="mt-10 border-t border-white/10 pt-6 text-sm text-white/60 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>© {new Date().getFullYear()} Drokpa — All rights reserved.</div>
                     <div className="flex items-center gap-4">
-                        <div>Made with <span aria-hidden className="text-amber-300">♥</span> in the mountains</div>
                         <div className="text-white/70">Version 1.0</div>
                     </div>
                 </div>
