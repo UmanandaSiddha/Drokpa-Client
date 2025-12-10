@@ -100,6 +100,18 @@ const DestinationsCarousel: React.FC = () => {
             price: "₹X,000",
             description: "Explore the serene Mago area, home to the historic Mago Monastery and surrounded by pristine rivers and lush greenery. Ideal for spiritual seekers and nature lovers alike.",
             highlights: ["Mago Monastery", "Riverside Views", "Nature Walks"]
+        },
+
+        {
+            id: 8,
+            name: "Shergaon ",
+            location: "West Kameng, Arunachal Pradesh",
+            image: "/Shergaon.jpg",
+            rating: 4.5,
+            duration: "1 day",
+            price: "₹X,000",
+            description: "Nestled in the West Kameng district, Shergaon is a peaceful valley known for its lush apple orchards, thick pine forests, and rich Monpa culture. A perfect blend of nature, tradition, and warmth — ideal for travelers seeking calm mountain life.",
+            highlights: ["Apple Orchards","Shergaon Monastery","Pine Forest Trails","Traditional Monpa Culture","Scenic Mountain Views"]
         }
     ];
 
