@@ -4,7 +4,6 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
-/* ----------------------------- Card Rotate ----------------------------- */
 
 function CardRotate({
 	children,
@@ -46,8 +45,6 @@ function CardRotate({
 	);
 }
 
-/* ----------------------------- Stack Component ----------------------------- */
-
 interface Card {
 	id: number;
 	img: string;
@@ -88,7 +85,7 @@ export default function Stack({
 
 	const [rotationOffsets, setRotationOffsets] = useState<number[]>([]);
 
-	/* ---- Responsive Dimensions (only client) ---- */
+	
 	useEffect(() => {
 		function updateDimensions() {
 			const width = window.innerWidth;
@@ -101,7 +98,7 @@ export default function Stack({
 		return () => window.removeEventListener("resize", updateDimensions);
 	}, [cardDimensions]);
 
-	/* ---- Rotation only generated on client ---- */
+
 	useEffect(() => {
 		if (randomRotation) {
 			setRotationOffsets(cards.map(() => Math.random() * 10 - 5));
@@ -110,10 +107,10 @@ export default function Stack({
 		}
 	}, [cards, randomRotation]);
 
-	/* ---- If not mounted yet, don't render (fix hydration) ---- */
+	
 	if (!dimensions) return null;
 
-	/* ---- Send card back ---- */
+
 	const sendToBack = (id: number) => {
 		setCards((prev) => {
 			const newCards = [...prev];

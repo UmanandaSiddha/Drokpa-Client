@@ -20,6 +20,7 @@ import {
 } from "@/assets";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/Skeleton";  // ⬅️ Added
 
 interface WeatherData {
     current: {
@@ -95,6 +96,30 @@ export default function WeatherCard({ place }: { place: string }) {
         </span>
     );
 
+    // ⭐ NEW SKELETON STATE
+    if (loading) {
+        return (
+            <div className="weather-card-card rounded-xl bg-white/95 dark:bg-black/75 shadow-lg w-full max-w-2xl p-4 flex items-center gap-4">
+                <div className="flex items-center gap-3">
+                    <Skeleton className="w-12 h-12 rounded-lg" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-5 w-24" />
+                        <Skeleton className="h-4 w-32" />
+                    </div>
+                </div>
+
+                <div className="hidden sm:block w-0.5 h-14 bg-gray-300 dark:bg-gray-600 rounded-sm mx-2" />
+
+                <div className="flex-1 grid grid-cols-2 gap-3">
+                    <Skeleton className="h-8 w-full rounded-md" />
+                    <Skeleton className="h-8 w-full rounded-md" />
+                    <Skeleton className="h-8 w-full rounded-md" />
+                    <Skeleton className="h-8 w-full rounded-md" />
+                </div>
+            </div>
+        );
+    }
+
     if (error) {
         return (
             <div className="p-4 w-full max-w-2xl text-center bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-xl">
@@ -109,12 +134,6 @@ export default function WeatherCard({ place }: { place: string }) {
         );
     }
 
-    if (loading) {
-        return (
-            <div className="w-full max-w-2xl p-4 rounded-xl bg-gray-200 dark:bg-gray-800 animate-pulse h-32" />
-        );
-    }
-
     const customIcon = weather && getWeatherIcon(
         weather?.current.condition.code,
         weather?.current.is_day
@@ -123,7 +142,6 @@ export default function WeatherCard({ place }: { place: string }) {
 
     return (
         <div className="weather-card-card rounded-xl bg-white/95 dark:bg-black/75 shadow-lg w-full sm:mb-12 mb-0.5 max-w-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-
             <div className="flex w-full sm:w-auto items-center gap-3 sm:gap-4">
                 <div className="rounded-lg p-1 sm:p-2 shrink-0">
                     <Image src={customIcon || TemperatureLogo} alt="temp" width={42} height={42} />
@@ -137,15 +155,16 @@ export default function WeatherCard({ place }: { place: string }) {
                         {weather?.current?.temp_c}
                         <span className="hidden sm:inline">°C</span>
                     </div>
-                    <p className="hidden md:block text-xs sm:text-sm text-gray-500 dark:text-gray-300">{weather?.current.condition.text}</p>
+                    <p className="hidden md:block text-xs sm:text-sm text-gray-500 dark:text-gray-300">
+                        {weather?.current.condition.text}
+                    </p>
                 </div>
 
                 <div className="sm:w-auto flex flex-col justify-end">
-                    <p className="block md:hidden text-sm sm:text-md text-gray-500 dark:text-gray-300">{weather?.current.condition.text}</p>
-                    <Link
-                        href="/"
-                        className="text-xs sm:text-sm text-gray-500 underline sm:hidden block"
-                    >
+                    <p className="block md:hidden text-sm sm:text-md text-gray-500 dark:text-gray-300">
+                        {weather?.current.condition.text}
+                    </p>
+                    <Link href="/" className="text-xs sm:text-sm text-gray-500 underline sm:hidden block">
                         View on AccuWeather »
                     </Link>
                 </div>
@@ -163,10 +182,7 @@ export default function WeatherCard({ place }: { place: string }) {
             </div>
 
             <div className="w-full sm:w-auto flex justify-end">
-                <Link
-                    href="/"
-                    className="text-xs sm:text-sm text-gray-500 underline hidden sm:block"
-                >
+                <Link href="/" className="text-xs sm:text-sm text-gray-500 underline hidden sm:block">
                     View on AccuWeather »
                 </Link>
             </div>
