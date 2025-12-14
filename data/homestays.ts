@@ -19,17 +19,17 @@ export interface HomestayType {
 export const homestays: HomestayType[] = [
   {
     id: 1,
-    name: "Mountain View Homestay",
+    name: "Choedar Homestay",
     location: "tawang",
     image:
-      "https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "/Choedar Homestay.webp",
     rating: 4.8,
     reviews: 124,
-    price: "₹2,500",
+    price: "₹2,000",
     description:
       "Experience authentic Monpa culture with stunning monastery views",
     amenities: ["Wifi", "Parking", "Meals", "Mountain View"],
-    host: "Tenzin Norbu",
+    host: "Lobsang Choedar",
     contact: {
       phone: "+91 98765 43210",
       email: "tenzin@mountainview.com",
@@ -38,18 +38,18 @@ export const homestays: HomestayType[] = [
   },
   {
     id: 2,
-    name: "Peaceful Valley Stay",
-    location: "dirang",
+    name: "AR 04 Homestay",
+    location: "Tawang",
     image:
-      "https://images.pexels.com/photos/1134176/pexels-photo-1134176.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "/AR 04 Homestay.webp",
     rating: 4.7,
     reviews: 89,
     price: "₹2,000",
     description: "Cozy homestay surrounded by apple orchards and hot springs",
-    amenities: ["Wifi", "Hot Springs", "Organic Food", "Garden"],
-    host: "Karma Lhamo",
+    amenities: ["Wifi", "Geyser", "view room ","Meals","Parking"],
+    host: "Sonam",
     contact: {
-      phone: "+91 98765 43211",
+      phone: "8119984614",
       email: "karma@peacefulvalley.com",
     },
     featured: false,
@@ -65,7 +65,7 @@ export const homestays: HomestayType[] = [
     price: "₹2,800",
     description:
       "Traditional architecture with modern comforts and craft workshops",
-    amenities: ["Wifi", "Cultural Tours", "Handicrafts", "Library"],
+    amenities: ["Wifi", "Geysers ", "vview room "],
     host: "Lobsang Tashi",
     contact: {
       phone: "+91 98765 43212",

@@ -220,7 +220,7 @@ const ActivityCarousel: React.FC = () => {
 								<img
 									src={activity.image}
 									alt={activity.title}
-									className="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:blur-sm"
+									className="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:blur-out-xs "
 									loading="lazy"
 								/>
 

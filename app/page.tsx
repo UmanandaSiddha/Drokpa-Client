@@ -113,7 +113,7 @@ export default function Home() {
 				</div>
 			</Hero>
 
-			<section className="data-scroll-section m-32">
+			<section className="data-scroll-section">
 				<AboutSection />
 			</section>
 
