@@ -113,7 +113,7 @@ const Homestays: React.FC = () => {
 						<div
 							key={homestay.id}
 							onClick={() => handleHomestayClick(homestay.id)}
-							className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-2 cursor-pointer"
+							className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-2 cursor-pointer flex flex-col"
 						>
 							<div className="relative overflow-hidden">
 								<img
@@ -146,7 +146,7 @@ const Homestays: React.FC = () => {
 								</div>
 							</div>
 
-							<div className="p-4 md:p-6">
+							<div className="p-4 md:p-6 flex flex-col flex-1">
 								<div className="flex justify-between items-start mb-3">
 									<h3 className="text-base md:text-lg font-bold text-gray-900 group-hover:text-(--brand-green) transition-colors">
 										{homestay.name}
@@ -187,43 +187,45 @@ const Homestays: React.FC = () => {
 									))}
 								</div>
 
-								<div className="border-t pt-4 mb-4">
-									<div className="flex items-center justify-between">
-										<div>
-											<p className="text-sm font-medium text-gray-900">
-												Hosted by {homestay.host}
-											</p>
-											<div className="flex items-center gap-3 mt-1">
-												<a
-													href={`tel:${homestay.contact.phone}`}
-													onClick={(e) => e.stopPropagation()}
-													className="flex items-center gap-1 text-xs text-(--brand-green) hover:underline"
-												>
-													<Phone className="w-3 h-3" />
-													Call
-												</a>
-												<a
-													href={`mailto:${homestay.contact.email}`}
-													onClick={(e) => e.stopPropagation()}
-													className="flex items-center gap-1 text-xs text-(--brand-green) hover:underline"
-												>
-													<Mail className="w-3 h-3" />
-													Email
-												</a>
+								<div className="mt-auto">
+									<div className="border-t pt-4 mb-4">
+										<div className="flex items-center justify-between">
+											<div>
+												<p className="text-sm font-medium text-gray-900">
+													Hosted by {homestay.host}
+												</p>
+												<div className="flex items-center gap-3 mt-1">
+													<a
+														href={`tel:${homestay.contact.phone}`}
+														onClick={(e) => e.stopPropagation()}
+														className="flex items-center gap-1 text-xs text-(--brand-green) hover:underline"
+													>
+														<Phone className="w-3 h-3" />
+														Call
+													</a>
+													<a
+														href={`mailto:${homestay.contact.email}`}
+														onClick={(e) => e.stopPropagation()}
+														className="flex items-center gap-1 text-xs text-(--brand-green) hover:underline"
+													>
+														<Mail className="w-3 h-3" />
+														Email
+													</a>
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
 
-								<button
-									onClick={(e) => {
-										e.stopPropagation();
-										handleHomestayClick(homestay.id);
-									}}
-									className="w-full bg-(--brand-green) text-white font-semibold py-3 rounded-xl hover:bg-opacity-90 transition-all duration-300 shadow-md hover:shadow-lg"
-								>
-									View Details
-								</button>
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											handleHomestayClick(homestay.id);
+										}}
+										className="w-full bg-(--brand-green) text-white font-semibold py-3 rounded-xl hover:bg-opacity-90 transition-all duration-300 shadow-md hover:shadow-lg"
+									>
+										View Details
+									</button>
+								</div>
 							</div>
 						</div>
 					))}

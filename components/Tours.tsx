@@ -86,7 +86,7 @@ export default function ToursSection() {
                     onMouseLeave={() => startAutoplay()}
                 >
                     <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch">
-                        <div className="relative h-72 lg:h-[420px] bg-black">
+                        <div className="relative h-72 lg:h-105 bg-black">
                             <AnimatePresence mode="wait">
                                 <motion.img
                                     key={index}
@@ -207,8 +207,8 @@ export default function ToursSection() {
                                             aria-label="Previous tour"
                                             disabled={!hasMultiple}
                                             className={`p-2 rounded-full shadow transition-transform ${hasMultiple
-                                                    ? "bg-white/90 hover:scale-105"
-                                                    : "bg-gray-200 dark:bg-gray-700 opacity-60 cursor-not-allowed"
+                                                ? "bg-white/90 hover:scale-105"
+                                                : "bg-gray-200 dark:bg-gray-700 opacity-60 cursor-not-allowed"
                                                 }`}
                                         >
                                             <ChevronLeft className="w-6 h-6 text-(--brand-green)" />
@@ -226,8 +226,8 @@ export default function ToursSection() {
                                             aria-label="Next tour"
                                             disabled={!hasMultiple}
                                             className={`p-2 rounded-full shadow transition-transform ${hasMultiple
-                                                    ? "bg-white/90 hover:scale-105"
-                                                    : "bg-gray-200 dark:bg-gray-700 opacity-60 cursor-not-allowed"
+                                                ? "bg-white/90 hover:scale-105"
+                                                : "bg-gray-200 dark:bg-gray-700 opacity-60 cursor-not-allowed"
                                                 }`}
                                         >
                                             <ChevronRight className="w-6 h-6 text-(--brand-green)" />

@@ -16,7 +16,7 @@ const facilities = [
 	{ icon: <Bed size={48} />, title: "Comfortable Stay", desc: "Clean and cozy homestays with warm hospitality." },
 	{ icon: <Utensils size={48} />, title: "Eat Like a Local", desc: "Delicious homemade meals with authentic local flavors." },
 	{ icon: <Car size={48} />, title: "Private Transport", desc: "Safe and reliable private vehicles for your journey." },
-	{ icon: <Route size={48} />,title: "Smart Routes",desc: "Plan efficient routes to explore more in less time."},
+	{ icon: <Route size={48} />, title: "Smart Routes", desc: "Plan efficient routes to explore more in less time." },
 	{ icon: <FileCheck2 size={48} />, title: "No Paperwork", desc: "Hassle-free digital bookings—no documents required." },
 	{ icon: <MapPin size={48} />, title: "Local Guidance", desc: "Explore hidden gems with our local travel experts." },
 	{ icon: <Users size={48} />, title: "Meet Locals", desc: "Connect with local communities and culture." },
@@ -53,7 +53,7 @@ const FacilitiesSection = () => {
 					<div className="w-[45%] border-t border-green-800" />
 
 					<div className="flex justify-center items-center px-4">
-						<Image src={DrokpaGreenLogo} alt="logo" width={48} height={48} />
+						<Image src={DrokpaGreenLogo} alt="logo" width={48} height={48} className="w-12 h-12" />
 					</div>
 
 					<div className="w-[45%] border-t border-green-800" />

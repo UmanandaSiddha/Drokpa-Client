@@ -54,7 +54,7 @@ export default function AuthModal({ isOpen, onClose }: Props) {
                     <div className="w-[45%] border-t border-green-800" />
 
                     <div className="flex justify-center items-center px-4">
-                        <Image src={DrokpaGreenLogo} alt="logo" width={48} height={48} />
+                        <Image src={DrokpaGreenLogo} alt="logo" width={48} height={48} priority className="w-12 h-12" />
                     </div>
 
                     <div className="w-[45%] border-t border-green-800" />
@@ -67,6 +67,7 @@ export default function AuthModal({ isOpen, onClose }: Props) {
                         <input
                             type="email"
                             placeholder="Email"
+                            autoComplete="email"
                             className="w-full bg-[#FFF0CA] text-black rounded-lg pl-10 py-2 sm:py-3 placeholder-black outline-none"
                             required
                         />
@@ -77,6 +78,7 @@ export default function AuthModal({ isOpen, onClose }: Props) {
                         <input
                             type="password"
                             placeholder="Password"
+                            autoComplete="current-password"
                             className="w-full bg-[#FFF0CA] text-black rounded-lg pl-10 py-2 sm:py-3 placeholder-black outline-none"
                             required
                         />

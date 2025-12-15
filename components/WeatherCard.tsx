@@ -20,7 +20,8 @@ import {
 } from "@/assets";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Skeleton } from "@/components/ui/Skeleton";  // ⬅️ Added
+import { Skeleton } from "@/components/ui/Skeleton";
+import { AQIResult, calculateAQIFromPM25 } from "@/lib/aqiCalculator";
 
 interface WeatherData {
     current: {
@@ -43,6 +44,7 @@ interface WeatherData {
         is_day: number;
     };
     location: { name: string; region: string; country: string };
+    aqi: AQIResult;
 }
 
 const getWeatherIcon = (code: number, isDay: number) => {
@@ -76,7 +78,9 @@ export default function WeatherCard({ place }: { place: string }) {
                 );
                 if (!res.ok) throw new Error("Failed to fetch weather");
                 const data: WeatherData = await res.json();
-                setWeather(data);
+                const pm25_exist = data.current.air_quality?.pm2_5;
+                const aqiData = pm25_exist ? calculateAQIFromPM25(pm25_exist) : null;
+                setWeather(pm25_exist && aqiData ? { ...data, aqi: aqiData } : data);
             } catch (err: any) {
                 setError(err.message || "Something went wrong");
             } finally {
@@ -99,22 +103,37 @@ export default function WeatherCard({ place }: { place: string }) {
     // ⭐ NEW SKELETON STATE
     if (loading) {
         return (
-            <div className="weather-card-card rounded-xl bg-white/95 dark:bg-black/75 shadow-lg w-full max-w-2xl p-4 flex items-center gap-4">
-                <div className="flex items-center gap-3">
-                    <Skeleton className="w-12 h-12 rounded-lg" />
-                    <div className="space-y-2">
-                        <Skeleton className="h-5 w-24" />
-                        <Skeleton className="h-4 w-32" />
+            <div className="weather-card-card rounded-xl bg-white/95 dark:bg-black/75 shadow-lg w-full sm:mb-12 mb-0.5 max-w-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div className="flex w-full sm:w-auto items-center gap-3 sm:gap-4">
+                    <div className="rounded-lg p-1 sm:p-2 shrink-0">
+                        <Skeleton className="w-10.5 h-10.5 rounded-lg" />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                        <Skeleton className="h-3.5 sm:h-4 w-16" />
+                        <Skeleton className="h-8 sm:h-9 w-20" />
+                        <Skeleton className="hidden md:block h-3.5 sm:h-4 w-28" />
+                    </div>
+
+                    <div className="sm:w-auto flex flex-col justify-end gap-1">
+                        <Skeleton className="block md:hidden h-4 sm:h-5 w-24" />
+                        <Skeleton className="h-3 sm:h-4 w-32 sm:hidden" />
                     </div>
                 </div>
 
-                <div className="hidden sm:block w-0.5 h-14 bg-gray-300 dark:bg-gray-600 rounded-sm mx-2" />
+                <div className="hidden sm:block self-stretch w-0.5 bg-gray-300 dark:bg-gray-600 rounded-sm mx-2" />
 
-                <div className="flex-1 grid grid-cols-2 gap-3">
-                    <Skeleton className="h-8 w-full rounded-md" />
-                    <Skeleton className="h-8 w-full rounded-md" />
-                    <Skeleton className="h-8 w-full rounded-md" />
-                    <Skeleton className="h-8 w-full rounded-md" />
+                <div className="flex-1 w-full">
+                    <div className="grid grid-cols-4 md:grid-cols-2 gap-2 p-2 sm:p-3">
+                        <WeatherItemSkeleton />
+                        <WeatherItemSkeleton />
+                        <WeatherItemSkeleton />
+                        <WeatherItemSkeleton />
+                    </div>
+                </div>
+
+                <div className="w-full sm:w-auto flex justify-end">
+                    <Skeleton className="h-3 sm:h-4 w-36 hidden sm:block" />
                 </div>
             </div>
         );
@@ -138,7 +157,6 @@ export default function WeatherCard({ place }: { place: string }) {
         weather?.current.condition.code,
         weather?.current.is_day
     );
-    const AQI = weather?.current?.air_quality?.["us-epa-index"] ?? "—";
 
     return (
         <div className="weather-card-card rounded-xl bg-white/95 dark:bg-black/75 shadow-lg w-full sm:mb-12 mb-0.5 max-w-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
@@ -177,7 +195,7 @@ export default function WeatherCard({ place }: { place: string }) {
                     <WeatherItem icon={HumidityStatsLogo} value={formatValue(`${weather?.current.humidity}%`)} />
                     <WeatherItem icon={RainStatsLogo} value={formatValue(`${weather?.current.precip_mm}mm`)} />
                     <WeatherItem icon={WindStatsLogo} value={formatValue(`${weather?.current.wind_kph}km/h`)} />
-                    <WeatherItem icon={AirStatsLogo} value={formatValue(`${AQI} AQI`)} />
+                    <WeatherItem icon={AirStatsLogo} value={formatValue(`${weather?.aqi.aqi} AQI`)} />
                 </div>
             </div>
 
@@ -196,5 +214,12 @@ const WeatherItem = ({ icon, value }: { icon: any; value: React.ReactNode }) => 
             <Image src={icon} alt="icon" width={20} height={20} />
         </div>
         {value}
+    </div>
+);
+
+const WeatherItemSkeleton = () => (
+    <div className="flex items-center gap-2">
+        <Skeleton className="w-10 h-10 rounded-lg" />
+        <Skeleton className="h-4 sm:h-5 w-12 sm:w-16" />
     </div>
 );

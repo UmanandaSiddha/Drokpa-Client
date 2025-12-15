@@ -14,7 +14,7 @@ export default function Footer() {
                         <Link href="#">
                             <div className="text-2xl font-bold tracking-tight flex items-center gap-2">
                                 <span className="w-10 h-10 flex items-center justify-center">
-                                    <Image src={DrokpaWhiteLogo} alt="logo" width={44} height={44} />
+                                    <Image src={DrokpaWhiteLogo} alt="logo" width={44} height={44} className="w-11 h-11" />
                                 </span>
                                 Drokpa
                             </div>

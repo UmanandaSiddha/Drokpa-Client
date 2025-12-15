@@ -84,19 +84,25 @@
   --brand-green: #005246;
 }
 
-/* Utility to hide native scrollbars (used by the mobile activity carousel) */
-.scrollbar-hide {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+/* Prevent horizontal overflow glitch */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
-/* html,
-body {
-  overflow: hidden;
-} */
+/* Utility to hide native scrollbars (used by the mobile activity carousel) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  /* Safari and Chrome */
+}
 
 /* Ensure consistent box-sizing and a default spacing variable so Tailwind spacing works as expected */
 html,
@@ -119,24 +125,31 @@ body,
 .p-1 {
   padding: calc(var(--spacing) * 1) !important;
 }
+
 .p-2 {
   padding: calc(var(--spacing) * 2) !important;
 }
+
 .p-3 {
   padding: calc(var(--spacing) * 3) !important;
 }
+
 .p-4 {
   padding: calc(var(--spacing) * 4) !important;
 }
+
 .px-3 {
   padding-inline: calc(var(--spacing) * 3) !important;
 }
+
 .px-4 {
   padding-inline: calc(var(--spacing) * 4) !important;
 }
+
 .py-2 {
   padding-block: calc(var(--spacing) * 2) !important;
 }
+
 .py-4 {
   padding-block: calc(var(--spacing) * 4) !important;
 }
@@ -196,11 +209,9 @@ body,
   }
 
   .hero-bg {
-    background-image: linear-gradient(
-        to bottom right,
+    background-image: linear-gradient(to bottom right,
         rgba(0, 0, 0, 0.65),
-        rgba(0, 0, 0, 0.55)
-      ),
+        rgba(0, 0, 0, 0.55)),
       url("https://images.pexels.com/photos/17574949/pexels-photo-17574949.jpeg?_gl=1*eapwwf*_ga*MTg1OTA3OTM3Ny4xNzU3Nzg4ODk5*_ga_8JE65Q40S6*czE3NjQ0MDgzMjgkbzIkZzEkdDE3NjQ0MDg1MTgkajMxJGwwJGgw");
     background-size: cover;
     background-position: center center;
@@ -217,6 +228,7 @@ body,
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

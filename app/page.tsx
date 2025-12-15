@@ -50,7 +50,7 @@ export default function Home() {
 	const [description, setDescription] = useState(slides[0].description || "");
 
 	return (
-		<main className="data-scroll-container">
+		<main className="data-scroll-container overflow-x-hidden">
 			<Hero
 				slides={slides}
 				onSlideChange={(s) => {
@@ -75,7 +75,9 @@ export default function Home() {
 								>
 									{title}
 								</motion.h1>
+							</AnimatePresence>
 
+							<AnimatePresence mode="wait">
 								<motion.p
 									key={description}
 									initial={{ opacity: 0, x: -24 }}

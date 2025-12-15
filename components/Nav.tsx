@@ -31,7 +31,7 @@ export default function Nav() {
 	return (
 		<>
 			<header
-				className={`w-full top-0 left-0 z-30 transition-colors duration-500 ${navBgClass}`}
+				className={`w-full top-0 left-0 z-30 transition-colors duration-500 overflow-x-hidden ${navBgClass}`}
 			>
 				<div className="max-w-7xl mx-auto flex items-center justify-between py-4 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
 					<div className="flex items-center gap-3">
@@ -40,7 +40,7 @@ export default function Nav() {
 							alt="logo"
 							width={44}
 							height={44}
-							style={{ height: "auto" }}
+							priority
 						/>
 						<span
 							className={`${textClass} font-bold text-xl transition-colors duration-500`}
@@ -98,7 +98,7 @@ export default function Nav() {
 
 					{/* Hamburger */}
 					<button
-						className="md:hidden"
+						className="md:hidden relative z-50 overflow-hidden"
 						onClick={() => setMenuOpen(!menuOpen)}
 					>
 						{menuOpen ? (
@@ -108,50 +108,52 @@ export default function Nav() {
 						)}
 					</button>
 				</div>
+			</header>
 
-				{/* Mobile Sidebar */}
-				<AnimatePresence>
-					{menuOpen && (
-						<>
-							{/* Overlay */}
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								transition={{ duration: 0.3 }}
-								className="fixed inset-0 bg-black/50 md:hidden z-40"
-								onClick={() => setMenuOpen(false)}
-							/>
+			{/* Mobile Sidebar - Outside header for full screen coverage */}
+			<AnimatePresence>
+				{menuOpen && (
+					<>
+						{/* Overlay */}
+						<motion.div
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							transition={{ duration: 0.3 }}
+							className="fixed inset-0 bg-black/50 md:hidden z-40"
+							onClick={() => setMenuOpen(false)}
+						/>
 
-							{/* Sidebar */}
-							<motion.div
-								initial={{ x: "-100%" }}
-								animate={{ x: 0 }}
-								exit={{ x: "-100%" }}
-								transition={{ duration: 0.3 }}
-								style={{ width: "70vw", height: "100vh" }}
-								className="fixed top-0 left-0 bg-white shadow-2xl z-50 md:hidden overflow-y-auto"
-							>
-								<div className="flex items-center justify-between p-6 border-b border-gray-200">
+						{/* Sidebar */}
+						<motion.div
+							initial={{ x: "-100%" }}
+							animate={{ x: 0 }}
+							exit={{ x: "-100%" }}
+							transition={{ duration: 0.3 }}
+							className="fixed top-0 left-0 w-[70%] h-screen bg-white shadow-2xl z-60 md:hidden overflow-y-auto"
+						>
+							<div className="flex items-center justify-between px-6 py-4.5 border-b shadow-md border-gray-200">
+								<div className="flex gap-2">
 									<Image
 										src={DrokpaGreenLogo}
 										alt="logo"
 										width={40}
 										height={40}
-										style={{ height: "auto" }}
 									/>
 									<span className="text-(--brand-green) font-bold text-xl">
 										Drokpa
 									</span>
-									<button
-										onClick={() => setMenuOpen(false)}
-										className="text-(--brand-green) hover:opacity-70 transition-opacity"
-									>
-										<X size={28} />
-									</button>
 								</div>
+								<button
+									onClick={() => setMenuOpen(false)}
+									className="text-(--brand-green) hover:opacity-70 transition-opacity"
+								>
+									<X size={28} />
+								</button>
+							</div>
 
-								<nav className="flex flex-col gap-6 p-6">
+							<nav className="flex flex-col h-[calc(100vh-80px)] p-6">
+								<div className="flex flex-col gap-6">
 									{/* Added Navigation Links */}
 									<Link href="/" onClick={() => setMenuOpen(false)} className="text-lg font-medium text-slate-900 hover:text-(--brand-green) transition-colors">
 										Home
@@ -165,10 +167,11 @@ export default function Nav() {
 									<Link href="/" onClick={() => setMenuOpen(false)} className="text-lg font-medium text-slate-900 hover:text-(--brand-green) transition-colors">
 										About
 									</Link>
+								</div>
 
-									<div className="h-px bg-gray-200 my-3" />
-
-									{/* Mobile buttons */}
+								{/* Mobile buttons - Pushed to bottom */}
+								<div className="mt-auto flex flex-col gap-3">
+									<div className="h-px bg-gray-200 mb-3" />
 									<button
 										onClick={() => {
 											setAuthMode("signin");
@@ -189,12 +192,12 @@ export default function Nav() {
 									>
 										Sign up
 									</button>
-								</nav>
-							</motion.div>
-						</>
-					)}
-				</AnimatePresence>
-			</header>
+								</div>
+							</nav>
+						</motion.div>
+					</>
+				)}
+			</AnimatePresence>
 
 			{/* Auth Modal Rendering */}
 			<AuthModal
