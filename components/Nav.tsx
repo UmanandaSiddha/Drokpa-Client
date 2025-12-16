@@ -50,21 +50,22 @@ export default function Nav() {
 					</div>
 
 					{/* Desktop Menu */}
-					<nav
-						className={`hidden md:flex gap-8 items-center ${textClass} transition-colors duration-500`}
-					>
-						<span className="text-base font-medium cursor-pointer hover:underline">
+					<nav className={`hidden md:flex gap-8 items-center ${textClass}`}>
+						<Link href="/" className="text-base font-medium hover:underline">
 							Home
-						</span>
-						<span className="text-base font-medium cursor-pointer hover:underline">
+						</Link>
+
+						<Link href="/explore" className="text-base font-medium hover:underline">
 							Explore
-						</span>
-						<span className="text-base font-medium cursor-pointer hover:underline">
-							Vehicles
-						</span>
-						<span className="text-base font-medium cursor-pointer hover:underline">
+						</Link>
+
+						<Link href="/about" className="text-base font-medium hover:underline">
 							About
-						</span>
+						</Link>
+
+						<Link href="/contact" className="text-base font-medium hover:underline">
+							Contact
+						</Link>
 					</nav>
 
 					{/* Desktop Buttons */}
@@ -155,18 +156,38 @@ export default function Nav() {
 							<nav className="flex flex-col h-[calc(100vh-80px)] p-6">
 								<div className="flex flex-col gap-6">
 									{/* Added Navigation Links */}
-									<Link href="/" onClick={() => setMenuOpen(false)} className="text-lg font-medium text-slate-900 hover:text-(--brand-green) transition-colors">
+									<Link
+										href="/"
+										onClick={() => setMenuOpen(false)}
+										className="text-lg font-medium text-slate-900 hover:text-(--brand-green)"
+									>
 										Home
 									</Link>
-									<Link href="/" onClick={() => setMenuOpen(false)} className="text-lg font-medium text-slate-900 hover:text-(--brand-green) transition-colors">
+
+									<Link
+										href="/explore"
+										onClick={() => setMenuOpen(false)}
+										className="text-lg font-medium text-slate-900 hover:text-(--brand-green)"
+									>
 										Explore
 									</Link>
-									<Link href="/" onClick={() => setMenuOpen(false)} className="text-lg font-medium text-slate-900 hover:text-(--brand-green) transition-colors">
-										Vehicles
-									</Link>
-									<Link href="/" onClick={() => setMenuOpen(false)} className="text-lg font-medium text-slate-900 hover:text-(--brand-green) transition-colors">
+
+									<Link
+										href="/about"
+										onClick={() => setMenuOpen(false)}
+										className="text-lg font-medium text-slate-900 hover:text-(--brand-green)"
+									>
 										About
 									</Link>
+
+									<Link
+										href="/contact"
+										onClick={() => setMenuOpen(false)}
+										className="text-lg font-medium text-slate-900 hover:text-(--brand-green)"
+									>
+										Contact
+									</Link>
+
 								</div>
 
 								{/* Mobile buttons - Pushed to bottom */}

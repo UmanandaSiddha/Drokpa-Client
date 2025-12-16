@@ -46,7 +46,7 @@ const DestinationsCarousel: React.FC = () => {
 			name: "Sela Pass",
 			location: "Tawang, Arunachal Pradesh",
 			image:
-				"https://as2.ftcdn.net/v2/jpg/07/73/26/11/1000_F_773261187_obGCeDXM5AWGCJVs5Ji0CiXNzMzxPgVo.jpg",
+				"/sela.jpg",
 			rating: 4.9,
 			duration: "2-3 days",
 			price: "₹X,000",
@@ -75,7 +75,7 @@ const DestinationsCarousel: React.FC = () => {
 			name: "Madhuri Lake",
 			location: "Tawang, Arunachal Pradesh",
 			image:
-				"https://as2.ftcdn.net/v2/jpg/07/38/88/69/1000_F_738886983_YwzBgr7BWErqU5xr3LGaEm7W0aYlYAnn.jpg",
+				"/madhuri.jpg",
 			rating: 4.6,
 			duration: "2-3 days",
 			price: "₹X,000",
@@ -101,7 +101,7 @@ const DestinationsCarousel: React.FC = () => {
 			name: "Jung Waterfall",
 			location: "Tawang, Arunachal Pradesh",
 			image:
-				"https://as1.ftcdn.net/v2/jpg/03/05/23/46/1000_F_305234611_W2dYUGyiTeOFgYHTguEZpewbHzHLYTXv.jpg",
+				"/jungwaterfall2.jpg",
 			rating: 4.5,
 			duration: "1 day",
 			price: "₹X,000",
@@ -114,7 +114,7 @@ const DestinationsCarousel: React.FC = () => {
 			name: "Mago",
 			location: "Tawang, Arunachal Pradesh",
 			image:
-				"https://as2.ftcdn.net/v2/jpg/17/72/71/37/1000_F_1772713747_RvLidj3YQSkvhumBb6NyKBzMXUWWQXgA.jpg",
+				"/Mago-Tawang.webp",
 			rating: 4.5,
 			duration: "1 day",
 			price: "₹X,000",

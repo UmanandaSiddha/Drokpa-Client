@@ -8,7 +8,7 @@ const photos = [
     { src: "/twgmonastery2.jpg", caption: "Sunrise over alpine ridges" },
     { src: "/Sangti.jpeg", caption: "Prayer flags and monastery paths" },
     { src: "/selaimg.jpg", caption: "Hidden village lanes" },
-    { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1400&auto=format&fit=crop", caption: "High meadows in bloom" },
+    { src: "/sangti2.jpg", caption: "High meadows in bloom" },
     { src: "/Bridge.jpeg", caption: "Misty valley viewpoint" },
     { src: "/village walks.webp", caption: "Evening light on peaks" },
     { src: "/SheepFarm2.jpeg", caption: "Some Caption" },
