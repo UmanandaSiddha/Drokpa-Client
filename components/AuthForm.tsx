@@ -6,14 +6,14 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { DrokpaGreenLogo } from "@/assets";
 
-export default function AuthForm() {
+export default function AuthForm({ defaultMode = "signin" }: { defaultMode?: "signin" | "signup" }) {
 	const searchParams = useSearchParams();
 	const mode = searchParams.get("mode"); // 'signup' or null
-	const [isSignUp, setIsSignUp] = useState(mode === "signup");
+	const [isSignUp, setIsSignUp] = useState(mode === "signup" || (!mode && defaultMode === "signup"));
 
 	useEffect(() => {
-		setIsSignUp(mode === "signup");
-	}, [mode]);
+		setIsSignUp(mode === "signup" || (!mode && defaultMode === "signup"));
+	}, [mode, defaultMode]);
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4">

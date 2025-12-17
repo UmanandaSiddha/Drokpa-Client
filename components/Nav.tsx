@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import AuthModal from "./Auth";
 
-export default function Nav() {
+export default function Nav({ transition }: { transition: boolean }) {
 	const [scrolled, setScrolled] = useState(false);
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [openAuth, setOpenAuth] = useState(false);
@@ -23,10 +23,10 @@ export default function Nav() {
 		return () => window.removeEventListener("scroll", onScroll);
 	}, []);
 
-	const textClass = scrolled ? "text-(--brand-green)" : "text-white";
-	const navBgClass = scrolled
-		? "fixed bg-white/95 dark:bg-black/95 shadow-md backdrop-blur"
-		: "absolute bg-transparent";
+	const textClass = transition && !scrolled ? "text-white" : "text-(--brand-green)";
+	const navBgClass = transition && !scrolled
+		? "absolute bg-transparent"
+		: "fixed bg-white/95 dark:bg-black/95 shadow-md backdrop-blur";
 
 	return (
 		<>
@@ -36,7 +36,7 @@ export default function Nav() {
 				<div className="max-w-7xl mx-auto flex items-center justify-between py-4 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
 					<div className="flex items-center gap-3">
 						<Image
-							src={scrolled ? DrokpaGreenLogo : DrokpaWhiteLogo}
+							src={transition && !scrolled ? DrokpaWhiteLogo : DrokpaGreenLogo}
 							alt="logo"
 							width={44}
 							height={44}
@@ -75,9 +75,9 @@ export default function Nav() {
 								setAuthMode("signin");
 								setOpenAuth(true);
 							}}
-							className={`px-4 py-2 rounded-full border ${scrolled
-								? "border-(--brand-green)"
-								: "border-white/30"
+							className={`px-4 py-2 rounded-full border ${transition && !scrolled
+								? "border-white/30"
+								: "border-(--brand-green)"
 								} ${textClass} hover:opacity-90 transition-colors duration-500`}
 						>
 							Sign in
@@ -88,9 +88,9 @@ export default function Nav() {
 								setAuthMode("signup");
 								setOpenAuth(true);
 							}}
-							className={`px-4 py-2 rounded-full border ${scrolled
-								? "border-(--brand-green) bg-(--brand-green) text-white"
-								: "border-white/30 bg-white text-black"
+							className={`px-4 py-2 rounded-full border ${transition && !scrolled
+								? "border-white/30 bg-white text-black"
+								: "border-(--brand-green) bg-(--brand-green) text-white"
 								} hover:opacity-90 transition-colors duration-500`}
 						>
 							Sign up

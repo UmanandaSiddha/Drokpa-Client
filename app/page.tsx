@@ -17,29 +17,23 @@ import Nav from "@/components/Nav";
 const slides = [
 	{
 		name: "TAWANG",
-		image:
-			"https://images.unsplash.com/photo-1648963799017-e007d04df934?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-		description:
-			"A stunning Himalayan destination known for its ancient monasteries, pristine high-altitude lakes, and snow-covered peaks.",
+		image: "https://images.unsplash.com/photo-1648963799017-e007d04df934?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+		description: "A stunning Himalayan destination known for its ancient monasteries, pristine high-altitude lakes, and snow-covered peaks.",
 	},
 	{
 		name: "BOMDILA",
-		image:
-			"https://images.unsplash.com/photo-1639134956623-0d094b12b0dc?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-		description:
-			"A peaceful hill town known for its Buddhist monasteries, panoramic viewpoints, and vibrant local culture.",
+		image: "https://images.unsplash.com/photo-1639134956623-0d094b12b0dc?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+		description: "A peaceful hill town known for its Buddhist monasteries, panoramic viewpoints, and vibrant local culture.",
 	},
 	{
 		name: "DIRANG",
-		image:
-			"https://images.unsplash.com/photo-1668437824006-1be44600774b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+		image: "https://images.unsplash.com/photo-1668437824006-1be44600774b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
 		description: "A scenic valley known for its hot springs, kiwi orchards, and ancient Dzong architecture, surrounded by pine-covered mountains.",
 
 	},
 	{
 		name: "SHERGAON",
-		image:
-			"/Shergaon.jpg",
+		image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
 		description: "A tranquil village surrounded by apple orchards and lush green hills, offering serene mountain views and a warm local culture.",
 
 	},
@@ -59,7 +53,7 @@ export default function Home() {
 					setDescription(s.description || "");
 				}}
 			>
-				<Nav />
+				<Nav transition={true} />
 
 				<div className="flex-1 flex items-center">
 					<div className="container-wide mx-auto text-white z-10">
