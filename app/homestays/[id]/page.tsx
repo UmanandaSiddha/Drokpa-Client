@@ -26,7 +26,8 @@ import { DrokpaGreenLogo } from "@/assets";
 import Nav from "@/components/Nav";
 import HomestayCarousel from "@/components/HomestayCarousel";
 import RoomCard from "@/components/RoomCard";
-import HomestayImageGrid from "@/components/HomestayImageGrid";
+import HomestayImageGrid from "@/components/Homestay/HomestayImageGrid";
+import BookingCard from "@/components/Homestay/BookingCard";
 
 export default async function HomestayDetailsPage({
 	params,
@@ -100,13 +101,13 @@ export default async function HomestayDetailsPage({
 	];
 
 	return (
-		<div className="min-h-screen bg-white overflow-x-hidden">
+		<div className="min-h-screen bg-white">
 
 			<Nav transition={false} />
 
 			{/* Banner Carousel */}
 			<div className="mt-16 bg-white py-6 md:py-8">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-hidden">
 					{/** Banner carousel using mock multi-image array */}
 					<HomestayImageGrid images={[
 						"https://images.unsplash.com/photo-1566475955255-404134a79aeb?q=80&w=1974&auto=format&fit=crop",
@@ -137,9 +138,9 @@ export default async function HomestayDetailsPage({
 
 
 			{/* Content Section */}
-			<div className="bg-linear-to-b from-white via-emerald-50/30 to-white py-12 md:py-16">
+			{/* <div className="bg-linear-to-b from-white via-emerald-50/30 to-white pb-12 md:pb-16">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					{/* Metadata under banner */}
+
 					<div className="mb-8">
 						<div className="flex items-center gap-2 text-gray-600 mb-2">
 							<MapPin className="w-5 h-5 text-(--brand-green)" />
@@ -160,9 +161,9 @@ export default async function HomestayDetailsPage({
 						<p className="mt-4 text-gray-700 leading-relaxed max-w-3xl">{homestay.description}</p>
 					</div>
 
-					{/* Content Grid */}
+
 					<div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
-						{/* Left: Rooms list */}
+
 						<div className="lg:col-span-2 space-y-6 md:space-y-8">
 							<div className="grid sm:grid-cols-2 gap-6">
 								{rooms.map((room) => (
@@ -170,7 +171,7 @@ export default async function HomestayDetailsPage({
 								))}
 							</div>
 
-							{/* Reviews Section */}
+
 							<div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg">
 								<h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">What guests are saying</h2>
 								<div className="space-y-4">
@@ -191,7 +192,7 @@ export default async function HomestayDetailsPage({
 							</div>
 						</div>
 
-						{/* Right: Date range, price ranges, amenities */}
+
 						<div className="lg:col-span-1 space-y-6">
 							<div className="bg-white rounded-2xl p-6 shadow-2xl border border-gray-100 sticky top-24">
 								<h3 className="text-xl font-bold text-gray-900 mb-4">Select dates</h3>
@@ -208,7 +209,7 @@ export default async function HomestayDetailsPage({
 							</div>
 
 							{(() => {
-								// Derive price ranges from room prices (rounded to ₹500 bins)
+
 								const prices = rooms.map((r) => r.price);
 								const min = Math.min(...prices);
 								const max = Math.max(...prices);
@@ -251,7 +252,148 @@ export default async function HomestayDetailsPage({
 						</div>
 					</div>
 				</div>
+			</div> */}
+
+			<div className="bg-white pb-12">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+					{/* HEADER */}
+					<div className="pt-6 pb-6 border-b">
+						<h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-2">
+							{homestay.name}
+						</h1>
+
+						<div className="flex flex-wrap items-center justify-between gap-4">
+							<div className="flex flex-wrap items-center gap-4 text-sm text-gray-700">
+								<div className="flex items-center gap-1">
+									<Star className="w-4 h-4 fill-black text-black" />
+									<span className="font-semibold">{homestay.rating}</span>
+									<span className="underline">({homestay.reviews} reviews)</span>
+								</div>
+
+								<span>·</span>
+
+								<div className="flex items-center gap-1">
+									<MapPin className="w-4 h-4" />
+									<span className="underline capitalize">
+										{homestay.location}, Arunachal Pradesh
+									</span>
+								</div>
+							</div>
+
+							{/* ACTIONS */}
+							<div className="flex items-center gap-4 text-sm font-medium">
+								<button className="underline">Share</button>
+								<button className="underline">Save</button>
+							</div>
+						</div>
+					</div>
+
+					{/* MAIN GRID */}
+					<div className="grid lg:grid-cols-3 gap-12 pt-8">
+
+						{/* LEFT CONTENT */}
+						<div className="lg:col-span-2 space-y-10">
+
+							{/* HOST INFO */}
+							<div className="border-b pb-6">
+								<h2 className="text-xl font-semibold mb-2">
+									Hosted by {homestay.host}
+								</h2>
+								<p className="text-gray-700 leading-relaxed max-w-3xl">
+									{homestay.description}
+								</p>
+							</div>
+
+							{/* ROOMS */}
+							<div>
+								<h2 className="text-2xl font-semibold mb-6">Available rooms</h2>
+								<div className="grid sm:grid-cols-2 gap-6">
+									{rooms.map((room) => (
+										<RoomCard key={room.id} room={room as any} />
+									))}
+								</div>
+							</div>
+
+							<hr />
+
+							{/* AMENITIES */}
+							<div>
+								<h2 className="text-2xl font-semibold mb-4">What this place offers</h2>
+								<div className="grid sm:grid-cols-2 gap-4">
+									{homestay.amenities.map((amenity, i) => (
+										<div key={i} className="flex items-center gap-3">
+											<span className="text-gray-700">{getAmenityIcon(amenity)}</span>
+											<span className="text-gray-800">{amenity}</span>
+										</div>
+									))}
+								</div>
+							</div>
+
+							<hr />
+
+							{/* REVIEWS */}
+							<div>
+							<h2 className="text-2xl font-semibold mb-4">What People have to Say</h2>
+								<h2 className="text-2xl font-semibold mb-6">
+									★ {homestay.rating} · {homestay.reviews} reviews
+								</h2>
+
+								<div className="grid sm:grid-cols-2 gap-6">
+									{reviews.map((r, i) => (
+										<div key={i} className="space-y-2">
+											<div className="flex items-center gap-2">
+												<span className="font-semibold">{r.name}</span>
+												<div className="flex gap-1">
+													{Array.from({ length: r.rating }).map((_, s) => (
+														<Star
+															key={s}
+															className="w-4 h-4 fill-black text-black"
+														/>
+													))}
+												</div>
+											</div>
+											<p className="text-gray-700">{r.comment}</p>
+										</div>
+									))}
+								</div>
+							</div>
+						</div>
+
+						{/* RIGHT – BOOKING CARD */}
+						<div className="lg:col-span-1 overflow-auto">
+							<div className="sticky top-24">
+								<BookingCard rooms={rooms} />
+
+								{/* <div className="flex items-baseline gap-2 mb-4">
+									<span className="text-2xl font-semibold">₹{Math.min(...rooms.map(r => r.price))}</span>
+									<span className="text-gray-600">night</span>
+								</div>
+
+								<div className="grid grid-cols-2 border rounded-lg overflow-hidden mb-4">
+									<div className="p-3 border-r">
+										<label className="text-xs font-semibold">CHECK-IN</label>
+										<input type="date" className="w-full text-sm outline-none" />
+									</div>
+									<div className="p-3">
+										<label className="text-xs font-semibold">CHECK-OUT</label>
+										<input type="date" className="w-full text-sm outline-none" />
+									</div>
+								</div>
+
+								<button className="w-full bg-(--brand-green) text-white py-3 rounded-lg font-semibold hover:opacity-90 transition">
+									Reserve
+								</button>
+
+								<p className="text-center text-sm text-gray-600 mt-3">
+									You won’t be charged yet
+								</p> */}
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
+
 
 			<Footer />
 		</div>
