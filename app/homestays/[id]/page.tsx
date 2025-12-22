@@ -26,6 +26,7 @@ import { DrokpaGreenLogo } from "@/assets";
 import Nav from "@/components/Nav";
 import HomestayCarousel from "@/components/HomestayCarousel";
 import RoomCard from "@/components/RoomCard";
+import HomestayImageGrid from "@/components/HomestayImageGrid";
 
 export default async function HomestayDetailsPage({
 	params,
@@ -107,6 +108,22 @@ export default async function HomestayDetailsPage({
 			<div className="mt-16 bg-white py-6 md:py-8">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					{/** Banner carousel using mock multi-image array */}
+					<HomestayImageGrid images={[
+						"https://images.unsplash.com/photo-1566475955255-404134a79aeb?q=80&w=1974&auto=format&fit=crop",
+						"https://images.unsplash.com/photo-1578824381648-52f000bb5f9f?q=80&w=2071&auto=format&fit=crop",
+						"https://images.unsplash.com/photo-1606044466411-207a9a49711f?q=80&w=2070&auto=format&fit=crop",
+						"https://images.unsplash.com/photo-1551249506-d8e2c5536f8a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+						"https://images.unsplash.com/photo-1545910685-1248cabdc8d5?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+						"https://images.unsplash.com/photo-1522031153701-b3eba74004e8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+						"https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?auto=format&fit=crop&w=1600&q=80",
+						"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=80",
+						"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
+					]} />
+				</div>
+			</div>
+
+			{/* <div className="mt-16 bg-white py-6 md:py-8">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					<HomestayCarousel
 						images={[
 							"https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?auto=format&fit=crop&w=1600&q=80",
@@ -115,7 +132,9 @@ export default async function HomestayDetailsPage({
 						]}
 					/>
 				</div>
-			</div>
+			</div> */}
+
+
 
 			{/* Content Section */}
 			<div className="bg-linear-to-b from-white via-emerald-50/30 to-white py-12 md:py-16">
