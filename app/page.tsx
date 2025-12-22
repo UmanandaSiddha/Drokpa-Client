@@ -9,10 +9,10 @@ import ToursSection from "@/components/Tours";
 import ActivityCarousel from "@/components/TouristActivity";
 import DestinationsCarousel from "@/components/Destination";
 import Memories from "@/components/Memories";
-import Footer from "@/components/Footer";
+// import Footer from "@/components/Footer";
 import FacilitiesSection from "@/components/FacilitiesSection";
 import Homestays from "@/components/Homestays";
-import Nav from "@/components/Nav";
+// import Nav from "@/components/Nav";
 
 const slides = [
 	{
@@ -53,7 +53,7 @@ export default function Home() {
 					setDescription(s.description || "");
 				}}
 			>
-				<Nav transition={true} />
+				{/* <Nav transition={true} /> */}
 
 				<div className="flex-1 flex items-center">
 					<div className="container-wide mx-auto text-white z-10">
@@ -127,7 +127,7 @@ export default function Home() {
 
 			<Memories />
 
-			<Footer />
+			{/* <Footer /> */}
 		</main>
 	);
 }

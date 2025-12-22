@@ -55,7 +55,7 @@ export default function HomestayImageGrid({ images }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 rounded-2xl overflow-hidden">
         {/* LEFT */}
         <div
-          className="relative aspect-[4/3] cursor-pointer group"
+          className="relative aspect-4/3 cursor-pointer group"
           onClick={() => openViewer(0)}
         >
           <img
@@ -71,7 +71,7 @@ export default function HomestayImageGrid({ images }: Props) {
           {visibleImages.slice(1, 5).map((img, i) => (
             <div
               key={i}
-              className="relative aspect-[4/3] cursor-pointer group"
+              className="relative aspect-4/3 cursor-pointer group"
               onClick={() => openViewer(i + 1)}
             >
               <img
@@ -132,7 +132,7 @@ export default function HomestayImageGrid({ images }: Props) {
                 <button
                   key={i}
                   onClick={() => setActiveIndex(i)}
-                  className={`relative flex-shrink-0 rounded-md overflow-hidden border-2 transition
+                  className={`relative shrink-0 rounded-md overflow-hidden border-2 transition
                     ${
                       i === activeIndex
                         ? "border-white"
