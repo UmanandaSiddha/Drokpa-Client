@@ -53,13 +53,14 @@ const ContactUs: React.FC = () => {
   };
 
   return (
-    <section className="bg-gray-50 py-16 lg:py-24">
+    <section className="bg-gray-50 py-16 lg:py-32 bg-linear-to-b from-(--brand-green) via-white to-white">
+      
       <div className="max-w-7xl mx-auto px-6 lg:px-12 grid lg:grid-cols-2 gap-12 items-center">
 
         {/* LEFT */}
         <div>
           <h2 className="text-4xl lg:text-5xl font-bold text-black mb-6">
-            Get in <span className="text-[#005246]">Touch</span>
+            Get in <span className="text-[#007f6c]">Touch</span>
           </h2>
 
           <p className="text-lg text-gray-600 mb-10 max-w-md">
