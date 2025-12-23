@@ -2,16 +2,19 @@ import React from "react";
 
 const LetterFromArunachal = () => {
 	return (
-		<section className="bg-white py-20 px-6">
-			<div className="mx-auto max-w-3xl">
-				{/* Letter Container */}
-				<div className="rounded-2xl border border-[#0f5132]/20 bg-white p-8 md:p-12 shadow-sm">
-					{/* Small Intro */}
+		<section className="relative bg-white py-24 px-6 overflow-hidden">
+			{/* Tilted Green Background */}
+			<div className="absolute inset-0 flex justify-center items-center -z-0">
+				<div className="w-[95%] max-w-5xl h-[420px] bg-[#0f5132] rounded-2xl transform -rotate-2" />
+			</div>
+
+			{/* Letter */}
+			<div className="relative z-10 mx-auto max-w-3xl">
+				<div className="rounded-2xl border border-[#0f5132]/20 bg-white p-8 md:p-12 shadow-xl">
 					<p className="mb-6 text-sm uppercase tracking-widest text-[#0f5132]">
 						A personal note
 					</p>
 
-					{/* Letter Content */}
 					<div className="space-y-6 font-serif text-lg leading-relaxed text-gray-800">
 						<p>Dear Traveler,</p>
 
@@ -51,7 +54,6 @@ const LetterFromArunachal = () => {
 							already in the right place.
 						</p>
 
-						{/* Signature */}
 						<div className="pt-8">
 							<p className="font-medium text-[#0f5132]">
 								With warmth,
