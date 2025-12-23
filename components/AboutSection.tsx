@@ -22,11 +22,11 @@ export default function AboutSection() {
           {/* Content column */}
           <div className="px-2 md:px-0">
             <h4 className="text-sm uppercase tracking-wide text-(--brand-green) font-semibold">
-              Travel, Simplified
+              DROKPA
             </h4>
 
-            <h2 className="mt-3 text-4xl md:text-6xl font-extrabold leading-tight bg-clip-text text-transparent bg-linear-to-r from-[#0f5132] to-[#2aa66a]">
-              DROKPA
+            <h2 className="mt-3 text-4xl md:text-5xl font-extrabold leading-tight bg-clip-text text-transparent bg-linear-to-r from-[#0f5132] to-[#2aa66a]">
+                Everything Arunachal, thoughtfully curated
             </h2>
 
             <p className="mt-6 text-base md:text-lg text-muted-foreground max-w-prose ">

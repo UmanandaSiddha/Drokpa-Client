@@ -12,6 +12,7 @@ import Memories from "@/components/Memories";
 // import Footer from "@/components/Footer";
 import FacilitiesSection from "@/components/FacilitiesSection";
 import Homestays from "@/components/Homestays";
+import LetterFromArunachal from "@/components/LetterFromArunachal";
 // import Nav from "@/components/Nav";
 
 const slides = [
@@ -126,6 +127,8 @@ export default function Home() {
 			<FacilitiesSection />
 
 			<Memories />
+
+			<LetterFromArunachal/>
 
 			{/* <Footer /> */}
 		</main>
