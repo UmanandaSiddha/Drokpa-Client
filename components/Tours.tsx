@@ -238,6 +238,12 @@ export default function ToursSection() {
                         </div>
                     </div>
                 </div>
+
+                <div className="flex justify-center">
+                    <h2 className="bg-(--brand-green) p-4 mt-6 rounded-full text-white">
+                        Explore all adventures →
+                    </h2> 
+                </div>
             </div>
         </section>
     );

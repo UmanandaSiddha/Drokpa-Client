@@ -348,8 +348,17 @@ const Homestays: React.FC = () => {
 								</div>
 							)}
 						</motion.div>
+
+						
 					</AnimatePresence>
+
+					
 				</div>
+				<div className="flex justify-center">
+                    <h2 className="bg-(--brand-green) p-4 mt-10 rounded-full text-white">
+					See where you’ll feel at home →
+                    </h2> 
+                </div>
 			</div>
 		</div>
 	);

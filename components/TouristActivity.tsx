@@ -343,6 +343,12 @@ const ActivityCarousel: React.FC = () => {
 						</motion.div>
 					)}
 				</AnimatePresence>
+
+				<div className="flex justify-center">
+                    <h2 className="bg-(--brand-green) p-4 mt-6 rounded-full text-white">
+                        Explore all Activities →
+                    </h2> 
+                </div>
 			</div>
 		</section>
 	);
