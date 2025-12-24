@@ -13,6 +13,7 @@ import Memories from "@/components/Memories";
 import FacilitiesSection from "@/components/FacilitiesSection";
 import Homestays from "@/components/Homestays";
 import LetterFromArunachal from "@/components/LetterFromArunachal";
+import LetterCTA from "@/components/CTA";
 // import Nav from "@/components/Nav";
 
 const slides = [
@@ -130,6 +131,8 @@ export default function Home() {
 
 			<LetterFromArunachal/>
 
+			<LetterCTA/>
+			
 			{/* <Footer /> */}
 		</main>
 	);
