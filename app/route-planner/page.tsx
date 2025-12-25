@@ -141,7 +141,7 @@ export default function RoutePlannerPage() {
 				</div>
 
 				{/* MAP */}
-				<div className="bg-white rounded-2xl shadow overflow-hidden h-[420px]">
+				<div className="bg-white rounded-2xl shadow overflow-hidden h-105">
 					{result ? (
 						<iframe
 							src={mapUrl}
