@@ -1,6 +1,6 @@
 import HeroSection from "@/components/landingpagecomponents/HeroSection";
 import Navigation from "@/components/landingpagecomponents/Navigation";
-import SearchBar from "@/components/landingpagecomponents/SearchBar";
+import SearchFilter from "@/components/landingpagecomponents/SearchFilter";
 
 export default function App() {
 	return (
@@ -10,9 +10,9 @@ export default function App() {
 		>
 			<Navigation />
 			<HeroSection />
-			{/* <div className="relative -mt-16 px-16 pb-16">
-				<SearchBar />
-			</div> */}
+			<div className="mt-[0.5]">
+				<SearchFilter />
+			</div>
 		</div>
 	);
 }
