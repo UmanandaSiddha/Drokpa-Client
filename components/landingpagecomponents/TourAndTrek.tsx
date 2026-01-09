@@ -31,7 +31,7 @@ export default function ToursAndTreks() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-6">
+    <div className="py-12 px-6">
       <div className="max-w-8xl w-[95%] mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
