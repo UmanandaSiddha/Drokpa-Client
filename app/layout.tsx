@@ -29,7 +29,6 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
 			>
-				<Nav transition={true} />
 				{children}
 				<Footer/>
 			</body>
