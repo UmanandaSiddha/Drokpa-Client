@@ -1,12 +1,12 @@
 import Footer from "@/components/landingpagecomponents/Footer";
 import GetInspired from "@/components/landingpagecomponents/GetInspired";
 import HeroSection from "@/components/landingpagecomponents/HeroSection";
-import HomeStays from "@/components/landingpagecomponents/HomeStays";
 import Navigation from "@/components/landingpagecomponents/Navigation";
 import SearchFilter from "@/components/landingpagecomponents/SearchFilter";
 import ThingsToDo from "@/components/landingpagecomponents/ThingsToDo";
-import ToursAndTreks from "@/components/landingpagecomponents/TourAndTrek";
+import TourHomeComponent from "@/components/landingpagecomponents/TourHomeComponent";
 import WhyDroppa from "@/components/landingpagecomponents/WhyDropa";
+import tours from "@/data/tours";
 
 export default function App() {
 	return (
@@ -14,13 +14,13 @@ export default function App() {
 			className="min-h-screen bg-gray-50"
 			style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
 		>
-				<Navigation />
-				<HeroSection />
-				<div className="mt-[0.5]">
-					<SearchFilter />
-				</div>
-			<ToursAndTreks />
-			<HomeStays />
+			<Navigation />
+			<HeroSection />
+			<div className="mt-[0.5]">
+				<SearchFilter />
+			</div>
+			<TourHomeComponent tours={tours} title="Tours & Treks" />
+			<TourHomeComponent tours={tours} title="HomeStays" />
 			<WhyDroppa />
 			<ThingsToDo />
 			<GetInspired />

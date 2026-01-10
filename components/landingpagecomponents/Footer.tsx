@@ -21,8 +21,8 @@ export default function Footer() {
           {/* Background Mountain Illustration */}
           <div className="absolute inset-0 overflow-hidden">
             <svg className="absolute bottom-0 left-0 w-full h-full opacity-30" viewBox="0 0 1200 400" preserveAspectRatio="none">
-              <path d="M0,400 L0,200 L300,100 L600,250 L900,50 L1200,200 L1200,400 Z" fill="currentColor" className="text-gray-900"/>
-              <path d="M100,400 L100,300 L250,250 L400,320 L550,200 L700,280 L850,180 L1000,260 L1150,200 L1200,240 L1200,400 Z" fill="currentColor" className="text-gray-800 opacity-50"/>
+              <path d="M0,400 L0,200 L300,100 L600,250 L900,50 L1200,200 L1200,400 Z" fill="currentColor" className="text-gray-900" />
+              <path d="M100,400 L100,300 L250,250 L400,320 L550,200 L700,280 L850,180 L1000,260 L1150,200 L1200,240 L1200,400 Z" fill="currentColor" className="text-gray-800 opacity-50" />
             </svg>
             {/* Decorative dots pattern */}
             <div className="absolute top-10 left-10 w-32 h-32 opacity-20">
@@ -75,7 +75,7 @@ export default function Footer() {
         <div className="max-w-8xl w-[95%] mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
             {/* Newsletter Section */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 pr-10">
               <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
                 Join the<br />Community
               </h3>
@@ -92,51 +92,54 @@ export default function Footer() {
                   onClick={handleSubmit}
                   className="p-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-all duration-300 transform hover:scale-105"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-5 h-5 text-black" />
                 </button>
               </div>
             </div>
 
-            {/* Quick Links */}
-            <div className="sm:col-span-1">
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">Contact Us</a></li>
-                <li><a href="#" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">Experiences</a></li>
-                <li><a href="#" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">Treks</a></li>
-                <li><a href="#" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">Route Planner</a></li>
-                <li><a href="#" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">Blogs</a></li>
-                <li><a href="#" className="text-gray-700 hover:text-emerald-600 transition-colors font-medium">Our Story</a></li>
-              </ul>
-            </div>
+            {/* Links Section (Quick + Social) */}
+            <div className="lg:col-span-2 pl-10 ml-12">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 border-l border-gray-300 pl-8">
 
-            {/* Social Links */}
-            <div className="sm:col-span-1">
-              <ul className="space-y-3">
-                <li>
-                  <a href="#" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 transition-colors font-medium">
-                    <Facebook className="w-5 h-5" />
-                    Facebook
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 transition-colors font-medium">
-                    <Instagram className="w-5 h-5" />
-                    Instagram
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 transition-colors font-medium">
-                    <Linkedin className="w-5 h-5" />
-                    Linkedin
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 transition-colors font-medium">
-                    <Youtube className="w-5 h-5" />
-                    Youtube
-                  </a>
-                </li>
-              </ul>
+                {/* Quick Links */}
+                <ul className="space-y-3">
+                  <li><a href="#" className="text-gray-700 hover:text-emerald-600 font-medium">Contact Us</a></li>
+                  <li><a href="#" className="text-gray-700 hover:text-emerald-600 font-medium">Experiences</a></li>
+                  <li><a href="#" className="text-gray-700 hover:text-emerald-600 font-medium">Treks</a></li>
+                  <li><a href="#" className="text-gray-700 hover:text-emerald-600 font-medium">Route Planner</a></li>
+                  <li><a href="#" className="text-gray-700 hover:text-emerald-600 font-medium">Blogs</a></li>
+                  <li><a href="#" className="text-gray-700 hover:text-emerald-600 font-medium">Our Story</a></li>
+                </ul>
+
+                {/* Social Links */}
+                <ul className="space-y-3 border-l border-gray-300 pl-8">
+                  <li>
+                    <a href="#" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 font-medium">
+                      <Facebook className="w-5 h-5" />
+                      Facebook
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 font-medium">
+                      <Instagram className="w-5 h-5" />
+                      Instagram
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 font-medium">
+                      <Linkedin className="w-5 h-5" />
+                      Linkedin
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 font-medium">
+                      <Youtube className="w-5 h-5" />
+                      Youtube
+                    </a>
+                  </li>
+                </ul>
+
+              </div>
             </div>
           </div>
 
