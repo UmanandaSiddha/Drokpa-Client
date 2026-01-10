@@ -23,7 +23,7 @@ const Navigation = () => {
     }, []);
 
     return (
-        <nav className="bg-white px-8 py-4 flex items-center justify-between">
+        <nav className="px-8 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
                 <Image
                     src={logo}

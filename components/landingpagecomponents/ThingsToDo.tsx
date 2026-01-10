@@ -58,7 +58,7 @@ export default function ThingsToDo() {
   };
 
   return (
-    <div className="min-h-screen bg-white py-8 sm:py-12 md:py-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-8 sm:py-12 md:py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-8xl w-[95%] mx-auto">
         {/* Header with Navigation */}
         <div className="flex items-center justify-between mb-6 sm:mb-8">

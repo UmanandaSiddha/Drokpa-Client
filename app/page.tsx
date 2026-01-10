@@ -14,12 +14,12 @@ export default function App() {
 			className="min-h-screen bg-gray-50"
 			style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
 		>
-			<Navigation />
-			<HeroSection />
-			<div className="mt-[0.5]">
-				<SearchFilter />
-			</div>
-			<ToursAndTreks/>
+				<Navigation />
+				<HeroSection />
+				<div className="mt-[0.5]">
+					<SearchFilter />
+				</div>
+			<ToursAndTreks />
 			<HomeStays />
 			<WhyDroppa />
 			<ThingsToDo />

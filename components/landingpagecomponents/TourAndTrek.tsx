@@ -67,7 +67,7 @@ export default function ToursAndTreks() {
             {tours.map((tour) => (
               <div
                 key={tour.id}
-                className="min-w-[calc(33.333%-16px)] bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 group"
+                className="min-w-[calc(33.333%-16px)] bg-white rounded-2xl overflow-hidden transition-all duration-300 group"
               >
                 {/* Image Container */}
                 <div className="relative h-64 overflow-hidden">
