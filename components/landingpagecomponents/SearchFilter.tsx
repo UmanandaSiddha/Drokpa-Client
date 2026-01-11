@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 interface SearchFilterProps {
   onSearch?: (filters: FilterState) => void;
@@ -14,83 +14,110 @@ interface FilterState {
 
 export default function SearchFilter({ onSearch }: SearchFilterProps) {
   const [filters, setFilters] = useState<FilterState>({
-    region: 'All Regions',
-    date: 'Date',
-    category: 'All'
+    region: "All Regions",
+    date: "",
+    category: "All",
   });
 
-  const regions = ['All Regions', 'North America', 'Europe', 'Asia', 'South America', 'Africa', 'Oceania'];
-  const categories = ['All', 'Technology', 'Business', 'Science', 'Health', 'Entertainment', 'Sports'];
+  const regions = [
+    "All Regions",
+    "North America",
+    "Europe",
+    "Asia",
+    "South America",
+    "Africa",
+    "Oceania",
+  ];
+
+  const categories = [
+    "All",
+    "Technology",
+    "Business",
+    "Science",
+    "Health",
+    "Entertainment",
+    "Sports",
+  ];
 
   const handleFilterChange = (key: keyof FilterState, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSearch = () => {
     onSearch?.(filters);
   };
 
+  const selectClass =
+    "w-full bg-transparent border-b border-gray-500 text-white text-sm pb-2 pr-8 focus:outline-none cursor-pointer";
+
   return (
-    <div className="w-[95%] max-w-8xl mx-auto px-6 py-8 bg-gradient-to-br bg-[#27261C] rounded-3xl shadow-2xl">
-      <div className="flex items-center gap-6 px-32">
-        {/* Region Filter */}
-        <div className="flex-1">
-          <label className="block text-xs font-semibold text-white uppercase tracking-wider mb-2">
+    <div className="w-[95%] mx-auto bg-[#27261C] rounded-3xl px-10 py-10 shadow-xl">
+      <div className="flex items-end justify-between gap-10 px-28">
+
+        {/* REGION */}
+        <div className="flex-1 relative">
+          <p className="text-[11px] text-white uppercase mb-2 font-bold">
             Region
-          </label>
+          </p>
           <select
             value={filters.region}
-            onChange={(e) => handleFilterChange('region', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all cursor-pointer hover:bg-gray-800"
+            onChange={(e) => handleFilterChange("region", e.target.value)}
+            className={selectClass}
           >
             {regions.map((region) => (
-              <option key={region} value={region}>
+              <option
+                key={region}
+                value={region}
+                className="bg-[#1f1e16] text-white"
+              >
                 {region}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Date Filter */}
+        {/* DATES */}
         <div className="flex-1">
-          <label className="block text-xs font-semibold text-white uppercase tracking-wider mb-2">
+          <p className="text-[11px] text-white uppercase mb-2 font-bold">
             Dates
-          </label>
+          </p>
           <input
             type="date"
             value={filters.date}
-            onChange={(e) => handleFilterChange('date', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all cursor-pointer hover:bg-gray-800"
+            onChange={(e) => handleFilterChange("date", e.target.value)}
+            className="w-full bg-transparent border-b border-gray-500 text-white text-sm pb-2 focus:outline-none cursor-pointer"
           />
         </div>
 
-        {/* Category Filter */}
-        <div className="flex-1">
-          <label className="block text-xs font-semibold text-white uppercase tracking-wider mb-2">
+        {/* CATEGORY */}
+        <div className="flex-1 relative">
+          <p className="text-[11px] text-white uppercase mb-2 font-bold">
             Category
-          </label>
+          </p>
           <select
             value={filters.category}
-            onChange={(e) => handleFilterChange('category', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all cursor-pointer hover:bg-gray-800"
+            onChange={(e) => handleFilterChange("category", e.target.value)}
+            className={selectClass}
           >
             {categories.map((category) => (
-              <option key={category} value={category}>
+              <option
+                key={category}
+                value={category}
+                className="bg-[#1f1e16] text-white"
+              >
                 {category}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Search Button */}
-        <div className="flex-shrink-0 self-end">
-          <button
-            onClick={handleSearch}
-            className="px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-full shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95"
-          >
-            Search
-          </button>
-        </div>
+        {/* SEARCH BUTTON */}
+        <button
+          onClick={handleSearch}
+          className="bg-emerald-500 text-black font-medium px-8 py-3 rounded-full hover:bg-emerald-600 transition"
+        >
+          Search
+        </button>
       </div>
     </div>
   );
