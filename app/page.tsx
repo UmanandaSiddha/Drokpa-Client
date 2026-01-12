@@ -11,20 +11,26 @@ import tours from "@/data/tours";
 export default function App() {
 	return (
 		<div
-			className="min-h-screen bg-gray-50"
+			className="min-h-screen bg-gray-50 flex justify-center"
 			style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
 		>
-			<Navigation />
-			<HeroSection />
-			<div className="mt-[0.5]">
-				<SearchFilter />
+			<div className="w-[90%] max-w-[1600px]">
+				<div className="h-screen flex flex-col overflow-hidden">
+					<Navigation />
+					<div className="flex-1 flex items-center mb-1">
+						<HeroSection />
+					</div>
+				</div>
+				<div className="pb-4">
+					<SearchFilter />
+				</div>
+				<TourHomeComponent tours={tours} title="Tours & Treks" />
+				<TourHomeComponent tours={tours} title="HomeStays" />
+				<WhyDroppa />
+				<ThingsToDo />
+				<GetInspired />
+				<Footer />
 			</div>
-			<TourHomeComponent tours={tours} title="Tours & Treks" />
-			<TourHomeComponent tours={tours} title="HomeStays" />
-			<WhyDroppa />
-			<ThingsToDo />
-			<GetInspired />
-			<Footer />
 		</div>
 	);
 }

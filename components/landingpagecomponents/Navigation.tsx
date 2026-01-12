@@ -5,6 +5,7 @@ import Image from "next/image";
 import logo from "@/assets/logo.png";
 import send from "@/assets/send.png";
 import { useEffect, useRef, useState } from 'react';
+import { GreenArrow, MainLogo } from '@/assets';
 
 // Navigation Component
 const Navigation = () => {
@@ -23,19 +24,36 @@ const Navigation = () => {
     }, []);
 
     return (
-        <nav className="px-8 py-4 flex items-center justify-between">
+        <nav 
+            className="py-3 flex items-center justify-between"
+            style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500 }}
+        >
             <div className="flex items-center gap-2">
                 <Image
-                    src={logo}
+                    src={MainLogo}
                     alt="Drokpa Logo"
                     priority
+                    width={44}
+                    height={44}
                 />
+                <p 
+                    style={{ 
+                        fontFamily: "var(--font-subjectivity), sans-serif",
+                        fontWeight: 700,
+                        fontSize: "24px",
+                        lineHeight: "32px",
+                        letterSpacing: "-0.07em",
+                        color: "#353030"
+                    }}
+                >
+                    Drokpa.
+                </p>
             </div>
 
             <div className="flex justify-center">
                 <div
                     ref={navRef}
-                    className="relative flex items-center gap-10 px-6 h-12 bg-gray-200 rounded-2xl"
+                    className="relative flex items-center gap-6 p-4 h-[46px] max-w-[383px] bg-gray-200 rounded-[8px]"
                 >
                     {/* Experiences */}
                     <div className="relative">
@@ -43,7 +61,10 @@ const Navigation = () => {
                             onClick={() =>
                                 setOpenMenu(openMenu === "experiences" ? null : "experiences")
                             }
-                            className="flex items-center gap-1 cursor-pointer text-gray-700 hover:text-gray-900"
+                            className="flex items-center gap-1 cursor-pointer text-[#27261C] hover:text-gray-900"
+                            style={{
+                                fontSize: "14px",
+                            }}
                         >
                             Experiences
                             <ChevronDown
@@ -74,7 +95,10 @@ const Navigation = () => {
                             onClick={() =>
                                 setOpenMenu(openMenu === "treks" ? null : "treks")
                             }
-                            className="flex items-center gap-1 cursor-pointer text-gray-700 hover:text-gray-900"
+                            className="flex items-center gap-1 cursor-pointer text-[#27261C] hover:text-gray-900"
+                            style={{
+                                fontSize: "14px",
+                            }}
                         >
                             Treks
                             <ChevronDown
@@ -100,21 +124,41 @@ const Navigation = () => {
                     </div>
 
                     {/* Contact */}
-                    <button className="text-gray-700 hover:text-gray-900">
+                    <button
+                        className="text-[#27261C] hover:text-gray-900"
+                        style={{
+                            fontSize: "14px",
+                        }}
+                    >
                         Contact us
                     </button>
                 </div>
             </div>
 
-            <div className="flex items-center gap-10">
-                <button className="text-gray-700 hover:text-gray-900">Login</button>
+            <div className="flex items-center gap-6">
+                <button className="text-gray-700 hover:text-gray-900 underline" style={{
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    color: "#27261C",
+                }}>
+                    Login</button>
                 <button className="flex items-center gap-2 text-black">
                     <Image
-                    src={send}
-                    alt="Drokpa Logo"
-                    priority
-                />
-                    Build Your Itinerary
+                        src={GreenArrow}
+                        alt="Green Arrow"
+                        priority
+                        width={16}
+                        height={16}
+                    />
+                    <p
+                        style={{
+                            fontSize: "14px",
+                            fontWeight: 500,
+                            color: "#27261C",
+                        }}
+                    >
+                        Build Your Itinerary
+                    </p>
                 </button>
             </div>
         </nav>

@@ -1,34 +1,46 @@
+import { HeroBg } from "@/assets";
 import TrekCard from "./TrekCard";
 import WeatherWidget from "./WeatherWidget";
 
 const HeroSection = () => {
-  return (
-    <div className="flex justify-center">
-      <div className="relative h-150 w-[95%] max-w-8xl overflow-hidden rounded-2xl">
-        
-        {/* Background */}
-        <img
-          src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&h=900&fit=crop"
-          alt="Mountain landscape"
-          className="absolute inset-0 w-full h-full object-cover z-0"
-        />
+	return (
+		<div className="flex justify-center h-full w-full">
+			<div className="relative h-full w-full overflow-hidden rounded-[12px]">
 
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/40 z-10" />
+				{/* Background */}
+				<img
+					src={HeroBg.src}
+					alt="Hero Background"
+					width={1000}
+					height={1000}
+					className="absolute inset-0 w-full h-full object-cover z-0"
+				/>
 
-        {/* Floating widgets */}
-        <WeatherWidget />
-        <TrekCard />
+				{/* Overlay */}
+				<div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/40 z-10" />
 
-        {/* Hero text */}
-        <div className="relative z-20 h-full flex flex-col justify-end px-16 pb-24">
-          <h1 className="text-white text-7xl font-bold leading-tight">
-            Journeys Designed For<br />
-            Comfort And Connection.
-          </h1>
-        </div>
-      </div>
-    </div>
-  );
+				{/* Floating widgets */}
+				<WeatherWidget />
+				<TrekCard />
+
+				{/* Hero text */}
+				<div className="relative z-20 h-full flex flex-col justify-end px-8 pb-6">
+					<h1 
+						style={{
+							fontFamily: "var(--font-subjectivity), sans-serif",
+							fontWeight: 700,
+							fontSize: "68px",
+							lineHeight: "80px",
+							letterSpacing: "-0.06em",
+							color: "#F6F6F6"
+						}}
+					>
+						Journeys Designed For<br />
+						Comfort And Connection.
+					</h1>
+				</div>
+			</div>
+		</div>
+	);
 };
 export default HeroSection

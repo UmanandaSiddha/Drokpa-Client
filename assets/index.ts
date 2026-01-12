@@ -20,3 +20,8 @@ export { default as SnowRainIconLogo } from './weather-icons/snow-rain.svg';
 export { default as StormIconLogo } from './weather-icons/storm.svg';
 export { default as SnowIconLogo } from './weather-icons/snow.svg';
 export { default as CloudIconLogo } from './weather-icons/cloud.svg';
+
+// Main
+export { default as MainLogo } from './main/drokpa_logo.svg';
+export { default as HeroBg } from './main/hero_bg.jpg';
+export { default as GreenArrow } from './main/green_arrow.svg';
