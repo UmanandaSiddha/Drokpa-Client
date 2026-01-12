@@ -16,11 +16,10 @@ export default function Footer() {
   };
 
   return (
-    <div className="bg-linear-to-br from-gray-50 to-white">
+    <div className="">
       {/* CTA Banner */}
       <div className="max-w-8xl w-[95%] mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="relative rounded-[32px] overflow-hidden shadow-2xl min-h-[440px] md:min-h-[500px]">
-
+        <div className="relative rounded-4xl overflow-hidden min-h-110 md:min-h-125">
           {/* Background */}
           <Image
             src={img1}
@@ -73,7 +72,7 @@ export default function Footer() {
 
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white">
+      <footer className="border-t border-gray-200 bg-[#F6F6F6] rounded-t-2xl">
         <div className="max-w-8xl w-[95%] mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
             {/* Newsletter Section */}
