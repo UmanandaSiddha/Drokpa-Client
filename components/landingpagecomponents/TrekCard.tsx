@@ -89,7 +89,7 @@ const TrekCard = () => {
 						</div>
 					</div>
 					<button
-						className="bg-[#4F87C7] hover:bg-[#27261C] text-white px-5 py-3 rounded-[4px] text-[17px] font-semibold transition-colors"
+						className="bg-[#4F87C7] hover:bg-[#27261C] text-white px-5 py-3 rounded-[4px] text-[14px] font-semibold transition-colors"
 						style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500 }}
 					>
 						BOOK NOW

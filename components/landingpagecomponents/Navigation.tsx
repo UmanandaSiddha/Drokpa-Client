@@ -135,13 +135,15 @@ const Navigation = () => {
                 </div>
             </div>
 
-            <div className="flex items-center gap-6">
-                <button className="text-gray-700 hover:text-gray-900 underline" style={{
+            <div className="flex items-center gap-4">
+                <button className="text-gray-700 hover:text-gray-900" style={{
                     fontSize: "14px",
                     fontWeight: 500,
                     color: "#27261C",
                 }}>
-                    Login</button>
+                    Login
+                </button>
+                <div className="h-6 w-px bg-gray-300"></div>
                 <button className="flex items-center gap-2 text-black">
                     <Image
                         src={GreenArrow}

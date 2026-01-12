@@ -11,7 +11,7 @@ import tours from "@/data/tours";
 export default function App() {
 	return (
 		<div
-			className="min-h-screen bg-gray-50 flex justify-center"
+			className="min-h-screen bg-white flex justify-center"
 			style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
 		>
 			<div className="w-[90%] max-w-[1600px]">
