@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { ChevronRight, Facebook, Instagram, Linkedin, Youtube } from 'lucide-react';
+import img1 from "@/assets/footer-image1.png";
+import Image from 'next/image';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
@@ -14,64 +16,63 @@ export default function Footer() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-white">
+    <div className="">
       {/* CTA Banner */}
-      <div className="max-w-8xl w-[95%] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
-        <div className="relative bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-3xl sm:rounded-[2.5rem] overflow-hidden shadow-2xl">
-          {/* Background Mountain Illustration */}
-          <div className="absolute inset-0 overflow-hidden">
-            <svg className="absolute bottom-0 left-0 w-full h-full opacity-30" viewBox="0 0 1200 400" preserveAspectRatio="none">
-              <path d="M0,400 L0,200 L300,100 L600,250 L900,50 L1200,200 L1200,400 Z" fill="currentColor" className="text-gray-900" />
-              <path d="M100,400 L100,300 L250,250 L400,320 L550,200 L700,280 L850,180 L1000,260 L1150,200 L1200,240 L1200,400 Z" fill="currentColor" className="text-gray-800 opacity-50" />
-            </svg>
-            {/* Decorative dots pattern */}
-            <div className="absolute top-10 left-10 w-32 h-32 opacity-20">
-              <div className="grid grid-cols-8 gap-2">
-                {[...Array(64)].map((_, i) => (
-                  <div key={i} className="w-1.5 h-1.5 bg-gray-900 rounded-full"></div>
-                ))}
-              </div>
-            </div>
-          </div>
+      <div className="max-w-8xl w-[95%] mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="relative rounded-4xl overflow-hidden min-h-110 md:min-h-125">
+          {/* Background */}
+          <Image
+            src={img1}
+            alt="Mountains"
+            fill
+            className="object-cover mix-blend-multiply"
+            priority
+          />
 
-          {/* Content */}
-          <div className="relative flex flex-col lg:flex-row items-center justify-between gap-8 px-6 sm:px-10 md:px-16 py-10 sm:py-12 md:py-16">
-            {/* Left Quote Section */}
-            <div className="flex-1 max-w-xl">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4">
-                "Where prayer flags color the wind and mountains remember."
+          {/* Content wrapper */}
+          <div className="relative z-10 flex w-full justify-between px-16 pt-14">
+
+            {/* LEFT TEXT — TOP LEFT */}
+            <div className="max-w-xl">
+              <h2 className="text-[32px] sm:text-[38px] md:text-4xl font-semibold text-black leading-tight">
+                “Where prayer flags color the wind and mountains remember.”
               </h2>
             </div>
 
-            {/* Right CTA Card */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl max-w-md w-full">
-              {/* Progress Bar */}
-              <div className="flex gap-2 mb-6">
-                <div className="h-1 flex-1 bg-blue-500 rounded-full"></div>
-                <div className="h-1 flex-1 bg-gray-300 rounded-full"></div>
+            {/* RIGHT CARD — BIG & TOP ALIGNED */}
+            <div className="bg-white rounded-4xl shadow-xl p-8 w-[320px] min-h-100 flex flex-col justify-between">
+
+              {/* Progress bar */}
+              <div className="flex gap-2">
+                <span className="h-1.5 w-12 bg-blue-500 rounded-full"></span>
+                <span className="h-1.5 w-12 bg-gray-300 rounded-full"></span>
               </div>
 
-              {/* Text Content */}
-              <div className="mb-6">
-                <p className="text-base sm:text-lg text-gray-900 leading-relaxed mb-2">
-                  <span className="font-semibold">Explore Arunachal's mountains, cultures, and quiet paths.</span>
+              {/* Text */}
+              <div>
+                <p className="text-3xl font-bold text-gray-700 mb-3">
+                  Explore Arunachal’s mountains, cultures, and quiet paths.
                 </p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900">
+
+                <p className="text-2xl font-bold text-gray-700">
                   15% off all treks.
                 </p>
               </div>
 
-              {/* CTA Button */}
-              <button className="w-full px-6 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+              {/* Button */}
+              <button className="w-[60%] bg-orange-500 hover:bg-orange-600 text-black font-medium py-3 rounded-xl transition">
                 Explore All
               </button>
             </div>
+
           </div>
         </div>
       </div>
 
+
+
       {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white">
+      <footer className="border-t border-gray-200 bg-[#F6F6F6] rounded-t-2xl">
         <div className="max-w-8xl w-[95%] mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
             {/* Newsletter Section */}
