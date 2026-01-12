@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
 import { Tour } from "@/data/tours";
 import { GreenStar } from "@/assets";
 import Image from "next/image";
+import Link from "next/link";
 
 interface TourHomeComponentProps {
 	tours: Tour[];
@@ -17,9 +18,29 @@ export default function TourHomeComponent({
 }: TourHomeComponentProps) {
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [favorites, setFavorites] = useState<Set<number>>(new Set());
+	const [itemsPerView, setItemsPerView] = useState(4);
+
+	useEffect(() => {
+		const updateItemsPerView = () => {
+			if (typeof window !== "undefined") {
+				const width = window.innerWidth;
+				if (width < 768) {
+					setItemsPerView(1); // Mobile
+				} else if (width < 1024) {
+					setItemsPerView(2); // Tablet
+				} else {
+					setItemsPerView(4); // Desktop
+				}
+			}
+		};
+
+		updateItemsPerView();
+		window.addEventListener("resize", updateItemsPerView);
+		return () => window.removeEventListener("resize", updateItemsPerView);
+	}, []);
 
 	const handleNext = () => {
-		if (currentIndex < tours.length - 4) {
+		if (currentIndex < tours.length - itemsPerView) {
 			setCurrentIndex(currentIndex + 1);
 		}
 	};
@@ -40,17 +61,22 @@ export default function TourHomeComponent({
 
 	if (!tours?.length) return null;
 
+	const gap = 1.5; // 1.5rem = 24px = gap-6
+	const gapTotal = gap * (itemsPerView - 1);
+	const cardWidthPercent = `calc((100% - ${gapTotal}rem) / ${itemsPerView})`;
+	const translateX = `calc(-${currentIndex} * (${cardWidthPercent} + ${gap}rem))`;
+
 	return (
-		<div className="pt-18" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
+		<div className="pt-12 md:pt-18" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
 			<div className="mx-auto">
 
 				{/* Header */}
 				<div className="flex items-center justify-between mb-4">
 					<h1 
+						className="text-2xl md:text-3xl lg:text-[32px]"
 						style={{
 							fontFamily: "var(--font-subjectivity), sans-serif",
 							fontWeight: 700,
-							fontSize: "32px",
 							color: "#353030"
 						}}
 					>
@@ -61,19 +87,19 @@ export default function TourHomeComponent({
 						<button
 							onClick={handlePrev}
 							disabled={currentIndex === 0}
-							className="w-10 h-10 bg-gray-200 rounded-xl flex items-center justify-center hover:bg-gray-50 transition disabled:opacity-50"
+							className="w-8 h-8 md:w-10 md:h-10 bg-gray-200 rounded-xl flex items-center justify-center hover:bg-gray-50 transition disabled:opacity-50"
 							style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
 						>
-							<ChevronLeft className="w-5 h-5 text-gray-700" />
+							<ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
 						</button>
 
 						<button
 							onClick={handleNext}
-							disabled={currentIndex >= tours.length - 4}
-							className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center hover:bg-gray-800 transition disabled:opacity-50"
+							disabled={currentIndex >= tours.length - itemsPerView}
+							className="w-8 h-8 md:w-10 md:h-10 bg-gray-900 rounded-xl flex items-center justify-center hover:bg-gray-800 transition disabled:opacity-50"
 							style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
 						>
-							<ChevronRight className="w-5 h-5 text-white" />
+							<ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-white" />
 						</button>
 					</div>
 				</div>
@@ -86,19 +112,20 @@ export default function TourHomeComponent({
 					<div
 						className="flex gap-6"
 						style={{ 
-							transform: `translateX(calc(-${currentIndex} * ((100% - 4.5rem) / 4 + 1.5rem)))`,
+							transform: translateX,
 							transition: "transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
 							willChange: "transform"
 						}}
 					>
 						{tours.map((tour) => (
-							<div
+							<Link
 								key={tour.id}
+								href={title === "HomeStays" ? `/homestays/${tour.id}` : `/tours/${tour.id}`}
 								className="flex-shrink-0 bg-white overflow-hidden"
-								style={{ width: "calc((100% - 4.5rem) / 4)" }}
+								style={{ width: cardWidthPercent }}
 							>
 								{/* Image */}
-								<div className="relative h-56 overflow-hidden">
+								<div className="relative h-48 md:h-56 overflow-hidden">
 									<img
 										src={tour.image}
 										alt={tour.title}
@@ -107,7 +134,7 @@ export default function TourHomeComponent({
 
 									{/* Duration Tag */}
 									<div 
-										className="absolute top-4 left-4 px-3 py-1.5 rounded-xl text-xs font-medium"
+										className="absolute top-3 left-3 md:top-4 md:left-4 px-2 py-1 md:px-3 md:py-1.5 rounded-xl text-[10px] md:text-xs font-medium"
 										style={{
 											backgroundColor: "rgba(255, 255, 255, 0.9)",
 											fontFamily: "var(--font-mona-sans), sans-serif",
@@ -133,11 +160,11 @@ export default function TourHomeComponent({
 								</div>
 
 								{/* Content */}
-								<div className="pt-3 px-1" style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}>
+								<div className="pt-2 md:pt-3 px-1" style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}>
 									{/* Title and Rating */}
-									<div className="flex items-start justify-between mb-3 gap-2">
+									<div className="flex items-start justify-between mb-2 md:mb-3 gap-2">
 										<h3 
-											className="text-xl font-bold flex-1"
+											className="text-base md:text-lg lg:text-xl font-bold flex-1"
 											style={{ 
 												fontFamily: "var(--font-mona-sans), sans-serif",
 												fontWeight: 700,
@@ -147,9 +174,9 @@ export default function TourHomeComponent({
 											{tour.title}
 										</h3>
 										<div className="flex items-center gap-1 flex-shrink-0">
-											<Image src={GreenStar} alt="Green Star" className="w-4 h-4" width={16} height={16} />
+											<Image src={GreenStar} alt="Green Star" className="w-3 h-3 md:w-4 md:h-4" width={16} height={16} />
 											<span 
-												className="text-sm font-semibold"
+												className="text-xs md:text-sm font-semibold"
 												style={{ 
 													fontFamily: "var(--font-mona-sans), sans-serif",
 													fontWeight: 600,
@@ -163,7 +190,7 @@ export default function TourHomeComponent({
 
 									{/* Description */}
 									<p 
-										className="text-sm mb-4"
+										className="text-xs md:text-sm mb-3 md:mb-4 line-clamp-2"
 										style={{ 
 											fontFamily: "var(--font-mona-sans), sans-serif",
 											fontWeight: 400,
@@ -175,11 +202,11 @@ export default function TourHomeComponent({
 									</p>
 
 									{/* Activity Tags */}
-									<div className="flex flex-wrap gap-2 mb-4">
+									<div className="flex flex-wrap gap-1.5 md:gap-2 mb-3 md:mb-4">
 										{tour.features.map((feature, i) => (
 											<span
 												key={i}
-												className="px-3 py-1 rounded-lg text-xs font-medium"
+												className="px-2 py-0.5 md:px-3 md:py-1 rounded-lg text-[10px] md:text-xs font-medium"
 												style={{
 													backgroundColor: "#F5F5F5",
 													fontFamily: "var(--font-mona-sans), sans-serif",
@@ -193,9 +220,9 @@ export default function TourHomeComponent({
 									</div>
 
 									{/* Price Section */}
-									<div className="flex items-baseline relative">
+									<div className="flex items-baseline relative flex-wrap gap-1">
 										<span 
-											className="text-xl"
+											className="text-lg md:text-xl"
 											style={{
 												fontFamily: "var(--font-mona-sans), sans-serif",
 												fontWeight: 500,
@@ -205,7 +232,7 @@ export default function TourHomeComponent({
 											₹{tour.price.toLocaleString("en-IN")}/
 										</span>
 										<span 
-											className="text-lg"
+											className="text-sm md:text-lg"
 											style={{
 												fontFamily: "var(--font-mona-sans), sans-serif",
 												fontWeight: 500,
@@ -215,7 +242,7 @@ export default function TourHomeComponent({
 											person
 										</span>
 										<span 
-											className="text-md line-through ml-2"
+											className="text-xs md:text-base line-through ml-1 md:ml-2"
 											style={{
 												fontFamily: "var(--font-mona-sans), sans-serif",
 												fontWeight: 400,
@@ -226,7 +253,7 @@ export default function TourHomeComponent({
 										</span>
 										{tour.discount && (
 											<div 
-												className="ml-2 px-2 py-1 rounded-sm text-sm font-normal text-white"
+												className="ml-1 md:ml-2 px-1.5 py-0.5 md:px-2 md:py-1 rounded-sm text-xs md:text-sm font-normal text-white"
 												style={{
 													backgroundColor: "#008C4D",
 													fontFamily: "var(--font-mona-sans), sans-serif",
@@ -238,7 +265,7 @@ export default function TourHomeComponent({
 										)}
 									</div>
 								</div>
-							</div>
+							</Link>
 						))}
 					</div>
 				</div>

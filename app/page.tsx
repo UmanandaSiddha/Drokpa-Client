@@ -2,7 +2,7 @@ import Footer from "@/components/landingpagecomponents/Footer";
 import GetInspired from "@/components/landingpagecomponents/GetInspired";
 import HeroSection from "@/components/landingpagecomponents/HeroSection";
 import Navigation from "@/components/landingpagecomponents/Navigation";
-import SearchFilter from "@/components/landingpagecomponents/SearchFilter";
+// import SearchFilter from "@/components/landingpagecomponents/SearchFilter";
 import ThingsToDo from "@/components/landingpagecomponents/ThingsToDo";
 import TourHomeComponent from "@/components/landingpagecomponents/TourHomeComponent";
 import WhyDroppa from "@/components/landingpagecomponents/WhyDropa";
@@ -14,7 +14,7 @@ export default function App() {
 			className="min-h-screen bg-white flex justify-center"
 			style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
 		>
-			<div className="w-[90%] max-w-[1600px]">
+			<div className="w-full px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px]">
 				<div className="h-screen flex flex-col overflow-hidden">
 					<Navigation />
 					<div className="flex-1 flex items-center mb-1">

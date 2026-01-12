@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Activity {
@@ -13,6 +13,26 @@ interface Activity {
 export default function ThingsToDo() {
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [hoveredId, setHoveredId] = useState<number | null>(null);
+	const [itemsPerView, setItemsPerView] = useState(3);
+
+	useEffect(() => {
+		const updateItemsPerView = () => {
+			if (typeof window !== "undefined") {
+				const width = window.innerWidth;
+				if (width < 768) {
+					setItemsPerView(1); // Mobile
+				} else if (width < 1024) {
+					setItemsPerView(2); // Tablet
+				} else {
+					setItemsPerView(3); // Desktop
+				}
+			}
+		};
+
+		updateItemsPerView();
+		window.addEventListener("resize", updateItemsPerView);
+		return () => window.removeEventListener("resize", updateItemsPerView);
+	}, []);
 
 	const activities: Activity[] = [
 		{
@@ -46,7 +66,7 @@ export default function ThingsToDo() {
 	];
 
 	const handleNext = () => {
-		if (currentIndex < activities.length - 3) {
+		if (currentIndex < activities.length - itemsPerView) {
 			setCurrentIndex(currentIndex + 1);
 		}
 	};
@@ -57,17 +77,22 @@ export default function ThingsToDo() {
 		}
 	};
 
+	const gap = 1.5; // 1.5rem = 24px = gap-6
+	const gapTotal = gap * (itemsPerView - 1);
+	const cardWidthPercent = `calc((100% - ${gapTotal}rem) / ${itemsPerView})`;
+	const translateX = `calc(-${currentIndex} * (${cardWidthPercent} + ${gap}rem))`;
+
 	return (
-		<div className="pt-18" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
+		<div className="pt-16 md:pt-24" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
 			<div className="mx-auto">
 
 				{/* Header */}
 				<div className="flex items-center justify-between mb-4">
 					<h1
+						className="text-2xl md:text-3xl lg:text-[32px]"
 						style={{
 							fontFamily: "var(--font-subjectivity), sans-serif",
 							fontWeight: 700,
-							fontSize: "32px",
 							color: "#353030"
 						}}
 					>
@@ -78,19 +103,19 @@ export default function ThingsToDo() {
 						<button
 							onClick={handlePrev}
 							disabled={currentIndex === 0}
-							className="w-10 h-10 bg-gray-200 rounded-xl flex items-center justify-center hover:bg-gray-50 transition disabled:opacity-50"
+							className="w-8 h-8 md:w-10 md:h-10 bg-gray-200 rounded-xl flex items-center justify-center hover:bg-gray-50 transition disabled:opacity-50"
 							style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
 						>
-							<ChevronLeft className="w-5 h-5 text-gray-700" />
+							<ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
 						</button>
 
 						<button
 							onClick={handleNext}
-							disabled={currentIndex >= activities.length - 3}
-							className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center hover:bg-gray-800 transition disabled:opacity-50"
+							disabled={currentIndex >= activities.length - itemsPerView}
+							className="w-8 h-8 md:w-10 md:h-10 bg-gray-900 rounded-xl flex items-center justify-center hover:bg-gray-800 transition disabled:opacity-50"
 							style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
 						>
-							<ChevronRight className="w-5 h-5 text-white" />
+							<ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-white" />
 						</button>
 					</div>
 				</div>
@@ -103,7 +128,7 @@ export default function ThingsToDo() {
 					<div
 						className="flex gap-6"
 						style={{ 
-							transform: `translateX(calc(-${currentIndex} * ((100% - 3rem) / 3 + 1.5rem)))`,
+							transform: translateX,
 							transition: "transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
 							willChange: "transform"
 						}}
@@ -117,10 +142,10 @@ export default function ThingsToDo() {
 									onMouseEnter={() => setHoveredId(activity.id)}
 									onMouseLeave={() => setHoveredId(null)}
 									className="relative flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer group"
-									style={{ width: "calc((100% - 3rem) / 3)", fontFamily: "var(--font-mona-sans), sans-serif" }}
+									style={{ width: cardWidthPercent, fontFamily: "var(--font-mona-sans), sans-serif" }}
 								>
 									{/* Image */}
-									<div className="relative h-[420px]">
+									<div className="relative h-[300px] md:h-[380px] lg:h-[420px]">
 										<img
 											src={activity.image}
 											alt={activity.title}
@@ -159,12 +184,12 @@ export default function ThingsToDo() {
 											<div className="flex items-end justify-between w-full">
 												{/* Title */}
 												<h3 
-													className={`text-2xl font-bold text-white drop-shadow-lg transition-all duration-300 ${
+													className={`text-xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${
 														isHovered ? "opacity-0 translate-y-2" : "opacity-100"
 													}`}
 													style={{ 
-														fontFamily: "var(--font-mona-sans), sans-serif",
-														fontWeight: 700
+														fontFamily: "var(--font-subjectivity), sans-serif",
+														fontWeight: 500
 													}}
 												>
 													{activity.title}

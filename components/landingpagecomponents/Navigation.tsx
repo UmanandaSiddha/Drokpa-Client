@@ -1,15 +1,14 @@
 "use client";
 
-import { ChevronDown, MapPin } from 'lucide-react';
+import { ChevronDown, MapPin, Menu, X } from 'lucide-react';
 import Image from "next/image";
-import logo from "@/assets/logo.png";
-import send from "@/assets/send.png";
 import { useEffect, useRef, useState } from 'react';
 import { GreenArrow, MainLogo } from '@/assets';
 
 // Navigation Component
 const Navigation = () => {
     const [openMenu, setOpenMenu] = useState<"experiences" | "treks" | null>(null);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const navRef = useRef<HTMLDivElement>(null);
 
     // Close dropdown when clicking outside
@@ -25,7 +24,7 @@ const Navigation = () => {
 
     return (
         <nav 
-            className="py-3 flex items-center justify-between"
+            className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 py-3 flex items-center justify-between"
             style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500 }}
         >
             <div className="flex items-center gap-2">
@@ -35,12 +34,13 @@ const Navigation = () => {
                     priority
                     width={44}
                     height={44}
+                    className="w-8 h-8 md:w-11 md:h-11"
                 />
                 <p 
+                    className="text-lg md:text-2xl"
                     style={{ 
                         fontFamily: "var(--font-subjectivity), sans-serif",
                         fontWeight: 700,
-                        fontSize: "24px",
                         lineHeight: "32px",
                         letterSpacing: "-0.07em",
                         color: "#353030"
@@ -50,7 +50,8 @@ const Navigation = () => {
                 </p>
             </div>
 
-            <div className="flex justify-center">
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex justify-center">
                 <div
                     ref={navRef}
                     className="relative flex items-center gap-6 p-4 h-[46px] max-w-[383px] bg-gray-200 rounded-[8px]"
@@ -135,7 +136,8 @@ const Navigation = () => {
                 </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            {/* Desktop Auth Buttons */}
+            <div className="hidden lg:flex items-center gap-4">
                 <button className="text-gray-700 hover:text-gray-900" style={{
                     fontSize: "14px",
                     fontWeight: 500,
@@ -163,6 +165,64 @@ const Navigation = () => {
                     </p>
                 </button>
             </div>
+
+            {/* Mobile Hamburger Menu */}
+            <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2"
+                aria-label="Toggle menu"
+            >
+                {mobileMenuOpen ? (
+                    <X className="w-6 h-6 text-[#27261C]" />
+                ) : (
+                    <Menu className="w-6 h-6 text-[#27261C]" />
+                )}
+            </button>
+
+            {/* Mobile Menu */}
+            {mobileMenuOpen && (
+                <div className="absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 lg:hidden">
+                    <div className="px-4 py-4 space-y-4">
+                        <button
+                            className="block w-full text-left py-2 text-[#27261C]"
+                            style={{ fontSize: "14px", fontWeight: 500 }}
+                        >
+                            Experiences
+                        </button>
+                        <button
+                            className="block w-full text-left py-2 text-[#27261C]"
+                            style={{ fontSize: "14px", fontWeight: 500 }}
+                        >
+                            Treks
+                        </button>
+                        <button
+                            className="block w-full text-left py-2 text-[#27261C]"
+                            style={{ fontSize: "14px", fontWeight: 500 }}
+                        >
+                            Contact us
+                        </button>
+                        <div className="border-t border-gray-200 pt-4 mt-4">
+                            <button
+                                className="block w-full text-left py-2 text-[#27261C] mb-2"
+                                style={{ fontSize: "14px", fontWeight: 500 }}
+                            >
+                                Login
+                            </button>
+                            <button className="flex items-center gap-2 py-2 text-[#27261C]">
+                                <Image
+                                    src={GreenArrow}
+                                    alt="Green Arrow"
+                                    width={16}
+                                    height={16}
+                                />
+                                <span style={{ fontSize: "14px", fontWeight: 500 }}>
+                                    Build Your Itinerary
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </nav>
     );
 };
