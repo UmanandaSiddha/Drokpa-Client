@@ -4,181 +4,200 @@ import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Activity {
-  id: number;
-  title: string;
-  image: string;
-  badge?: string;
+	id: number;
+	title: string;
+	image: string;
+	badge?: string;
 }
 
 export default function ThingsToDo() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+	const [currentIndex, setCurrentIndex] = useState(0);
+	const [hoveredId, setHoveredId] = useState<number | null>(null);
 
-  const activities: Activity[] = [
-    {
-      id: 1,
-      title: "Trekking",
-      image:
-        "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&h=600&fit=crop",
-      badge: "Adventure",
-    },
-    {
-      id: 2,
-      title: "Spiritual Places",
-      image:
-        "https://images.unsplash.com/photo-1548013146-72479768bada?w=800&h=600&fit=crop",
-        badge: "Adventure",
-    },
-    {
-      id: 3,
-      title: "Wildlife Safaris",
-      image:
-        "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800&h=600&fit=crop",
-        badge: "Adventure",
-    },
-    {
-      id: 4,
-      title: "River Rafting",
-      image:
-        "https://images.unsplash.com/photo-1548013146-72479768bada?w=800&h=600&fit=crop",
-      badge: "Adventure",
-    },
-  ];
+	const activities: Activity[] = [
+		{
+			id: 1,
+			title: "Trekking",
+			image:
+				"https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&h=600&fit=crop",
+			badge: "Adventure",
+		},
+		{
+			id: 2,
+			title: "Spiritual Places",
+			image:
+				"https://images.unsplash.com/photo-1548013146-72479768bada?w=800&h=600&fit=crop",
+			badge: "Adventure",
+		},
+		{
+			id: 3,
+			title: "Wildlife Safaris",
+			image:
+				"https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800&h=600&fit=crop",
+			badge: "Adventure",
+		},
+		{
+			id: 4,
+			title: "River Rafting",
+			image:
+				"https://images.unsplash.com/photo-1548013146-72479768bada?w=800&h=600&fit=crop",
+			badge: "Adventure",
+		},
+	];
 
-  const handleNext = () => {
-    if (currentIndex < activities.length - 2) {
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
+	const handleNext = () => {
+		if (currentIndex < activities.length - 3) {
+			setCurrentIndex(currentIndex + 1);
+		}
+	};
 
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
+	const handlePrev = () => {
+		if (currentIndex > 0) {
+			setCurrentIndex(currentIndex - 1);
+		}
+	};
 
-  return (
-    <div className="py-12 px-6">
-      <div className="max-w-8xl w-[95%] mx-auto">
+	return (
+		<div className="pt-18" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
+			<div className="mx-auto">
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-gray-900">Things To Do</h1>
+				{/* Header */}
+				<div className="flex items-center justify-between mb-4">
+					<h1
+						style={{
+							fontFamily: "var(--font-subjectivity), sans-serif",
+							fontWeight: 700,
+							fontSize: "32px",
+							color: "#353030"
+						}}
+					>
+						Things To Do
+					</h1>
 
-          <div className="flex gap-2">
-            <button
-              onClick={handlePrev}
-              disabled={currentIndex === 0}
-              className="w-10 h-10 bg-white border border-gray-300 rounded-full flex items-center justify-center shadow disabled:opacity-50"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={handleNext}
-              disabled={currentIndex >= activities.length - 2}
-              className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center shadow disabled:opacity-50"
-            >
-              <ChevronRight className="w-5 h-5 text-white" />
-            </button>
-          </div>
-        </div>
+					<div className="flex gap-2">
+						<button
+							onClick={handlePrev}
+							disabled={currentIndex === 0}
+							className="w-10 h-10 bg-gray-200 rounded-xl flex items-center justify-center hover:bg-gray-50 transition disabled:opacity-50"
+							style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
+						>
+							<ChevronLeft className="w-5 h-5 text-gray-700" />
+						</button>
 
-        {/* Divider */}
-        <div className="w-full h-[1px] bg-gray-900 mb-10"></div>
+						<button
+							onClick={handleNext}
+							disabled={currentIndex >= activities.length - 3}
+							className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center hover:bg-gray-800 transition disabled:opacity-50"
+							style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
+						>
+							<ChevronRight className="w-5 h-5 text-white" />
+						</button>
+					</div>
+				</div>
 
-        {/* Carousel */}
-        <div className="relative overflow-hidden">
-          <div
-            className="flex gap-6 transition-transform duration-500 ease-out"
-            style={{ transform: `translateX(-${currentIndex * 50}%)` }}
-          >
-            {activities.map((activity) => {
-              const isHovered = hoveredId === activity.id;
+				{/* Horizontal Line */}
+				<div className="border-t border-gray-200 mb-4"></div>
 
-              return (
-                <div
-                  key={activity.id}
-                  onMouseEnter={() => setHoveredId(activity.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  className="relative flex-shrink-0 w-[calc(100vw-2rem)] sm:w-[calc(50vw-3rem)] lg:w-[calc(30vw-3rem)] rounded-3xl overflow-hidden shadow-xl cursor-pointer group"
-                  style={{ minWidth: "260px" }}
-                >
-                  {/* Image */}
-                  <div className="relative h-80">
-                    <img
-                      src={activity.image}
-                      alt={activity.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
+				{/* Carousel */}
+				<div className="relative overflow-hidden">
+					<div
+						className="flex gap-6"
+						style={{ 
+							transform: `translateX(calc(-${currentIndex} * ((100% - 3rem) / 3 + 1.5rem)))`,
+							transition: "transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+							willChange: "transform"
+						}}
+					>
+						{activities.map((activity) => {
+							const isHovered = hoveredId === activity.id;
 
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+							return (
+								<div
+									key={activity.id}
+									onMouseEnter={() => setHoveredId(activity.id)}
+									onMouseLeave={() => setHoveredId(null)}
+									className="relative flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer group"
+									style={{ width: "calc((100% - 3rem) / 3)", fontFamily: "var(--font-mona-sans), sans-serif" }}
+								>
+									{/* Image */}
+									<div className="relative h-[420px]">
+										<img
+											src={activity.image}
+											alt={activity.title}
+											className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+										/>
 
-                    {/* Content */}
-                    <div className="absolute inset-0 flex flex-col justify-between p-6">
+										{/* Gradient Overlay (always visible) */}
+										<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
-                      {/* Badge */}
-                      {activity.badge && (
-                        <div className="self-end">
-                          <span className="px-4 py-2 bg-white/90 rounded-full text-xs font-semibold text-gray-900">
-                            {activity.badge}
-                          </span>
-                        </div>
-                      )}
+										{/* Hover Overlay (black/blur) */}
+										<div 
+											className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+												isHovered ? "opacity-60" : "opacity-0"
+											}`}
+										/>
 
-                      {/* Center Hover Button */}
-                      <div className="flex-1 flex items-center justify-center">
-                        <button
-                          className={`px-6 py-3 bg-white/95 rounded-full text-sm font-semibold text-gray-900 shadow-lg flex items-center gap-2 transition-all duration-300
-                            ${
-                              isHovered
-                                ? "opacity-100 scale-100"
-                                : "opacity-0 scale-95 pointer-events-none"
-                            }
-                          `}
-                        >
-                          Explore {activity.title}
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
-                      </div>
+										{/* Content */}
+										<div className="absolute inset-0 flex flex-col justify-end p-6">
 
-                      {/* Default Title */}
-                      <div
-                        className={`transition-all duration-300 ${
-                          isHovered
-                            ? "opacity-0 translate-y-2"
-                            : "opacity-100"
-                        }`}
-                      >
-                        <h3 className="text-xl font-bold text-white drop-shadow-lg">
-                          {activity.title}
-                        </h3>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+											{/* Center Hover Button */}
+											<div className="absolute inset-0 flex items-center justify-center">
+												<button
+													className={`px-6 py-3 bg-white rounded-full text-sm font-semibold text-gray-900 shadow-lg flex items-center gap-2 transition-all duration-300 ${
+														isHovered
+															? "opacity-100 scale-100"
+															: "opacity-0 scale-95 pointer-events-none"
+													}`}
+													style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+												>
+													Explore {activity.title}
+													<ChevronRight className="w-4 h-4" />
+												</button>
+											</div>
 
-        {/* Indicators */}
-        <div className="flex justify-center gap-2 mt-10">
-          {Array.from({ length: Math.max(1, activities.length - 1) }).map(
-            (_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`h-2 rounded-full transition-all ${
-                  currentIndex === index
-                    ? "w-8 bg-gray-900"
-                    : "w-2 bg-gray-300"
-                }`}
-              />
-            )
-          )}
-        </div>
-      </div>
-    </div>
-  );
+											{/* Bottom Content */}
+											<div className="flex items-end justify-between w-full">
+												{/* Title */}
+												<h3 
+													className={`text-2xl font-bold text-white drop-shadow-lg transition-all duration-300 ${
+														isHovered ? "opacity-0 translate-y-2" : "opacity-100"
+													}`}
+													style={{ 
+														fontFamily: "var(--font-mona-sans), sans-serif",
+														fontWeight: 700
+													}}
+												>
+													{activity.title}
+												</h3>
+
+												{/* Badge */}
+												{activity.badge && (
+													<div 
+														className={`transition-all duration-300 ${
+															isHovered ? "opacity-0 translate-y-2" : "opacity-100"
+														}`}
+													>
+														<span 
+															className="px-4 py-2 bg-white/90 rounded-full text-xs font-semibold"
+															style={{ 
+																fontFamily: "var(--font-mona-sans), sans-serif",
+																fontWeight: 600,
+																color: "#27261C"
+															}}
+														>
+															{activity.badge}
+														</span>
+													</div>
+												)}
+											</div>
+										</div>
+									</div>
+								</div>
+							);
+						})}
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 }

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Car, Utensils, Compass, FileX, MapPin, Users, Route, User } from 'lucide-react';
+import { WhyEat, WhyGuidance, WhyJourney, WhyLocals, WhyPaperwork, WhyRoutes, WhyStay, WhyTransport } from '@/assets';
+import Image from 'next/image';
 
 interface Feature {
 	id: number;
@@ -12,49 +13,49 @@ export default function WhyDroppa() {
 	const features: Feature[] = [
 		{
 			id: 1,
-			icon: <Car className="w-10 h-10 sm:w-12 sm:h-12 text-white" />,
+			icon: WhyStay,
 			title: "Comfortable Stay",
 			description: "Clean and cozy homestays with warm hospitality."
 		},
 		{
 			id: 2,
-			icon: <Utensils className="w-10 h-10 sm:w-12 sm:h-12 text-white" />,
+			icon: WhyEat,
 			title: "Eat Like a Local",
 			description: "Delicious homemade meals with authentic local flavors."
 		},
 		{
 			id: 3,
-			icon: <Compass className="w-10 h-10 sm:w-12 sm:h-12 text-white" />,
+			icon: WhyTransport,
 			title: "Private Transport",
 			description: "Safe and reliable private vehicles for your journey."
 		},
 		{
 			id: 4,
-			icon: <Route className="w-10 h-10 sm:w-12 sm:h-12 text-white" />,
+			icon: WhyRoutes,
 			title: "Smart Routes",
 			description: "Plan efficient routes to explore more in less time."
 		},
 		{
 			id: 5,
-			icon: <FileX className="w-10 h-10 sm:w-12 sm:h-12 text-white" />,
+			icon: WhyPaperwork,
 			title: "No Paperwork",
 			description: "Hassle-free digital bookings—no documents required."
 		},
 		{
 			id: 6,
-			icon: <MapPin className="w-10 h-10 sm:w-12 sm:h-12 text-white" />,
+			icon: WhyGuidance,
 			title: "Local Guidance",
 			description: "Explore hidden gems with our local travel experts."
 		},
 		{
 			id: 7,
-			icon: <Users className="w-10 h-10 sm:w-12 sm:h-12 text-white" />,
+			icon: WhyLocals,
 			title: "Meet Locals",
 			description: "Connect with local communities and culture."
 		},
 		{
 			id: 8,
-			icon: <User className="w-10 h-10 sm:w-12 sm:h-12 text-white" />,
+			icon: WhyJourney,
 			title: "Authentic Journeys",
 			description: "Discover places the way they truly are."
 		}
@@ -102,25 +103,38 @@ export default function WhyDroppa() {
 					{features.map((feature) => (
 						<div
 							key={feature.id}
-							className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl sm:rounded-3xl p-6 sm:p-7 md:p-8 hover:from-gray-700 hover:to-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
+							className="group p-7 flex flex-col gap-3 justify-center items-center bg-[#27261C] rounded-3xl sm:rounded-3xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
 						>
-							{/* Icon */}
-							<div className="mb-4 sm:mb-5 md:mb-6 transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-								{feature.icon}
-							</div>
+							<Image src={feature.icon as string} alt={feature.title} width={40} height={40} />
 
-							{/* Title */}
-							<h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">
+							<h3
+								style={{
+									fontFamily: "var(--font-subjectivity), sans-serif",
+									fontWeight: 500,
+									fontSize: "20px",
+									color: "#FFFFFF",
+									lineHeight: "28px",
+									letterSpacing: "-0.07em",
+								}}
+							>
 								{feature.title}
 							</h3>
 
-							{/* Description */}
-							<p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
+							<p
+								style={{
+									fontFamily: "var(--font-mona-sans)",
+									fontWeight: 500,
+									fontSize: "16px",
+									color: "#FFFFFF",
+									lineHeight: "18px",
+									letterSpacing: "-0.05em",
+									textAlign: "center",
+								}}
+							>
 								{feature.description}
 							</p>
 
-							{/* Hover Effect Line */}
-							<div className="mt-4 sm:mt-5 md:mt-6 h-1 w-0 bg-orange-500 rounded-full group-hover:w-full transition-all duration-300"></div>
+							<div className="mt-1 h-1 w-0 bg-orange-500 rounded-full group-hover:w-full transition-all duration-300"></div>
 						</div>
 					))}
 				</div>

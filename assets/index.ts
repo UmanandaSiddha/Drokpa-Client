@@ -26,3 +26,13 @@ export { default as MainLogo } from './main/drokpa_logo.svg';
 export { default as HeroBg } from './main/hero_bg.jpg';
 export { default as GreenArrow } from './main/green_arrow.svg';
 export { default as GreenStar } from './main/green_star.svg';
+
+// Why
+export { default as WhyEat } from './why/why_eat.svg';
+export { default as WhyTransport } from './why/why_transport.svg';
+export { default as WhyLocals } from './why/why_locals.svg';
+export { default as WhyGuidance } from './why/why_guidance.svg';
+export { default as WhyJourney } from './why/why_journey.svg';
+export { default as WhyPaperwork } from './why/why_paper.svg';
+export { default as WhyStay } from './why/why_stay.svg';
+export { default as WhyRoutes } from './why/why_routes.svg';

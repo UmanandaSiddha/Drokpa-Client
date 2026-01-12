@@ -21,9 +21,9 @@ export default function App() {
 						<HeroSection />
 					</div>
 				</div>
-				<div className="pb-4">
+				{/* <div className="pb-4">
 					<SearchFilter />
-				</div>
+				</div> */}
 				<TourHomeComponent tours={tours} title="Tours & Treks" />
 				<TourHomeComponent tours={tours} title="HomeStays" />
 				<WhyDroppa />
