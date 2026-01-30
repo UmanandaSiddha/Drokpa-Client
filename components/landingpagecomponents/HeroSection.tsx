@@ -24,13 +24,13 @@ const HeroSection = () => {
 				<TrekCard />
 
 				{/* Hero text */}
-				<div className="relative z-20 h-full flex flex-col justify-end px-8 pb-6">
+				<div className="relative z-20 h-full flex flex-col justify-end px-4 sm:px-6 md:px-8 pb-4 sm:pb-6">
 					<h1 
 						style={{
 							fontFamily: "var(--font-subjectivity), sans-serif",
 							fontWeight: 700,
-							fontSize: "68px",
-							lineHeight: "80px",
+							fontSize: "clamp(32px, 8vw, 68px)",
+							lineHeight: "clamp(40px, 9vw, 80px)",
 							letterSpacing: "-0.06em",
 							color: "#F6F6F6"
 						}}

@@ -1,12 +1,61 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { FooterBg } from '@/assets';
 
 export default function Footer() {
 	const [email, setEmail] = useState('');
+	const [currentContentIndex, setCurrentContentIndex] = useState(0);
+	const [progress, setProgress] = useState(0);
+
+	// Content data for both states
+	const contents = [
+		{
+			text1: "Explore Arunachal's",
+			text2: "mountains,",
+			text3: "cultures,",
+			text4: "and quiet paths.",
+			text5: "15% off all treks.",
+			buttonBg: "#FC611E",
+			buttonText: "#27261C",
+		},
+		{
+			text1: "Explore Arunachal's",
+			text2: "mountains,",
+			text3: "cultures,",
+			text4: "and quiet paths.",
+			text5: "15% off all treks.",
+			buttonBg: "#000000",
+			buttonText: "#FFFFFF",
+		},
+	];
+
+	useEffect(() => {
+		let start = Date.now();
+
+		const duration = 10000;
+		const interval = 16;
+
+		const timer = setInterval(() => {
+			const elapsed = Date.now() - start;
+			const newProgress = (elapsed / duration) * 100;
+
+			if (newProgress >= 100) {
+				setCurrentContentIndex((i) => (i + 1) % contents.length);
+				setProgress(0);
+				start = Date.now(); // restart cycle
+			} else {
+				setProgress(newProgress);
+			}
+		}, interval);
+
+		return () => clearInterval(timer);
+	}, []);
+
+
+	const currentContent = contents[currentContentIndex];
 
 	const handleSubmit = () => {
 		if (email) {
@@ -18,7 +67,7 @@ export default function Footer() {
 	return (
 		<div className="">
 			{/* CTA Banner */}
-			<div className="w-full px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto py-8 md:py-12 lg:py-16">
+			<div className="w-full px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto py-8 md:py-14 lg:py-18">
 				<div className="relative rounded-2xl md:rounded-4xl lg:rounded-[60px] overflow-hidden">
 					{/* Background */}
 					<Image
@@ -52,28 +101,43 @@ export default function Footer() {
 						</div>
 
 						{/* RIGHT CARD — BIG & TOP ALIGNED */}
-						<div className="bg-white rounded-2xl md:rounded-4xl p-6 md:p-8 w-full lg:w-[320px] lg:flex-shrink-0 min-h-[280px] md:min-h-[320px] flex flex-col justify-between">
+						<div className="bg-white rounded-2xl md:rounded-4xl p-6 md:p-8 w-full lg:w-[340px] lg:flex-shrink-0 min-h-[280px] md:min-h-[320px] flex flex-col justify-between">
 
-							{/* Progress bar */}
-							<div className="flex gap-2 mb-4">
-								<span className="h-1.5 w-8 bg-blue-500 rounded-full"></span>
-								<span className="h-1.5 w-12 bg-black rounded-full"></span>
-								<span className="h-1.5 w-12 bg-black rounded-full"></span>
+							{/* Progress bars */}
+							<div className="w-full flex gap-2 mb-4">
+								{/* First progress bar */}
+								<div className="relative h-2 flex-1 bg-[#27261C] rounded-full overflow-hidden">
+									<div
+										className="absolute top-0 left-0 h-full bg-[#4F87C7] rounded-full"
+										style={{
+											width: currentContentIndex === 0 ? `${progress}%` : '100%',
+										}}
+									/>
+								</div>
+								{/* Second progress bar */}
+								<div className="relative h-2 flex-1 bg-[#27261C] rounded-full overflow-hidden">
+									<div
+										className="absolute top-0 left-0 h-full bg-[#4F87C7] rounded-full"
+										style={{
+											width: currentContentIndex === 1 ? `${progress}%` : '0%',
+										}}
+									/>
+								</div>
 							</div>
 
 							{/* Text */}
-							<div className="mb-6">
+							<div className="w-full my-4">
 								<p
-									className="text-gray-900 mb-3"
+									className="text-gray-900"
 									style={{
 										fontFamily: "var(--font-subjectivity), sans-serif",
 										fontWeight: 500,
 										fontSize: "32px",
 										lineHeight: "42px",
-										letterSpacing: "-0.07em",
+										letterSpacing: "-7%",
 									}}
 								>
-									Explore Arunachal's <span className="underline">mountains,</span> <span className="underline">cultures,</span> and quiet paths.
+									{currentContent.text1} <span className="underline">{currentContent.text2}</span> <span className="underline">{currentContent.text3}</span> {currentContent.text4}
 								</p>
 
 								<p
@@ -83,7 +147,7 @@ export default function Footer() {
 										fontWeight: 500,
 										fontSize: "32px",
 										lineHeight: "42px",
-										letterSpacing: "-0.07em",
+										letterSpacing: "-7%",
 									}}
 								>
 									<span className="italic font-bold">15%</span> off all treks.
@@ -92,8 +156,13 @@ export default function Footer() {
 
 							{/* Button */}
 							<button
-								className="w-full lg:w-[70%] bg-[#FC611E] text-[#27261C] text-[22px] font-medium py-3 rounded-xl transition"
-								style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
+								className="w-full lg:w-[60%] text-[18px] font-medium py-3 px-4 rounded-lg transition"
+								style={{
+									fontFamily: "var(--font-mona-sans), sans-serif",
+									fontWeight: 500,
+									backgroundColor: currentContent.buttonBg,
+									color: currentContent.buttonText,
+								}}
 							>
 								Explore All
 							</button>
@@ -131,7 +200,7 @@ export default function Footer() {
 									placeholder="Enter Email"
 									className='px-4 text-[#686766] placeholder-[#686766]'
 									style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
-									// className="flex-1 px-3 md:px-4 py-2 text-sm md:text-base bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+								// className="flex-1 px-3 md:px-4 py-2 text-sm md:text-base bg-gray-100 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
 								/>
 								<button
 									onClick={handleSubmit}
@@ -143,14 +212,14 @@ export default function Footer() {
 						</div>
 
 						{/* Links Section (Quick + Social) */}
-						<div className="lg:col-span-2 lg:pl-10 lg:ml-12">
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-10 lg:border-l lg:border-gray-300 lg:pl-8">
+						<div className="lg:col-span-2 lg:pl-10 lg:ml-12 h-full lg:border-l-2 lg:border-[#D9D9D9] lg:pl-8">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-10 h-full">
 
 								{/* Quick Links */}
-								<ul className="space-y-3">
+								<ul className="space-y-2 mt-4">
 									<li>
-										<a 
-											href="#" 
+										<a
+											href="#"
 											className="text-gray-700 hover:text-emerald-600 font-medium"
 											style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 										>
@@ -158,8 +227,8 @@ export default function Footer() {
 										</a>
 									</li>
 									<li>
-										<a 
-											href="#" 
+										<a
+											href="#"
 											className="text-gray-700 hover:text-emerald-600 font-medium"
 											style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 										>
@@ -167,8 +236,8 @@ export default function Footer() {
 										</a>
 									</li>
 									<li>
-										<a 
-											href="#" 
+										<a
+											href="#"
 											className="text-gray-700 hover:text-emerald-600 font-medium"
 											style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 										>
@@ -176,8 +245,8 @@ export default function Footer() {
 										</a>
 									</li>
 									<li>
-										<a 
-											href="#" 
+										<a
+											href="#"
 											className="text-gray-700 hover:text-emerald-600 font-medium"
 											style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 										>
@@ -185,8 +254,8 @@ export default function Footer() {
 										</a>
 									</li>
 									<li>
-										<a 
-											href="#" 
+										<a
+											href="#"
 											className="text-gray-700 hover:text-emerald-600 font-medium"
 											style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 										>
@@ -194,8 +263,8 @@ export default function Footer() {
 										</a>
 									</li>
 									<li>
-										<a 
-											href="#" 
+										<a
+											href="#"
 											className="text-gray-700 hover:text-emerald-600 font-medium"
 											style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 										>
@@ -205,44 +274,46 @@ export default function Footer() {
 								</ul>
 
 								{/* Social Links */}
-								<ul className="space-y-3 sm:border-l sm:border-gray-300 sm:pl-8">
-									<li>
-										<a 
-											href="#" 
-											className="text-gray-700 hover:text-emerald-600 font-medium"
-											style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
-										>
-											Facebook
-										</a>
-									</li>
-									<li>
-										<a 
-											href="#" 
-											className="text-gray-700 hover:text-emerald-600 font-medium"
-											style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
-										>
-											Instagram
-										</a>
-									</li>
-									<li>
-										<a 
-											href="#" 
-											className="text-gray-700 hover:text-emerald-600 font-medium"
-											style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
-										>
-											Linkedin
-										</a>
-									</li>
-									<li>
-										<a 
-											href="#" 
-											className="text-gray-700 hover:text-emerald-600 font-medium"
-											style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
-										>
-											Youtube
-										</a>
-									</li>
-								</ul>
+								<div className="sm:border-l-2 sm:border-[#D9D9D9] sm:pl-8 h-full">
+									<ul className="space-y-2 mt-4">
+										<li>
+											<a
+												href="#"
+												className="text-gray-700 hover:text-emerald-600 font-medium"
+												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
+											>
+												Facebook
+											</a>
+										</li>
+										<li>
+											<a
+												href="#"
+												className="text-gray-700 hover:text-emerald-600 font-medium"
+												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
+											>
+												Instagram
+											</a>
+										</li>
+										<li>
+											<a
+												href="#"
+												className="text-gray-700 hover:text-emerald-600 font-medium"
+												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
+											>
+												Linkedin
+											</a>
+										</li>
+										<li>
+											<a
+												href="#"
+												className="text-gray-700 hover:text-emerald-600 font-medium"
+												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
+											>
+												Youtube
+											</a>
+										</li>
+									</ul>
+								</div>
 
 							</div>
 						</div>
@@ -259,10 +330,6 @@ export default function Footer() {
 							<span className="text-gray-400">•</span>
 							<a href="#" className="hover:text-emerald-600 transition-colors">Company Details</a>
 						</div>
-						{/* <div className="flex items-center gap-2">
-							<span>Designed by</span>
-							<span className="font-bold text-gray-900">UBY</span>
-						</div> */}
 					</div>
 				</div>
 			</footer>

@@ -34,7 +34,7 @@ const Navigation = () => {
 
     return (
         <nav
-            className={`fixed w-full z-50 transition-all duration-300 ${
+            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
                 isScrolled 
                     ? 'bg-white/95 backdrop-blur-sm border-b border-gray-200/50 shadow-sm' 
                     : 'bg-transparent'

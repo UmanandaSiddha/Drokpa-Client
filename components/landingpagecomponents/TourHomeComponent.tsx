@@ -67,13 +67,13 @@ export default function TourHomeComponent({
 	const translateX = `calc(-${currentIndex} * (${cardWidthPercent} + ${gap}rem))`;
 
 	return (
-		<div className="pt-12 md:pt-18" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
-			<div className="mx-auto">
+		<div className="pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-8 sm:pb-12 md:pb-16" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
+			<div className="mx-auto px-4 sm:px-6 md:px-8">
 
 				{/* Header */}
-				<div className="flex items-center justify-between mb-4">
+				<div className="flex items-center justify-between mb-4 sm:mb-6">
 					<h1 
-						className="text-2xl md:text-3xl lg:text-[32px]"
+						className="text-xl sm:text-2xl md:text-3xl lg:text-[32px]"
 						style={{
 							fontFamily: "var(--font-subjectivity), sans-serif",
 							fontWeight: 700,
@@ -105,7 +105,7 @@ export default function TourHomeComponent({
 				</div>
 
 				{/* Horizontal Line */}
-				<div className="border-t border-gray-200 mb-4"></div>
+				<div className="border-t border-gray-200 mb-4 sm:mb-6"></div>
 
 				{/* Carousel */}
 				<div className="relative overflow-hidden">

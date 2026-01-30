@@ -83,13 +83,13 @@ export default function ThingsToDo() {
 	const translateX = `calc(-${currentIndex} * (${cardWidthPercent} + ${gap}rem))`;
 
 	return (
-		<div className="pt-16 md:pt-24" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
-			<div className="mx-auto">
+		<div className="pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-8 sm:pb-12 md:pb-16" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
+			<div className="mx-auto px-4 sm:px-6 md:px-8">
 
 				{/* Header */}
-				<div className="flex items-center justify-between mb-4">
+				<div className="flex items-center justify-between mb-4 sm:mb-6">
 					<h1
-						className="text-2xl md:text-3xl lg:text-[32px]"
+						className="text-xl sm:text-2xl md:text-3xl lg:text-[32px]"
 						style={{
 							fontFamily: "var(--font-subjectivity), sans-serif",
 							fontWeight: 700,
@@ -121,7 +121,7 @@ export default function ThingsToDo() {
 				</div>
 
 				{/* Horizontal Line */}
-				<div className="border-t border-gray-200 mb-4"></div>
+				<div className="border-t border-gray-200 mb-4 sm:mb-6"></div>
 
 				{/* Carousel */}
 				<div className="relative overflow-hidden">
@@ -145,7 +145,7 @@ export default function ThingsToDo() {
 									style={{ width: cardWidthPercent, fontFamily: "var(--font-mona-sans), sans-serif" }}
 								>
 									{/* Image */}
-									<div className="relative h-[300px] md:h-[380px] lg:h-[420px]">
+									<div className="relative h-[280px] sm:h-[320px] md:h-[380px] lg:h-[420px]">
 										<img
 											src={activity.image}
 											alt={activity.title}
@@ -163,12 +163,12 @@ export default function ThingsToDo() {
 										/>
 
 										{/* Content */}
-										<div className="absolute inset-0 flex flex-col justify-end p-6">
+										<div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-5 md:p-6">
 
 											{/* Center Hover Button */}
 											<div className="absolute inset-0 flex items-center justify-center">
 												<button
-													className={`px-6 py-3 bg-white rounded-full text-sm font-semibold text-gray-900 shadow-lg flex items-center gap-2 transition-all duration-300 ${
+													className={`px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 bg-white rounded-full text-xs sm:text-sm font-semibold text-gray-900 shadow-lg flex items-center gap-2 transition-all duration-300 ${
 														isHovered
 															? "opacity-100 scale-100"
 															: "opacity-0 scale-95 pointer-events-none"
@@ -176,24 +176,24 @@ export default function ThingsToDo() {
 													style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
 												>
 													Explore {activity.title}
-													<ChevronRight className="w-4 h-4" />
+													<ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
 												</button>
 											</div>
 
 											{/* Bottom Content */}
 											<div className="flex items-end justify-between w-full">
-												{/* Title */}
-												<h3 
-													className={`text-xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${
-														isHovered ? "opacity-0 translate-y-2" : "opacity-100"
-													}`}
-													style={{ 
-														fontFamily: "var(--font-subjectivity), sans-serif",
-														fontWeight: 500
-													}}
-												>
-													{activity.title}
-												</h3>
+											{/* Title */}
+											<h3 
+												className={`text-lg sm:text-xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${
+													isHovered ? "opacity-0 translate-y-2" : "opacity-100"
+												}`}
+												style={{ 
+													fontFamily: "var(--font-subjectivity), sans-serif",
+													fontWeight: 500
+												}}
+											>
+												{activity.title}
+											</h3>
 
 												{/* Badge */}
 												{activity.badge && (

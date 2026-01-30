@@ -7,6 +7,7 @@ import ThingsToDo from "@/components/landingpagecomponents/ThingsToDo";
 import TourHomeComponent from "@/components/landingpagecomponents/TourHomeComponent";
 import WhyDroppa from "@/components/landingpagecomponents/WhyDropa";
 import tours from "@/data/tours";
+import homestays from "@/data/homestays";
 
 export default function App() {
 	return (
@@ -18,17 +19,17 @@ export default function App() {
 			<main className="relative min-h-screen bg-white">
 				{/* Hero Section - Full Viewport Height */}
 				<div className="h-screen flex items-center">
-					<div className="mt-16 w-full h-[90%] px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
+					<div className="mt-16 w-full h-[90%] px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
 						<HeroSection />
 					</div>
 				</div>
 				{/* Rest of the content */}
-				<div className="w-full px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
+				<div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
 					{/* <div className="pb-4">
 						<SearchFilter />
 					</div> */}
 					<TourHomeComponent tours={tours} title="Tours & Treks" />
-					<TourHomeComponent tours={tours} title="HomeStays" />
+					<TourHomeComponent tours={homestays} title="HomeStays" />
 					<WhyDroppa />
 					<ThingsToDo />
 					<GetInspired />

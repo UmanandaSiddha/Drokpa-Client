@@ -62,17 +62,17 @@ export default function WhyDroppa() {
 	];
 
 	return (
-		<div className="min-h-screen pt-24">
-			<div className="max-w-8xl mx-auto">
+		<div className="pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-8 sm:pb-12 md:pb-16">
+			<div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8">
 				{/* Header */}
-				<div className="mb-8 sm:mb-10 md:mb-12">
-					<div className="flex items-center gap-2 mb-3">
-						<div className="w-5 h-5 bg-[#FC611E] rounded-sm flex-shrink-0 self-center"></div>
+				<div className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
+					<div className="flex items-center gap-2 mb-3 sm:mb-4">
+						<div className="w-4 h-4 sm:w-5 sm:h-5 bg-[#FC611E] rounded-sm flex-shrink-0 self-center"></div>
 						<span
 							style={{
 								fontFamily: "var(--font-subjectivity), sans-serif",
 								fontWeight: 700,
-								fontSize: "20px",
+								fontSize: "clamp(16px, 4vw, 20px)",
 								color: "#353030",
 								lineHeight: "20px",
 								letterSpacing: "-0.07em",
@@ -87,9 +87,9 @@ export default function WhyDroppa() {
 						style={{
 							fontFamily: "var(--font-subjectivity), sans-serif",
 							fontWeight: 700,
-							fontSize: "56px",
+							fontSize: "clamp(32px, 8vw, 56px)",
 							color: "#353030",
-							lineHeight: "60px",
+							lineHeight: "clamp(38px, 9vw, 60px)",
 							letterSpacing: "-0.07em",
 						}}
 					>
@@ -103,17 +103,17 @@ export default function WhyDroppa() {
 					{features.map((feature) => (
 						<div
 							key={feature.id}
-							className="group p-7 flex flex-col gap-3 justify-center items-center bg-[#27261C] rounded-3xl sm:rounded-3xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
+							className="group p-5 sm:p-6 md:p-7 flex flex-col gap-2 sm:gap-3 justify-center items-center bg-[#27261C] rounded-2xl sm:rounded-3xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer"
 						>
-							<Image src={feature.icon as string} alt={feature.title} width={40} height={40} />
+							<Image src={feature.icon as string} alt={feature.title} width={40} height={40} className="w-8 h-8 sm:w-10 sm:h-10" />
 
 							<h3
 								style={{
 									fontFamily: "var(--font-subjectivity), sans-serif",
 									fontWeight: 500,
-									fontSize: "20px",
+									fontSize: "clamp(16px, 4vw, 20px)",
 									color: "#FFFFFF",
-									lineHeight: "28px",
+									lineHeight: "clamp(22px, 5vw, 28px)",
 									letterSpacing: "-0.07em",
 								}}
 							>
@@ -124,9 +124,9 @@ export default function WhyDroppa() {
 								style={{
 									fontFamily: "var(--font-mona-sans)",
 									fontWeight: 500,
-									fontSize: "16px",
+									fontSize: "clamp(14px, 3.5vw, 16px)",
 									color: "#FFFFFF",
-									lineHeight: "18px",
+									lineHeight: "clamp(18px, 4vw, 18px)",
 									letterSpacing: "-0.05em",
 									textAlign: "center",
 								}}
