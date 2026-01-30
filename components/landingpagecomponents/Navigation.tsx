@@ -9,7 +9,17 @@ import { GreenArrow, MainLogo } from '@/assets';
 const Navigation = () => {
     const [openMenu, setOpenMenu] = useState<"experiences" | "treks" | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const navRef = useRef<HTMLDivElement>(null);
+
+    // Scroll detection
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 0);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -23,10 +33,15 @@ const Navigation = () => {
     }, []);
 
     return (
-        <nav 
-            className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 py-3 flex items-center justify-between"
+        <nav
+            className={`fixed w-full z-50 transition-all duration-300 ${
+                isScrolled 
+                    ? 'bg-white/95 backdrop-blur-sm border-b border-gray-200/50 shadow-sm' 
+                    : 'bg-transparent'
+            } py-3`}
             style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500 }}
         >
+            <div className="w-full px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
                 <Image
                     src={MainLogo}
@@ -36,9 +51,9 @@ const Navigation = () => {
                     height={44}
                     className="w-8 h-8 md:w-11 md:h-11"
                 />
-                <p 
+                <p
                     className="text-lg md:text-2xl"
-                    style={{ 
+                    style={{
                         fontFamily: "var(--font-subjectivity), sans-serif",
                         fontWeight: 700,
                         lineHeight: "32px",
@@ -54,7 +69,7 @@ const Navigation = () => {
             <div className="hidden lg:flex justify-center">
                 <div
                     ref={navRef}
-                    className="relative flex items-center gap-6 p-4 h-[46px] max-w-[383px] bg-gray-200 rounded-[8px]"
+                    className="relative flex items-center gap-6 p-4 h-11.5 max-w-95.75 bg-gray-200 rounded-md"
                 >
                     {/* Experiences */}
                     <div className="relative">
@@ -223,6 +238,7 @@ const Navigation = () => {
                     </div>
                 </div>
             )}
+            </div>
         </nav>
     );
 };

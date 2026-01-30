@@ -11,26 +11,31 @@ import tours from "@/data/tours";
 export default function App() {
 	return (
 		<div
-			className="min-h-screen bg-white flex justify-center"
+			className="min-h-screen bg-white"
 			style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
 		>
-			<div className="w-full px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px]">
-				<div className="h-screen flex flex-col overflow-hidden">
-					<Navigation />
-					<div className="flex-1 flex items-center mb-1">
+			<Navigation />
+			<main className="relative min-h-screen bg-white">
+				{/* Hero Section - Full Viewport Height */}
+				<div className="h-screen flex items-center">
+					<div className="mt-16 w-full h-[90%] px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
 						<HeroSection />
 					</div>
 				</div>
-				{/* <div className="pb-4">
-					<SearchFilter />
-				</div> */}
-				<TourHomeComponent tours={tours} title="Tours & Treks" />
-				<TourHomeComponent tours={tours} title="HomeStays" />
-				<WhyDroppa />
-				<ThingsToDo />
-				<GetInspired />
-				<Footer />
-			</div>
+				{/* Rest of the content */}
+				<div className="w-full px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
+					{/* <div className="pb-4">
+						<SearchFilter />
+					</div> */}
+					<TourHomeComponent tours={tours} title="Tours & Treks" />
+					<TourHomeComponent tours={tours} title="HomeStays" />
+					<WhyDroppa />
+					<ThingsToDo />
+					<GetInspired />
+				</div>
+			</main>
+			{/* Footer - Full width background, content constrained inside */}
+			<Footer />
 		</div>
 	);
 }

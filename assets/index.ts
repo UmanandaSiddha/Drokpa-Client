@@ -24,6 +24,7 @@ export { default as CloudIconLogo } from './weather-icons/cloud.svg';
 // Main
 export { default as MainLogo } from './main/drokpa_logo.svg';
 export { default as HeroBg } from './main/hero_bg.jpg';
+export { default as FooterBg } from './main/footer.png';
 export { default as GreenArrow } from './main/green_arrow.svg';
 export { default as GreenStar } from './main/green_star.svg';
 
