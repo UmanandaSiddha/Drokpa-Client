@@ -36,7 +36,7 @@ export default function App() {
 				</div>
 			</main>
 			{/* Footer - Full width background, content constrained inside */}
-			<Footer />
+			<Footer showCta />
 		</div>
 	);
 }

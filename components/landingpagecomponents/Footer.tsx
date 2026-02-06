@@ -5,7 +5,11 @@ import { ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { FooterBg } from '@/assets';
 
-export default function Footer() {
+type FooterProps = {
+	showCta?: boolean;
+};
+
+export default function Footer({ showCta = false }: FooterProps) {
 	const [email, setEmail] = useState('');
 	const [currentContentIndex, setCurrentContentIndex] = useState(0);
 	const [progress, setProgress] = useState(0);
@@ -33,6 +37,7 @@ export default function Footer() {
 	];
 
 	useEffect(() => {
+		if (!showCta) return;
 		let start = Date.now();
 
 		const duration = 10000;
@@ -52,7 +57,7 @@ export default function Footer() {
 		}, interval);
 
 		return () => clearInterval(timer);
-	}, []);
+	}, [showCta]);
 
 
 	const currentContent = contents[currentContentIndex];
@@ -66,111 +71,112 @@ export default function Footer() {
 
 	return (
 		<div className="">
-			{/* CTA Banner */}
-			<div className="w-full px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto py-8 md:py-14 lg:py-18">
-				<div className="relative rounded-2xl md:rounded-4xl lg:rounded-[60px] overflow-hidden">
-					{/* Background */}
-					<Image
-						src={FooterBg}
-						alt="Mountains"
-						width={0}
-						height={0}
-						sizes="100vw"
-						className="w-full h-auto mix-blend-multiply"
-						priority
-					/>
+			{showCta && (
+				<div className="w-full px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto py-8 md:py-14 lg:py-18">
+					<div className="relative rounded-2xl md:rounded-4xl lg:rounded-[60px] overflow-hidden">
+						{/* Background */}
+						<Image
+							src={FooterBg}
+							alt="Mountains"
+							width={0}
+							height={0}
+							sizes="100vw"
+							className="w-full h-auto mix-blend-multiply"
+							priority
+						/>
 
-					{/* Content wrapper */}
-					<div className="absolute inset-0 z-10 flex flex-col lg:flex-row w-full justify-between gap-6 md:gap-8 p-10">
+						{/* Content wrapper */}
+						<div className="absolute inset-0 z-10 flex flex-col lg:flex-row w-full justify-between gap-6 md:gap-8 p-10">
 
-						{/* LEFT TEXT — TOP LEFT */}
-						<div className="max-w-full lg:max-w-3xl">
-							<h2
-								className="leading-tight md:leading-snug"
-								style={{
-									fontFamily: "var(--font-subjectivity), sans-serif",
-									fontWeight: 500,
-									fontSize: "clamp(24px, 5vw, 48px)",
-									color: "#27261C",
-									lineHeight: "1.1",
-									letterSpacing: "-0.07em",
-								}}
-							>
-								“Where prayer flags color the wind and mountains remember.”
-							</h2>
-						</div>
-
-						{/* RIGHT CARD — BIG & TOP ALIGNED */}
-						<div className="bg-white rounded-2xl md:rounded-4xl p-6 md:p-8 w-full lg:w-[340px] lg:flex-shrink-0 min-h-[280px] md:min-h-[320px] flex flex-col justify-between">
-
-							{/* Progress bars */}
-							<div className="w-full flex gap-2 mb-4">
-								{/* First progress bar */}
-								<div className="relative h-2 flex-1 bg-[#27261C] rounded-full overflow-hidden">
-									<div
-										className="absolute top-0 left-0 h-full bg-[#4F87C7] rounded-full"
-										style={{
-											width: currentContentIndex === 0 ? `${progress}%` : '100%',
-										}}
-									/>
-								</div>
-								{/* Second progress bar */}
-								<div className="relative h-2 flex-1 bg-[#27261C] rounded-full overflow-hidden">
-									<div
-										className="absolute top-0 left-0 h-full bg-[#4F87C7] rounded-full"
-										style={{
-											width: currentContentIndex === 1 ? `${progress}%` : '0%',
-										}}
-									/>
-								</div>
-							</div>
-
-							{/* Text */}
-							<div className="w-full my-4">
-								<p
-									className="text-gray-900"
+							{/* LEFT TEXT — TOP LEFT */}
+							<div className="max-w-full lg:max-w-3xl">
+								<h2
+									className="leading-tight md:leading-snug"
 									style={{
 										fontFamily: "var(--font-subjectivity), sans-serif",
 										fontWeight: 500,
-										fontSize: "32px",
-										lineHeight: "42px",
-										letterSpacing: "-7%",
+										fontSize: "clamp(24px, 5vw, 48px)",
+										color: "#27261C",
+										lineHeight: "1.1",
+										letterSpacing: "-0.07em",
 									}}
 								>
-									{currentContent.text1} <span className="underline">{currentContent.text2}</span> <span className="underline">{currentContent.text3}</span> {currentContent.text4}
-								</p>
-
-								<p
-									className="text-gray-900"
-									style={{
-										fontFamily: "var(--font-subjectivity), sans-serif",
-										fontWeight: 500,
-										fontSize: "32px",
-										lineHeight: "42px",
-										letterSpacing: "-7%",
-									}}
-								>
-									<span className="italic font-bold">15%</span> off all treks.
-								</p>
+									“Where prayer flags color the wind and mountains remember.”
+								</h2>
 							</div>
 
-							{/* Button */}
-							<button
-								className="w-full lg:w-[60%] text-[18px] font-medium py-3 px-4 rounded-lg transition"
-								style={{
-									fontFamily: "var(--font-mona-sans), sans-serif",
-									fontWeight: 500,
-									backgroundColor: currentContent.buttonBg,
-									color: currentContent.buttonText,
-								}}
-							>
-								Explore All
-							</button>
-						</div>
+							{/* RIGHT CARD — BIG & TOP ALIGNED */}
+							<div className="bg-white rounded-2xl md:rounded-4xl p-6 md:p-8 w-full lg:w-[340px] lg:flex-shrink-0 min-h-[280px] md:min-h-[320px] flex flex-col justify-between">
 
+								{/* Progress bars */}
+								<div className="w-full flex gap-2 mb-4">
+									{/* First progress bar */}
+									<div className="relative h-2 flex-1 bg-[#27261C] rounded-full overflow-hidden">
+										<div
+											className="absolute top-0 left-0 h-full bg-[#4F87C7] rounded-full"
+											style={{
+												width: currentContentIndex === 0 ? `${progress}%` : '100%',
+											}}
+										/>
+									</div>
+									{/* Second progress bar */}
+									<div className="relative h-2 flex-1 bg-[#27261C] rounded-full overflow-hidden">
+										<div
+											className="absolute top-0 left-0 h-full bg-[#4F87C7] rounded-full"
+											style={{
+												width: currentContentIndex === 1 ? `${progress}%` : '0%',
+											}}
+										/>
+									</div>
+								</div>
+
+								{/* Text */}
+								<div className="w-full my-4">
+									<p
+										className="text-gray-900"
+										style={{
+											fontFamily: "var(--font-subjectivity), sans-serif",
+											fontWeight: 500,
+											fontSize: "32px",
+											lineHeight: "42px",
+											letterSpacing: "-7%",
+										}}
+									>
+										{currentContent.text1} <span className="underline">{currentContent.text2}</span> <span className="underline">{currentContent.text3}</span> {currentContent.text4}
+									</p>
+
+									<p
+										className="text-gray-900"
+										style={{
+											fontFamily: "var(--font-subjectivity), sans-serif",
+											fontWeight: 500,
+											fontSize: "32px",
+											lineHeight: "42px",
+											letterSpacing: "-7%",
+										}}
+									>
+										<span className="italic font-bold">15%</span> off all treks.
+									</p>
+								</div>
+
+								{/* Button */}
+								<button
+									className="w-full lg:w-[60%] text-[18px] font-medium py-3 px-4 rounded-lg transition"
+									style={{
+										fontFamily: "var(--font-mona-sans), sans-serif",
+										fontWeight: 500,
+										backgroundColor: currentContent.buttonBg,
+										color: currentContent.buttonText,
+									}}
+								>
+									Explore All
+								</button>
+							</div>
+
+						</div>
 					</div>
 				</div>
-			</div>
+			)}
 
 			{/* Footer */}
 			<footer className="w-full bg-[#F6F6F6] rounded-t-[60px]">
