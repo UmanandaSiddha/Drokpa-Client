@@ -64,15 +64,15 @@ export default function TourHomeComponent({
 	const gap = 1.5; // 1.5rem = 24px = gap-6
 	const gapTotal = gap * (itemsPerView - 1);
 	const cardWidthPercent = `calc((100% - ${gapTotal}rem) / ${itemsPerView})`;
-	const translateX = `calc(-${currentIndex} * (${cardWidthPercent} + ${gap}rem))`;
+	const translateX = `translateX(calc(-${currentIndex} * (${cardWidthPercent} + ${gap}rem)))`;
 
 	return (
 		<div className="pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-8 sm:pb-12 md:pb-16" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
-			<div className="mx-auto px-4 sm:px-6 md:px-8">
+			<div className="mx-auto px-2 sm:px-6 md:px-8 lg:px-0">
 
 				{/* Header */}
 				<div className="flex items-center justify-between mb-4 sm:mb-6">
-					<h1 
+					<h1
 						className="text-xl sm:text-2xl md:text-3xl lg:text-[32px]"
 						style={{
 							fontFamily: "var(--font-subjectivity), sans-serif",
@@ -111,7 +111,7 @@ export default function TourHomeComponent({
 				<div className="relative overflow-hidden">
 					<div
 						className="flex gap-6"
-						style={{ 
+						style={{
 							transform: translateX,
 							transition: "transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
 							willChange: "transform"
@@ -133,7 +133,7 @@ export default function TourHomeComponent({
 									/>
 
 									{/* Duration Tag */}
-									<div 
+									<div
 										className="absolute top-3 left-3 md:top-4 md:left-4 px-2 py-1 md:px-3 md:py-1.5 rounded-xl text-[10px] md:text-xs font-medium"
 										style={{
 											backgroundColor: "rgba(255, 255, 255, 0.9)",
@@ -152,8 +152,8 @@ export default function TourHomeComponent({
 									>
 										<Heart
 											className={`w-6 h-6 ${favorites.has(tour.id)
-													? "fill-red-500 text-red-500"
-													: "fill-gray-500 text-gray-400"
+												? "fill-red-500 text-red-500"
+												: "fill-gray-500 text-gray-400"
 												}`}
 										/>
 									</button>
@@ -163,9 +163,9 @@ export default function TourHomeComponent({
 								<div className="pt-2 md:pt-3 px-1" style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}>
 									{/* Title and Rating */}
 									<div className="flex items-start justify-between mb-2 md:mb-3 gap-2">
-										<h3 
+										<h3
 											className="text-base md:text-lg lg:text-xl font-bold flex-1"
-											style={{ 
+											style={{
 												fontFamily: "var(--font-mona-sans), sans-serif",
 												fontWeight: 700,
 												color: "#353030"
@@ -175,9 +175,9 @@ export default function TourHomeComponent({
 										</h3>
 										<div className="flex items-center gap-1 flex-shrink-0">
 											<Image src={GreenStar} alt="Green Star" className="w-3 h-3 md:w-4 md:h-4" width={16} height={16} />
-											<span 
+											<span
 												className="text-xs md:text-sm font-semibold"
-												style={{ 
+												style={{
 													fontFamily: "var(--font-mona-sans), sans-serif",
 													fontWeight: 600,
 													color: "#686766"
@@ -189,9 +189,9 @@ export default function TourHomeComponent({
 									</div>
 
 									{/* Description */}
-									<p 
+									<p
 										className="text-xs md:text-sm mb-3 md:mb-4 line-clamp-2"
-										style={{ 
+										style={{
 											fontFamily: "var(--font-mona-sans), sans-serif",
 											fontWeight: 400,
 											color: "#686766",
@@ -221,7 +221,7 @@ export default function TourHomeComponent({
 
 									{/* Price Section */}
 									<div className="flex items-baseline relative flex-wrap gap-1">
-										<span 
+										<span
 											className="text-lg md:text-xl"
 											style={{
 												fontFamily: "var(--font-mona-sans), sans-serif",
@@ -231,7 +231,7 @@ export default function TourHomeComponent({
 										>
 											₹{tour.price.toLocaleString("en-IN")}/
 										</span>
-										<span 
+										<span
 											className="text-sm md:text-lg"
 											style={{
 												fontFamily: "var(--font-mona-sans), sans-serif",
@@ -241,7 +241,7 @@ export default function TourHomeComponent({
 										>
 											person
 										</span>
-										<span 
+										<span
 											className="text-xs md:text-base line-through ml-1 md:ml-2"
 											style={{
 												fontFamily: "var(--font-mona-sans), sans-serif",
@@ -252,7 +252,7 @@ export default function TourHomeComponent({
 											₹{tour.originalPrice.toLocaleString("en-IN")}
 										</span>
 										{tour.discount && (
-											<div 
+											<div
 												className="ml-1 md:ml-2 px-1.5 py-0.5 md:px-2 md:py-1 rounded-sm text-xs md:text-sm font-normal text-white"
 												style={{
 													backgroundColor: "#008C4D",

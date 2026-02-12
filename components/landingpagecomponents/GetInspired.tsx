@@ -1,3 +1,4 @@
+import { Inspired1, Inspired2, Inspired3, Inspired4, Inspired5 } from "@/assets";
 import { ChevronRight } from "lucide-react";
 
 interface Article {
@@ -15,36 +16,31 @@ export default function GetInspired() {
 			title: "Where Seven Lakes Guard the Himalayas.",
 			description:
 				"Seven high-altitude lakes cradle Himalayan peaks, offering solitude, reflection, and a trek that feels both challenging and deeply sacred.",
-			image:
-				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&h=1300&fit=crop",
+			image: Inspired1.src,
 			size: "large",
 		},
 		{
 			id: 2,
 			title: "Trails That Test, Views That Reward.",
-			image:
-				"https://images.unsplash.com/photo-1551632811-561732d1e306?w=900&h=600&fit=crop",
+			image: Inspired2.src,
 			size: "small",
 		},
 		{
 			id: 3,
 			title: "Silence, Snow, and Sacred Ground.",
-			image:
-				"https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=900&h=600&fit=crop",
+			image: Inspired3.src,
 			size: "small",
 		},
 		{
 			id: 4,
 			title: "Mechuka: Where the Mountains Breathe.",
-			image:
-				"https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=900&h=600&fit=crop",
+			image: Inspired4.src,
 			size: "small",
 		},
 		{
 			id: 5,
 			title: "Floating Over Ziro’s Dreamscape.",
-			image:
-				"https://images.unsplash.com/photo-1586276393635-5ecd8a851acc?w=900&h=600&fit=crop",
+			image: Inspired5.src,
 			size: "small",
 		},
 	];
@@ -85,7 +81,7 @@ export default function GetInspired() {
 								<img
 									src={largeArticle.image}
 									alt={largeArticle.title}
-									className="w-full h-[400px] sm:h-[500px] md:h-[650px] lg:h-[750px] xl:h-[880px] object-cover"
+									className="w-full h-[520px] sm:h-[620px] md:h-[700px] lg:h-[750px] xl:h-[880px] object-cover"
 								/>
 							</div>
 
@@ -131,7 +127,7 @@ export default function GetInspired() {
 									<img
 										src={article.image}
 										alt={article.title}
-										className="w-full h-[280px] sm:h-[320px] md:h-[380px] lg:h-[420px] object-cover"
+										className="w-full aspect-square object-cover"
 									/>
 								</div>
 

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { HeroBg1, HeroBg2 } from "@/assets";
 import TrekCard from "./TrekCard";
 import WeatherWidget from "./WeatherWidget";
+import InnerLinePermitWidget from "./InnerLinePermitWidget";
 
 const HeroSection = () => {
 	const heroImages = [HeroBg1.src, HeroBg2.src];
@@ -40,56 +40,42 @@ const HeroSection = () => {
 				<div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/40 z-10" />
 
 				{/* Floating widgets */}
-				<div
-					className="absolute top-6 left-4 sm:top-8 sm:left-8 z-30 bg-white/85 backdrop-blur-md rounded-xl px-4 py-3 shadow-xl border border-white/60 w-[240px] sm:w-[260px]"
-					style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500, color: "#27261C" }}
-				>
-					<div className="flex items-center gap-2">
-						<span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#FC611E]" />
-						<p
-							className="text-[11px] uppercase tracking-wider text-[#686766]"
-							style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 600 }}
-						>
-							Inner Line Permit
-						</p>
-					</div>
-					<p
-						className="mt-2 text-sm leading-snug"
-						style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700, color: "#353030" }}
-					>
-						Apply fast and travel with ease in Arunachal.
-					</p>
-					<p
-						className="mt-1 text-xs text-[#686766]"
-						style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500 }}
-					>
-						Required for entry. Instant guidance.
-					</p>
-					<Link
-						href="/ilp"
-						className="inline-flex mt-3 items-center justify-center rounded-full px-3.5 py-2 text-xs font-semibold bg-[#FC611E] text-[#27261C] hover:bg-[#f46a2f] transition-colors"
-						style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 700 }}
-					>
-						Start ILP Application
-					</Link>
+				<InnerLinePermitWidget className="hidden lg:block absolute top-8 left-8" />
+				<WeatherWidget className="hidden lg:block absolute top-8 right-8" />
+				<TrekCard className="hidden lg:block absolute bottom-8 right-8 w-80" />
+				<div className="absolute top-6 right-4 z-30 hidden md:flex lg:hidden flex-col gap-4 w-[320px]">
+					<WeatherWidget className="w-full" />
+					<TrekCard className="w-full" />
 				</div>
-				<WeatherWidget />
-				<TrekCard />
+				<WeatherWidget className="absolute top-6 inset-x-4 z-30 md:hidden" />
 
 				{/* Hero text */}
 				<div className="relative z-20 h-full flex flex-col justify-end px-4 sm:px-6 md:px-8 pb-4 sm:pb-6">
 					<h1
-						style={{
-							fontFamily: "var(--font-subjectivity), sans-serif",
-							fontWeight: 700,
-							fontSize: "clamp(32px, 8vw, 68px)",
-							lineHeight: "clamp(40px, 9vw, 80px)",
-							letterSpacing: "-0.06em",
-							color: "#F6F6F6"
-						}}
+						className="text-[46px] sm:text-[52px] md:text-[56px] lg:text-[64px] xl:text-[76px] leading-[1.12] md:leading-[1.08] lg:leading-[1.05] tracking-[-0.06em] text-[#F6F6F6] font-bold"
+						style={{ fontFamily: "var(--font-subjectivity), sans-serif" }}
 					>
-						Journeys Designed For<br />
-						Comfort And Connection.
+						<span className="hidden lg:block">
+							Journeys Designed For
+							<br />
+							Comfort And Connection.
+						</span>
+						<span className="hidden md:block lg:hidden">
+							Journeys
+							<br />
+							Designed For Comfort
+							<br />
+							And Connection.
+						</span>
+						<span className="md:hidden">
+							Journeys
+							<br />
+							Designed For
+							<br />
+							Comfort And
+							<br />
+							Connection.
+						</span>
 					</h1>
 				</div>
 			</div>

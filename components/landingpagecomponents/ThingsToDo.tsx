@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Things1, Things2, Things3, Things4 } from "@/assets";
 
 interface Activity {
 	id: number;
@@ -38,29 +39,25 @@ export default function ThingsToDo() {
 		{
 			id: 1,
 			title: "Trekking",
-			image:
-				"https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&h=600&fit=crop",
+			image: Things1.src,
 			badge: "Adventure",
 		},
 		{
 			id: 2,
 			title: "Spiritual Places",
-			image:
-				"https://images.unsplash.com/photo-1548013146-72479768bada?w=800&h=600&fit=crop",
+			image: Things2.src,
 			badge: "Adventure",
 		},
 		{
 			id: 3,
 			title: "Wildlife Safaris",
-			image:
-				"https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800&h=600&fit=crop",
+			image: Things3.src,
 			badge: "Adventure",
 		},
 		{
 			id: 4,
 			title: "River Rafting",
-			image:
-				"https://images.unsplash.com/photo-1548013146-72479768bada?w=800&h=600&fit=crop",
+			image: Things4.src,
 			badge: "Adventure",
 		},
 	];
@@ -80,11 +77,11 @@ export default function ThingsToDo() {
 	const gap = 1.5; // 1.5rem = 24px = gap-6
 	const gapTotal = gap * (itemsPerView - 1);
 	const cardWidthPercent = `calc((100% - ${gapTotal}rem) / ${itemsPerView})`;
-	const translateX = `calc(-${currentIndex} * (${cardWidthPercent} + ${gap}rem))`;
+	const translateX = `translateX(calc(-${currentIndex} * (${cardWidthPercent} + ${gap}rem)))`;
 
 	return (
 		<div className="pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-8 sm:pb-12 md:pb-16" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
-			<div className="mx-auto px-4 sm:px-6 md:px-8">
+			<div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
 
 				{/* Header */}
 				<div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -127,7 +124,7 @@ export default function ThingsToDo() {
 				<div className="relative overflow-hidden">
 					<div
 						className="flex gap-6"
-						style={{ 
+						style={{
 							transform: translateX,
 							transition: "transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
 							willChange: "transform"
@@ -156,10 +153,9 @@ export default function ThingsToDo() {
 										<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
 										{/* Hover Overlay (black/blur) */}
-										<div 
-											className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
-												isHovered ? "opacity-60" : "opacity-0"
-											}`}
+										<div
+											className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isHovered ? "opacity-60" : "opacity-0"
+												}`}
 										/>
 
 										{/* Content */}
@@ -168,11 +164,10 @@ export default function ThingsToDo() {
 											{/* Center Hover Button */}
 											<div className="absolute inset-0 flex items-center justify-center">
 												<button
-													className={`px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 bg-white rounded-full text-xs sm:text-sm font-semibold text-gray-900 shadow-lg flex items-center gap-2 transition-all duration-300 ${
-														isHovered
-															? "opacity-100 scale-100"
-															: "opacity-0 scale-95 pointer-events-none"
-													}`}
+													className={`px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 bg-white rounded-full text-xs sm:text-sm font-semibold text-gray-900 shadow-lg flex items-center gap-2 transition-all duration-300 ${isHovered
+														? "opacity-100 scale-100"
+														: "opacity-0 scale-95 pointer-events-none"
+														}`}
 													style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
 												>
 													Explore {activity.title}
@@ -182,29 +177,27 @@ export default function ThingsToDo() {
 
 											{/* Bottom Content */}
 											<div className="flex items-end justify-between w-full">
-											{/* Title */}
-											<h3 
-												className={`text-lg sm:text-xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${
-													isHovered ? "opacity-0 translate-y-2" : "opacity-100"
-												}`}
-												style={{ 
-													fontFamily: "var(--font-subjectivity), sans-serif",
-													fontWeight: 500
-												}}
-											>
-												{activity.title}
-											</h3>
+												{/* Title */}
+												<h3
+													className={`text-lg sm:text-xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${isHovered ? "opacity-0 translate-y-2" : "opacity-100"
+														}`}
+													style={{
+														fontFamily: "var(--font-subjectivity), sans-serif",
+														fontWeight: 500
+													}}
+												>
+													{activity.title}
+												</h3>
 
 												{/* Badge */}
 												{activity.badge && (
-													<div 
-														className={`transition-all duration-300 ${
-															isHovered ? "opacity-0 translate-y-2" : "opacity-100"
-														}`}
+													<div
+														className={`transition-all duration-300 ${isHovered ? "opacity-0 translate-y-2" : "opacity-100"
+															}`}
 													>
-														<span 
+														<span
 															className="px-4 py-2 bg-white/90 rounded-full text-xs font-semibold"
-															style={{ 
+															style={{
 																fontFamily: "var(--font-mona-sans), sans-serif",
 																fontWeight: 600,
 																color: "#27261C"

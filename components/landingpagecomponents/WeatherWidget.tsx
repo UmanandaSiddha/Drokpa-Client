@@ -1,7 +1,11 @@
-const WeatherWidget = () => {
+type WeatherWidgetProps = {
+	className?: string;
+};
+
+const WeatherWidget = ({ className = "" }: WeatherWidgetProps) => {
 	return (
 		<div
-			className="absolute top-8 right-8 bg-white/90 backdrop-blur-sm rounded-[8px] px-[16px] py-[12px] shadow-lg"
+			className={`bg-white/90 backdrop-blur-sm rounded-[8px] px-[16px] py-[12px] shadow-lg ${className}`}
 			style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500, color: "black" }}
 		>
 			<div className="flex items-center justify-between gap-8 mt-1">

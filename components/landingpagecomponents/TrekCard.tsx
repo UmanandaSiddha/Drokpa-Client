@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-const TrekCard = () => {
+type TrekCardProps = {
+	className?: string;
+};
+
+const TrekCard = ({ className = "" }: TrekCardProps) => {
 	const [currentImage, setCurrentImage] = useState(0);
 
 	const images = [
@@ -20,19 +24,21 @@ const TrekCard = () => {
 	}, []);
 
 	return (
-		<div className="absolute bottom-8 right-8 z-30 overflow-hidden w-80">
-			<div className="flex justify-end gap-2 mb-2">
-					{images.map((_, i) => (
-						<button
-							key={i}
-							onClick={() => setCurrentImage(i)}
-							className={`h-2 w-2 rounded-full transition-all duration-300 ${i === currentImage ? "bg-[#F2BD11] w-6" : "bg-white"
-								}`}
-						/>
-					))}
-				</div>
-			
-			<div className="bg-white p-1 rounded-[8px] shadow-2xl">
+		<div className={`z-30 overflow-hidden ${className}`}>
+			{/* Navigation Indicator (desktop) */}
+			<div className="hidden lg:flex justify-end gap-1.5 mb-2">
+				{images.map((_, i) => (
+					<button
+						key={i}
+						onClick={() => setCurrentImage(i)}
+						className={`h-2 w-2 rounded-full transition-all duration-300 ${i === currentImage ? "bg-[#F2BD11] w-6" : "bg-white"
+							}`}
+					/>
+				))}
+			</div>
+
+			{/* Carousel Card */}
+			<div className="bg-white p-1 rounded-[8px]">
 				<div className="relative h-35">
 					{/* Carousel Images */}
 					{images.map((img, i) => (
@@ -95,6 +101,18 @@ const TrekCard = () => {
 						BOOK NOW
 					</button>
 				</div>
+			</div>
+
+			{/* Navigation Indicator (tablet) */}
+			<div className="flex justify-end gap-1.5 mt-2 lg:hidden">
+				{images.map((_, i) => (
+					<button
+						key={i}
+						onClick={() => setCurrentImage(i)}
+						className={`h-2 w-2 rounded-full transition-all duration-300 ${i === currentImage ? "bg-[#F2BD11] w-6" : "bg-white"
+							}`}
+					/>
+				))}
 			</div>
 		</div>
 	);

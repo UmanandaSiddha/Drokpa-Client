@@ -38,3 +38,16 @@ export { default as WhyJourney } from './why/why_journey.svg';
 export { default as WhyPaperwork } from './why/why_paper.svg';
 export { default as WhyStay } from './why/why_stay.svg';
 export { default as WhyRoutes } from './why/why_routes.svg';
+
+// Things To Do
+export { default as Things1 } from './main/things_1.png';
+export { default as Things2 } from './main/things_2.png';
+export { default as Things3 } from './main/things_3.png';
+export { default as Things4 } from './main/things_4.png';
+
+// Get Inspired
+export { default as Inspired1 } from './main/inspired_1.png';
+export { default as Inspired2 } from './main/inspired_2.png';
+export { default as Inspired3 } from './main/inspired_3.png';
+export { default as Inspired4 } from './main/inspired_4.png';
+export { default as Inspired5 } from './main/inspired_5.png';

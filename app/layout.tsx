@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
+import Providers from "./providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -67,11 +68,11 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-		<body
-			className={`${geistSans.variable} ${geistMono.variable} ${subjectivity.variable} antialiased overflow-x-hidden`}
-			style={{ "--font-mona-sans": '"Mona Sans", sans-serif' } as React.CSSProperties}
-		>
-				{children}
+			<body
+				className={`${geistSans.variable} ${geistMono.variable} ${subjectivity.variable} antialiased overflow-x-hidden`}
+				style={{ "--font-mona-sans": '"Mona Sans", sans-serif' } as React.CSSProperties}
+			>
+				<Providers>{children}</Providers>
 			</body>
 		</html>
 	);
