@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { BookOpen, Home, Leaf, Users } from "lucide-react";
 
 export default function AboutPage() {
 	return (
@@ -88,25 +89,25 @@ export default function AboutPage() {
 
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
 						<ValueCard
-							icon="🏡"
+							icon={<Home className="h-7 w-7" />}
 							title="Authenticity"
 							description="Real homes, real people, real experiences. No staged tourism."
 							color="#FC611E"
 						/>
 						<ValueCard
-							icon="🌲"
+							icon={<Leaf className="h-7 w-7" />}
 							title="Sustainability"
 							description="Protecting the land and culture for generations to come."
 							color="#4F87C7"
 						/>
 						<ValueCard
-							icon="🤝"
+							icon={<Users className="h-7 w-7" />}
 							title="Community"
 							description="Supporting local families and their way of life."
 							color="#2D7A3E"
 						/>
 						<ValueCard
-							icon="📖"
+							icon={<BookOpen className="h-7 w-7" />}
 							title="Knowledge"
 							description="Deep insights gathered with patience and respect."
 							color="#8B5CF6"
@@ -216,7 +217,7 @@ function ValueCard({
 	description,
 	color,
 }: {
-	icon: string;
+	icon: React.ReactNode;
 	title: string;
 	description: string;
 	color: string;

@@ -34,7 +34,7 @@ export default function NotifyModal({
         if (!email.trim()) return;
         setSubmitted(true);
         addToast({
-            type: "error",
+            type: "success",
             side: "right",
             position: "bottom",
             title: "Waitlist confirmed",

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 type GalleryLightboxProps = {
@@ -20,9 +21,14 @@ export default function GalleryLightbox({
     onClose,
     showThumbnails = true,
 }: GalleryLightboxProps) {
+    const [mounted, setMounted] = React.useState(false);
     const [activeIndex, setActiveIndex] = React.useState(initialIndex);
     const touchStartX = React.useRef<number | null>(null);
     const touchEndX = React.useRef<number | null>(null);
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
 
     React.useEffect(() => {
         if (!open) return;
@@ -86,9 +92,9 @@ export default function GalleryLightbox({
         }
     };
 
-    if (!open || images.length === 0) return null;
+    if (!mounted || !open || images.length === 0) return null;
 
-    return (
+    return createPortal(
         <div
             className="fixed inset-0 z-50 bg-black/95 flex flex-col"
             onClick={onClose}
@@ -168,6 +174,7 @@ export default function GalleryLightbox({
                     </div>
                 </div>
             )}
-        </div>
+        </div>,
+        document.body
     );
 }
