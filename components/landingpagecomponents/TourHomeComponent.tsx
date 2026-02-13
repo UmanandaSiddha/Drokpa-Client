@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
 import { Tour } from "@/data/tours";
 import { GreenStar } from "@/assets";
@@ -19,6 +19,8 @@ export default function TourHomeComponent({
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [favorites, setFavorites] = useState<Set<number>>(new Set());
 	const [itemsPerView, setItemsPerView] = useState(4);
+	const touchStartX = useRef<number | null>(null);
+	const touchEndX = useRef<number | null>(null);
 
 	useEffect(() => {
 		const updateItemsPerView = () => {
@@ -48,6 +50,26 @@ export default function TourHomeComponent({
 	const handlePrev = () => {
 		if (currentIndex > 0) {
 			setCurrentIndex(currentIndex - 1);
+		}
+	};
+
+	const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+		touchEndX.current = null;
+		touchStartX.current = e.touches[0]?.clientX ?? null;
+	};
+
+	const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+		touchEndX.current = e.touches[0]?.clientX ?? null;
+	};
+
+	const handleTouchEnd = () => {
+		if (touchStartX.current === null || touchEndX.current === null) return;
+		const deltaX = touchStartX.current - touchEndX.current;
+		if (Math.abs(deltaX) < 40) return;
+		if (deltaX > 0) {
+			handleNext();
+		} else {
+			handlePrev();
 		}
 	};
 
@@ -108,7 +130,17 @@ export default function TourHomeComponent({
 				<div className="border-t border-gray-200 mb-4 sm:mb-6"></div>
 
 				{/* Carousel */}
-				<div className="relative overflow-hidden">
+				<div
+					className="relative overflow-hidden"
+					onTouchStart={handleTouchStart}
+					onTouchMove={handleTouchMove}
+					onTouchEnd={handleTouchEnd}
+					onTouchCancel={() => {
+						touchStartX.current = null;
+						touchEndX.current = null;
+					}}
+					style={{ touchAction: "pan-y" }}
+				>
 					<div
 						className="flex gap-6"
 						style={{

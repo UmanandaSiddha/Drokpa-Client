@@ -2,6 +2,7 @@
 
 import { X } from 'lucide-react';
 import Image from "next/image";
+import Link from "next/link";
 import { ChevronDown } from 'lucide-react';
 import { GreenArrow } from '@/assets';
 import { useMobileMenu } from '@/context/MobileMenuContext';
@@ -71,15 +72,24 @@ const MobileMenu = () => {
                         </div>
 
                         {/* Log In Button */}
-                        <button className="block md:hidden px-10 sm:px-14 py-2 sm:py-2.5 bg-[#4F87C7] text-base sm:text-lg text-white font-normal rounded-full mb-6 transition-colors">
+                        <Link
+                            href="/signin"
+                            className="inline-flex md:hidden px-10 sm:px-14 py-2 sm:py-2.5 bg-[#4F87C7] text-base sm:text-lg text-white font-normal rounded-full mb-6 transition-colors text-center"
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
                             Log In
-                        </button>
+                        </Link>
 
                         <hr className='block md:hidden pb-6' />
 
                         {/* Main Menu Items */}
                         <div className="space-y-4 mb-6">
-                            <button className="md:hidden flex items-center gap-2 w-full text-[#27261C] text-base sm:text-lg" style={{ fontWeight: 600 }}>
+                            <Link
+                                href="/route-planner"
+                                className="md:hidden flex items-center gap-2 w-full text-[#27261C] text-base sm:text-lg"
+                                style={{ fontWeight: 600 }}
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
                                 <Image
                                     src={GreenArrow}
                                     alt="Green Arrow"
@@ -87,7 +97,7 @@ const MobileMenu = () => {
                                     height={16}
                                 />
                                 Build Your Itinerary
-                            </button>
+                            </Link>
                             <button className="flex items-center gap-2 w-full text-[#27261C] text-base sm:text-lg" style={{ fontWeight: 600 }}>
                                 <span>Experiences</span>
                                 <ChevronDown size={18} />
@@ -96,9 +106,22 @@ const MobileMenu = () => {
                                 <span>Treks</span>
                                 <ChevronDown size={18} />
                             </button>
-                            <button className="w-full text-left text-[#27261C] text-base sm:text-lg" style={{ fontWeight: 600 }}>
+                            <Link
+                                href="/contact"
+                                className="w-full text-left text-[#27261C] text-base sm:text-lg"
+                                style={{ fontWeight: 600 }}
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
                                 Contact Us
-                            </button>
+                            </Link>
+                            {/* <Link
+                                href="/about"
+                                className="w-full text-left text-[#27261C] text-base sm:text-lg"
+                                style={{ fontWeight: 600 }}
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
+                                About
+                            </Link> */}
                         </div>
 
                         {/* Social Links */}

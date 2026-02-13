@@ -13,13 +13,9 @@ import {
     ChevronLeft,
     ChevronRight,
     CheckCircle,
-    Share2,
-    Heart,
 } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
-import Navigation from "@/components/landingpagecomponents/Navigation";
-import Footer from "@/components/landingpagecomponents/Footer";
+import GalleryLightbox from "@/components/GalleryLightbox";
 import tours from "@/data/tours";
 
 export default function TourBookingPage({
@@ -187,16 +183,19 @@ export default function TourBookingPage({
 
     return (
         <div className="min-h-screen bg-white">
-            <Navigation />
             <main className="relative min-h-screen bg-white">
                 {/* Hero Section with Image Gallery */}
-                <div className="mt-16 sm:mt-20 md:mt-24 bg-white py-4 sm:py-6 md:py-8">
+                <div className="relative mt-16 bg-white py-6 sm:py-8 md:py-10 overflow-hidden">
+                    <div className="absolute inset-0 -z-10">
+                        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#FC611E]/10 blur-3xl" />
+                        <div className="absolute -bottom-24 left-8 h-72 w-72 rounded-full bg-[#4F87C7]/10 blur-3xl" />
+                    </div>
                     <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
                         <div className="grid md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
                             {/* Image Gallery */}
                             <div className="space-y-3 sm:space-y-4">
                                 <div
-                                    className="relative aspect-4/3 rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer shadow-lg"
+                                    className="relative aspect-4/3 rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer shadow-[0_18px_50px_-25px_rgba(0,0,0,0.35)] ring-1 ring-[#DDE7E0]/70"
                                     onClick={() => setLightboxOpen(true)}
                                 >
                                     {isTransitioning && (
@@ -242,8 +241,8 @@ export default function TourBookingPage({
                                 </div>
 
                                 <button
-                                    className="flex items-center justify-center gap-2 w-full py-2.5 sm:py-3 border-2 rounded-lg font-semibold hover:text-white transition-colors text-sm sm:text-base"
-                                    style={{ borderColor: "#005246", color: "#005246", fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+                                    className="flex items-center justify-center gap-2 w-full py-2.5 sm:py-3 border-2 rounded-full border-[#005246] font-semibold bg-white hover:bg-[#005246] hover:border-[#005246] hover:text-white transition-colors text-sm sm:text-base"
+                                    style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
                                 >
                                     <Download className="w-4 h-4 sm:w-5 sm:h-5" />
                                     Download Brochure
@@ -253,6 +252,20 @@ export default function TourBookingPage({
                             {/* Tour Info */}
                             <div className="space-y-4 sm:space-y-6">
                                 <div>
+                                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                                        <span
+                                            className="px-3 py-1 rounded-full text-xs font-semibold bg-[#FC611E]/10 text-[#FC611E]"
+                                            style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+                                        >
+                                            Signature Tour
+                                        </span>
+                                        <span
+                                            className="px-3 py-1 rounded-full text-xs font-semibold bg-[#005246]/10 text-[#005246]"
+                                            style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+                                        >
+                                            Handpicked
+                                        </span>
+                                    </div>
                                     <h1
                                         className="text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3"
                                         style={{
@@ -319,7 +332,7 @@ export default function TourBookingPage({
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                                        <div className="flex items-center gap-2 sm:gap-3 p-3 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center gap-2 sm:gap-3 p-3 bg-[#F5F1E6]/70 border border-[#DDE7E0]/60 rounded-xl">
                                             <Clock className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" style={{ color: "#005246" }} />
                                             <div>
                                                 <p
@@ -336,7 +349,7 @@ export default function TourBookingPage({
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 sm:gap-3 p-3 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center gap-2 sm:gap-3 p-3 bg-[#F5F1E6]/70 border border-[#DDE7E0]/60 rounded-xl">
                                             <Users className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" style={{ color: "#005246" }} />
                                             <div>
                                                 <p
@@ -356,69 +369,69 @@ export default function TourBookingPage({
                                     </div>
                                 </div>
 
-                                <div className="flex justify-center gap-6 bg-white rounded-xl p-4 sm:p-6 border border-gray-200 shadow-sm">
-                                    <div>
-                                        <h3
-                                            className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4"
-                                            style={{
-                                                fontFamily: "var(--font-subjectivity), sans-serif",
-                                                fontWeight: 700,
-                                                color: "#353030",
-                                            }}
-                                        >
-                                            What's Included
-                                        </h3>
-                                        <ul className="space-y-2">
-                                            {tourData.included.map((item, idx) => (
-                                                <li key={idx} className="flex items-start gap-2 text-sm sm:text-base">
-                                                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 mt-0.5" style={{ color: "#005246" }} />
-                                                    <span
-                                                        style={{
-                                                            fontFamily: "var(--font-mona-sans), sans-serif",
-                                                            fontWeight: 500,
-                                                            color: "#686766",
-                                                        }}
-                                                    >
-                                                        {item}
-                                                    </span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
+                                <div className="bg-[#F5F1E6]/60 rounded-2xl p-5 sm:p-6 border border-[#DDE7E0]/60">
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h3
+                                                className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4"
+                                                style={{
+                                                    fontFamily: "var(--font-subjectivity), sans-serif",
+                                                    fontWeight: 700,
+                                                    color: "#353030",
+                                                }}
+                                            >
+                                                What's Included
+                                            </h3>
+                                            <ul className="space-y-2">
+                                                {tourData.included.map((item, idx) => (
+                                                    <li key={idx} className="flex items-start gap-2 text-sm sm:text-base">
+                                                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0 mt-0.5" style={{ color: "#005246" }} />
+                                                        <span
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                fontWeight: 500,
+                                                                color: "#686766",
+                                                            }}
+                                                        >
+                                                            {item}
+                                                        </span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
 
-                                    <div className="hidden md:block w-px bg-gray-200" aria-hidden="true" />
-
-                                    <div>
-                                        <h3
-                                            className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4"
-                                            style={{
-                                                fontFamily: "var(--font-subjectivity), sans-serif",
-                                                fontWeight: 700,
-                                                color: "#353030",
-                                            }}
-                                        >
-                                            What's Not Included
-                                        </h3>
-                                        <ul className="space-y-2">
-                                            {tourData.excluded.map((item, idx) => (
-                                                <li key={idx} className="flex items-start gap-2 text-sm sm:text-base">
-                                                    <X className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 shrink-0 mt-0.5" />
-                                                    <span
-                                                        style={{
-                                                            fontFamily: "var(--font-mona-sans), sans-serif",
-                                                            fontWeight: 500,
-                                                            color: "#686766",
-                                                        }}
-                                                    >
-                                                        {item}
-                                                    </span>
-                                                </li>
-                                            ))}
-                                        </ul>
+                                        <div>
+                                            <h3
+                                                className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4"
+                                                style={{
+                                                    fontFamily: "var(--font-subjectivity), sans-serif",
+                                                    fontWeight: 700,
+                                                    color: "#353030",
+                                                }}
+                                            >
+                                                What's Not Included
+                                            </h3>
+                                            <ul className="space-y-2">
+                                                {tourData.excluded.map((item, idx) => (
+                                                    <li key={idx} className="flex items-start gap-2 text-sm sm:text-base">
+                                                        <X className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 shrink-0 mt-0.5" />
+                                                        <span
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                fontWeight: 500,
+                                                                color: "#686766",
+                                                            }}
+                                                        >
+                                                            {item}
+                                                        </span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 text-[#005246] rounded-xl">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 text-[#005246] rounded-2xl bg-[#F5F1E6]/70 border border-[#DDE7E0]/60">
                                     <div className="flex flex-col">
                                         <div className="flex items-center gap-3">
                                             <span
@@ -452,7 +465,7 @@ export default function TourBookingPage({
                                         </div>
                                     </div>
                                     <button
-                                        className="w-full sm:w-[300px] py-2.5 sm:py-3 bg-[#005246] rounded-lg font-semibold text-center transition-colors text-base"
+                                        className="w-full sm:w-[300px] py-2.5 sm:py-3 bg-[#005246] rounded-full font-semibold text-center transition-all text-base hover:shadow-lg"
                                         style={{ color: "#FFFFFF", fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
                                     >
                                         Book Now
@@ -464,7 +477,7 @@ export default function TourBookingPage({
                 </div>
 
                 {/* Main Content */}
-                <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto pb-8 sm:pb-12 md:pb-16">
+                <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto pt-6 sm:pt-8 md:pt-10 pb-8 sm:pb-12 md:pb-16">
                     <div className="grid lg:grid-cols-3 gap-6 sm:gap-8 md:gap-12">
                         {/* Main Content */}
                         <div className="lg:col-span-2 space-y-6 sm:space-y-8 md:space-y-10">
@@ -483,11 +496,22 @@ export default function TourBookingPage({
                                         Book Your Adventure
                                     </h2>
 
-                                    <form onSubmit={handleSubmit} className="bg-white rounded-xl p-5 sm:p-6 md:p-8 border border-gray-200 shadow-sm space-y-5 sm:space-y-6">
+                                    <p
+                                        className="text-sm sm:text-base mb-6"
+                                        style={{
+                                            fontFamily: "var(--font-mona-sans), sans-serif",
+                                            fontWeight: 500,
+                                            color: "#686766",
+                                        }}
+                                    >
+                                        Please share traveler details exactly as they appear on your identity document.
+                                    </p>
+
+                                    <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-5 sm:p-6 md:p-8 border-2 border-gray-100 shadow-[0_18px_50px_-35px_rgba(0,0,0,0.35)] space-y-5 sm:space-y-6">
                                         {/* Number of People */}
-                                        <div className="flex items-center justify-between gap-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                             <label
-                                                className="block text-sm sm:text-base font-semibold mb-3"
+                                                className="block text-sm sm:text-base font-semibold"
                                                 style={{
                                                     fontFamily: "var(--font-subjectivity), sans-serif",
                                                     fontWeight: 700,
@@ -527,7 +551,7 @@ export default function TourBookingPage({
                                                 Traveler Details
                                             </h3>
                                             {formData.participants.map((participant, idx) => (
-                                                <div key={idx} className="p-4 sm:p-5 bg-gray-50 rounded-xl border border-gray-200 space-y-3 sm:space-y-4">
+                                                <div key={idx} className="p-4 sm:p-5 bg-[#F5F1E6]/40 rounded-xl border-2 border-[#DDE7E0]/70 space-y-3 sm:space-y-4">
                                                     <div className="flex items-center justify-between gap-2">
                                                         <div className="flex items-center gap-2">
                                                             <div
@@ -561,7 +585,7 @@ export default function TourBookingPage({
                                                     <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                                                         <div>
                                                             <label
-                                                                className="block text-xs sm:text-sm font-medium mb-1.5"
+                                                                className="block text-xs sm:text-sm font-semibold mb-2"
                                                                 style={{
                                                                     fontFamily: "var(--font-mona-sans), sans-serif",
                                                                     fontWeight: 500,
@@ -576,17 +600,16 @@ export default function TourBookingPage({
                                                                 required
                                                                 value={participant.name}
                                                                 onChange={(e) => handleParticipantChange(idx, "name", e.target.value)}
-                                                                className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent text-sm sm:text-base bg-white"
+                                                                className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#005246] text-sm sm:text-base bg-white"
                                                                 style={{
                                                                     fontFamily: "var(--font-mona-sans), sans-serif",
                                                                     fontWeight: 500,
-                                                                    "--tw-ring-color": "#005246"
                                                                 } as React.CSSProperties}
                                                             />
                                                         </div>
                                                         <div>
                                                             <label
-                                                                className="block text-xs sm:text-sm font-medium mb-1.5"
+                                                                className="block text-xs sm:text-sm font-semibold mb-2"
                                                                 style={{
                                                                     fontFamily: "var(--font-mona-sans), sans-serif",
                                                                     fontWeight: 500,
@@ -601,17 +624,16 @@ export default function TourBookingPage({
                                                                 required
                                                                 value={participant.phone}
                                                                 onChange={(e) => handleParticipantChange(idx, "phone", e.target.value)}
-                                                                className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent text-sm sm:text-base bg-white"
+                                                                className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#005246] text-sm sm:text-base bg-white"
                                                                 style={{
                                                                     fontFamily: "var(--font-mona-sans), sans-serif",
                                                                     fontWeight: 500,
-                                                                    "--tw-ring-color": "#005246"
                                                                 } as React.CSSProperties}
                                                             />
                                                         </div>
                                                         <div>
                                                             <label
-                                                                className="block text-xs sm:text-sm font-medium mb-1.5"
+                                                                className="block text-xs sm:text-sm font-semibold mb-2"
                                                                 style={{
                                                                     fontFamily: "var(--font-mona-sans), sans-serif",
                                                                     fontWeight: 500,
@@ -628,17 +650,16 @@ export default function TourBookingPage({
                                                                 max="100"
                                                                 value={participant.age}
                                                                 onChange={(e) => handleParticipantChange(idx, "age", e.target.value)}
-                                                                className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent text-sm sm:text-base bg-white"
+                                                                className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#005246] text-sm sm:text-base bg-white"
                                                                 style={{
                                                                     fontFamily: "var(--font-mona-sans), sans-serif",
                                                                     fontWeight: 500,
-                                                                    "--tw-ring-color": "#005246"
                                                                 } as React.CSSProperties}
                                                             />
                                                         </div>
                                                         <div>
                                                             <label
-                                                                className="block text-xs sm:text-sm font-medium mb-1.5"
+                                                                className="block text-xs sm:text-sm font-semibold mb-2"
                                                                 style={{
                                                                     fontFamily: "var(--font-mona-sans), sans-serif",
                                                                     fontWeight: 500,
@@ -657,13 +678,16 @@ export default function TourBookingPage({
                                                             />
                                                             <label
                                                                 htmlFor={`identityProof-${idx}`}
-                                                                className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer transition-all duration-200 text-xs sm:text-sm bg-white hover:border-[#005246] hover:bg-[rgba(0,82,70,0.02)]"
+                                                                className="flex flex-col items-center justify-center gap-2 px-3 sm:px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer transition-all duration-200 text-xs sm:text-sm bg-white hover:border-[#005246]"
                                                                 style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500, color: "#686766" }}
                                                             >
-                                                                <Upload className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: "#005246" }} />
-                                                                <span className="truncate">
+                                                                <span className="w-10 h-10 rounded-full bg-[#F5F1E6] flex items-center justify-center">
+                                                                    <Upload className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: "#005246" }} />
+                                                                </span>
+                                                                <span className="truncate font-semibold" style={{ color: "#353030" }}>
                                                                     {participant.identityProof ? participant.identityProof.name : "Upload Identity Proof"}
                                                                 </span>
+                                                                <span className="text-[11px] text-[#686766]">JPG, PNG or PDF (max 5MB)</span>
                                                             </label>
                                                         </div>
                                                     </div>
@@ -710,7 +734,7 @@ export default function TourBookingPage({
                                         {/* Submit Button */}
                                         <button
                                             type="submit"
-                                            className="w-full py-3.5 sm:py-4 text-white rounded-lg font-semibold text-base sm:text-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+                                            className="w-full py-3.5 sm:py-4 text-white rounded-full font-semibold text-base sm:text-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
                                             style={{
                                                 backgroundColor: "#005246",
                                                 fontFamily: "var(--font-mona-sans), sans-serif",
@@ -803,7 +827,7 @@ export default function TourBookingPage({
                             </div> */}
 
                             {/* Itinerary */}
-                            <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200 shadow-sm">
+                            <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#DDE7E0]/70 shadow-[0_16px_40px_-32px_rgba(0,0,0,0.3)]">
                                 <h2
                                     className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6"
                                     style={{
@@ -881,54 +905,16 @@ export default function TourBookingPage({
             </main>
 
             {/* Lightbox */}
-            {lightboxOpen && (
-                <div
-                    className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
-                    onClick={() => setLightboxOpen(false)}
-                >
-                    <button
-                        onClick={() => setLightboxOpen(false)}
-                        className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
-                    >
-                        <X className="w-8 h-8" />
-                    </button>
-
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedImage((prev) => (prev === 0 ? tourData.images.length - 1 : prev - 1));
-                        }}
-                        className="absolute left-4 text-white hover:text-gray-300 z-10"
-                    >
-                        <ChevronLeft className="w-10 h-10 sm:w-12 sm:h-12" />
-                    </button>
-
-                    <div className="relative w-full max-w-5xl aspect-video">
-                        <Image
-                            src={tourData.images[selectedImage]}
-                            alt="Tour image"
-                            fill
-                            className="object-contain"
-                        />
-                    </div>
-
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedImage((prev) => (prev === tourData.images.length - 1 ? 0 : prev + 1));
-                        }}
-                        className="absolute right-4 text-white hover:text-gray-300 z-10"
-                    >
-                        <ChevronRight className="w-10 h-10 sm:w-12 sm:h-12" />
-                    </button>
-
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm sm:text-base">
-                        {selectedImage + 1} / {tourData.images.length}
-                    </div>
-                </div>
+            {tourData && (
+                <GalleryLightbox
+                    images={tourData.images}
+                    open={lightboxOpen}
+                    initialIndex={selectedImage}
+                    onClose={() => setLightboxOpen(false)}
+                    showThumbnails={true}
+                />
             )}
 
-            <Footer />
         </div>
     );
 }

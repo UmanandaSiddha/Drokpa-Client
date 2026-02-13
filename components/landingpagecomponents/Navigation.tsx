@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, X, TextAlignJustify } from 'lucide-react';
+import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState } from 'react';
 import { GreenArrow, MainLogo } from '@/assets';
@@ -11,12 +12,18 @@ const Navigation = () => {
     const [openMenu, setOpenMenu] = useState<"experiences" | "treks" | null>(null);
     const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
     const [isScrolled, setIsScrolled] = useState(false);
+    const [showNav, setShowNav] = useState(true);
     const navRef = useRef<HTMLDivElement>(null);
+    const lastScrollY = useRef(0);
 
     // Scroll detection
     useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 0);
+            const currentY = window.scrollY;
+            const isGoingUp = currentY < lastScrollY.current;
+            setIsScrolled(currentY > 0);
+            setShowNav(isGoingUp || currentY < 12);
+            lastScrollY.current = currentY;
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
@@ -35,7 +42,7 @@ const Navigation = () => {
 
     return (
         <nav
-            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled
+            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showNav ? "translate-y-0" : "-translate-y-full"} ${isScrolled
                 ? 'bg-white/95 backdrop-blur-sm border-b border-gray-200/50 shadow-sm'
                 : 'bg-transparent'
                 } py-3`}
@@ -140,28 +147,42 @@ const Navigation = () => {
                         </div>
 
                         {/* Contact */}
-                        <button
+                        <Link
+                            href="/contact"
                             className="text-[#27261C] hover:text-gray-900"
                             style={{
                                 fontSize: "14px",
                             }}
                         >
-                            Contact us
-                        </button>
+                            Contact Us
+                        </Link>
+                        {/* <Link
+                            href="/about"
+                            className="text-[#27261C] hover:text-gray-900"
+                            style={{
+                                fontSize: "14px",
+                            }}
+                        >
+                            About
+                        </Link> */}
                     </div>
                 </div>
 
                 {/* Desktop Auth Buttons */}
                 <div className="hidden md:flex items-center gap-4">
-                    <button className="text-gray-700 hover:text-gray-900" style={{
-                        fontSize: "14px",
-                        fontWeight: 500,
-                        color: "#27261C",
-                    }}>
+                    <Link
+                        href="/signin"
+                        className="text-gray-700 hover:text-gray-900"
+                        style={{
+                            fontSize: "14px",
+                            fontWeight: 500,
+                            color: "#27261C",
+                        }}
+                    >
                         Login
-                    </button>
+                    </Link>
                     <div className="h-6 w-px bg-gray-300"></div>
-                    <button className="flex items-center gap-2 text-black">
+                    <Link href="/route-planner" className="flex items-center gap-2 text-black">
                         <Image
                             src={GreenArrow}
                             alt="Green Arrow"
@@ -169,7 +190,7 @@ const Navigation = () => {
                             width={16}
                             height={16}
                         />
-                        <p
+                        <span
                             style={{
                                 fontSize: "14px",
                                 fontWeight: 500,
@@ -177,8 +198,8 @@ const Navigation = () => {
                             }}
                         >
                             Build Your Itinerary
-                        </p>
-                    </button>
+                        </span>
+                    </Link>
 
                     {/* Mobile/Tablet Hamburger Menu */}
                     <button

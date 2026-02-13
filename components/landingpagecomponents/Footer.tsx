@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { FooterBg } from '@/assets';
@@ -223,58 +224,58 @@ export default function Footer({ showCta = false }: FooterProps) {
 								<div className="h-full w-full md:w-[50%] lg:w-full sm:border-l-2 sm:border-[#D9D9D9] sm:pl-8">
 									<ul className="space-y-2 mt-0 md:mt-4">
 										<li>
-											<a
-												href="#"
+											<Link
+												href="/contact"
 												className="text-gray-700 hover:text-emerald-600 font-medium"
 												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 											>
 												Contact Us
-											</a>
+											</Link>
 										</li>
 										<li>
-											<a
-												href="#"
+											<Link
+												href="/articles"
 												className="text-gray-700 hover:text-emerald-600 font-medium"
 												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 											>
 												Experiences
-											</a>
+											</Link>
 										</li>
 										<li>
-											<a
-												href="#"
+											<Link
+												href="/activities"
 												className="text-gray-700 hover:text-emerald-600 font-medium"
 												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 											>
 												Treks
-											</a>
+											</Link>
 										</li>
 										<li>
-											<a
-												href="#"
+											<Link
+												href="/route-planner"
 												className="text-gray-700 hover:text-emerald-600 font-medium"
 												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 											>
 												Route Planner
-											</a>
+											</Link>
 										</li>
 										<li>
-											<a
-												href="#"
+											<Link
+												href="/about"
 												className="text-gray-700 hover:text-emerald-600 font-medium"
 												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 											>
-												Blogs
-											</a>
+												About Us
+											</Link>
 										</li>
 										<li>
-											<a
-												href="#"
+											<Link
+												href="/our-story"
 												className="text-gray-700 hover:text-emerald-600 font-medium"
 												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 											>
 												Our Story
-											</a>
+											</Link>
 										</li>
 									</ul>
 								</div>
@@ -285,40 +286,40 @@ export default function Footer({ showCta = false }: FooterProps) {
 								<div className="w-full md:w-[50%] lg:w-full sm:border-l-2 sm:border-[#D9D9D9] sm:pl-8">
 									<ul className="space-y-2 mt-0 md:mt-4 flex flex-wrap sm:flex-col justify-between">
 										<li>
-											<a
+											<Link
 												href="#"
 												className="text-gray-700 hover:text-emerald-600 font-medium"
 												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 											>
 												Facebook
-											</a>
+											</Link>
 										</li>
 										<li>
-											<a
+											<Link
 												href="#"
 												className="text-gray-700 hover:text-emerald-600 font-medium"
 												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 											>
 												Instagram
-											</a>
+											</Link>
 										</li>
 										<li>
-											<a
+											<Link
 												href="#"
 												className="text-gray-700 hover:text-emerald-600 font-medium"
 												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 											>
 												Linkedin
-											</a>
+											</Link>
 										</li>
 										<li>
-											<a
+											<Link
 												href="#"
 												className="text-gray-700 hover:text-emerald-600 font-medium"
 												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 											>
 												Youtube
-											</a>
+											</Link>
 										</li>
 									</ul>
 								</div>
@@ -329,14 +330,14 @@ export default function Footer({ showCta = false }: FooterProps) {
 
 					{/* Bottom Bar */}
 					<div className="mt-4 pt-2 lg:border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-md text-gray-600" style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}>
-						<div className="flex flex-col sm:flex-row flex-wrap justify-center sm:items-start items-center gap-2">
+						<div className="w-full flex flex-col sm:flex-row flex-wrap justify-between sm:items-start items-center gap-2">
 							<span className='hidden sm:block'>©Drokpa 2025. All rights reserved.</span>
 							<div className='flex flex-wrap justify-center gap-4'>
-								<a href="#" className="hover:text-emerald-600 transition-colors">Privacy</a>
+								<Link href="/privacy" className="hover:text-emerald-600 transition-colors">Privacy</Link>
 								<span className="text-gray-400">•</span>
-								<a href="#" className="hover:text-emerald-600 transition-colors">Terms</a>
+								<Link href="/terms" className="hover:text-emerald-600 transition-colors">Terms</Link>
 								<span className="text-gray-400">•</span>
-								<a href="#" className="hover:text-emerald-600 transition-colors">Company Details</a>
+								<Link href="/company-details" className="hover:text-emerald-600 transition-colors">Company Details</Link>
 							</div>
 							<span className='block sm:hidden'>©Drokpa 2025. All rights reserved.</span>
 						</div>

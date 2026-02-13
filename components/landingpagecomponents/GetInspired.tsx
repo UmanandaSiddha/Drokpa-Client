@@ -1,8 +1,10 @@
 import { Inspired1, Inspired2, Inspired3, Inspired4, Inspired5 } from "@/assets";
+import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
 interface Article {
 	id: number;
+	href: string;
 	title: string;
 	description?: string;
 	image: string;
@@ -13,6 +15,7 @@ export default function GetInspired() {
 	const articles: Article[] = [
 		{
 			id: 1,
+			href: "/articles/seven-lakes",
 			title: "Where Seven Lakes Guard the Himalayas.",
 			description:
 				"Seven high-altitude lakes cradle Himalayan peaks, offering solitude, reflection, and a trek that feels both challenging and deeply sacred.",
@@ -21,24 +24,28 @@ export default function GetInspired() {
 		},
 		{
 			id: 2,
+			href: "/articles/trails-that-test",
 			title: "Trails That Test, Views That Reward.",
 			image: Inspired2.src,
 			size: "small",
 		},
 		{
 			id: 3,
+			href: "/articles/silence-snow-sacred",
 			title: "Silence, Snow, and Sacred Ground.",
 			image: Inspired3.src,
 			size: "small",
 		},
 		{
 			id: 4,
+			href: "/articles/mechuka-breathe",
 			title: "Mechuka: Where the Mountains Breathe.",
 			image: Inspired4.src,
 			size: "small",
 		},
 		{
 			id: 5,
+			href: "/articles/ziro-dreamscape",
 			title: "Floating Over Ziro’s Dreamscape.",
 			image: Inspired5.src,
 			size: "small",
@@ -77,13 +84,13 @@ export default function GetInspired() {
 					{/* LEFT FEATURE */}
 					{largeArticle && (
 						<div className="group">
-							<div className="relative overflow-hidden rounded-xl cursor-pointer">
+							<Link href={largeArticle.href} className="relative overflow-hidden rounded-xl cursor-pointer block">
 								<img
 									src={largeArticle.image}
 									alt={largeArticle.title}
 									className="w-full h-[520px] sm:h-[620px] md:h-[700px] lg:h-[750px] xl:h-[880px] object-cover"
 								/>
-							</div>
+							</Link>
 
 							<h2
 								className="mt-3 sm:mt-4 leading-snug"
@@ -113,16 +120,19 @@ export default function GetInspired() {
 								{largeArticle.description}
 							</p>
 
-							<button className="mt-4 sm:mt-5 cursor-pointer inline-flex items-center px-4 sm:px-5 py-2 bg-[#686766] text-white rounded-md text-xs sm:text-sm font-medium">
+							<Link
+								href={largeArticle.href}
+								className="mt-4 sm:mt-5 inline-flex items-center px-4 sm:px-5 py-2 bg-[#686766] text-white rounded-md text-xs sm:text-sm font-medium"
+							>
 								Read More
-							</button>
+							</Link>
 						</div>
 					)}
 
 					{/* RIGHT GRID */}
 					<div className="grid grid-cols-2 gap-4 sm:gap-5 md:gap-6 items-start">
 						{smallArticles.map(article => (
-							<div key={article.id} className="group cursor-pointer flex flex-col">
+							<Link key={article.id} href={article.href} className="group cursor-pointer flex flex-col">
 								<div className="relative overflow-hidden rounded-xl">
 									<img
 										src={article.image}
@@ -144,7 +154,7 @@ export default function GetInspired() {
 								>
 									{article.title}
 								</h3>
-							</div>
+							</Link>
 						))}
 					</div>
 
@@ -152,10 +162,13 @@ export default function GetInspired() {
 
 				{/* View All Link */}
 				<div className="mt-8 sm:mt-12 md:mt-16 text-center">
-					<button className="text-xs sm:text-sm px-5 sm:px-6 py-2.5 sm:py-3 rounded-md cursor-pointer text-gray-500 hover:text-gray-700 bg-[#F4F4F4] inline-flex items-center gap-2 font-medium">
+					<Link
+						href="/articles"
+						className="text-xs sm:text-sm px-5 sm:px-6 py-2.5 sm:py-3 rounded-md cursor-pointer text-gray-500 hover:text-gray-700 bg-[#F4F4F4] inline-flex items-center gap-2 font-medium"
+					>
 						View All Articles
 						<ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500" />
-					</button>
+					</Link>
 				</div>
 			</div>
 		</section>

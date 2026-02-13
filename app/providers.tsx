@@ -1,12 +1,14 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { MobileMenuProvider } from "@/context/MobileMenuContext";
+import { ToastProvider } from "@/hooks/useToast";
 
 type ProvidersProps = {
     children: ReactNode;
 };
 
 export default function Providers({ children }: ProvidersProps) {
-    return <MobileMenuProvider>{children}</MobileMenuProvider>;
+    return (
+        <ToastProvider>{children}</ToastProvider>
+    );
 }

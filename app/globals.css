@@ -242,3 +242,108 @@ body.no-scroll {
 		scrollbar-width: none;
 	}
 }
+
+@keyframes fade-up {
+	0% {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+	main>section,
+	main>div {
+		animation: fade-up 0.6s ease both;
+	}
+
+	button,
+	a {
+		transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
+			box-shadow 0.2s ease, transform 0.2s ease;
+	}
+
+	button:hover,
+	a:hover {
+		transform: translateY(-1px);
+	}
+}
+
+@keyframes toast-in-right {
+	0% {
+		opacity: 0;
+		transform: translateX(32px) scale(0.98);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateX(0) scale(1);
+	}
+}
+
+@keyframes toast-out-right {
+	0% {
+		opacity: 1;
+		transform: translateX(0) scale(1);
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateX(32px) scale(0.98);
+	}
+}
+
+@keyframes toast-in-left {
+	0% {
+		opacity: 0;
+		transform: translateX(-32px) scale(0.98);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateX(0) scale(1);
+	}
+}
+
+@keyframes toast-out-left {
+	0% {
+		opacity: 1;
+		transform: translateX(0) scale(1);
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateX(-32px) scale(0.98);
+	}
+}
+
+.toast-in-right {
+	animation: toast-in-right 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.toast-out-right {
+	animation: toast-out-right 0.24s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.toast-in-left {
+	animation: toast-in-left 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.toast-out-left {
+	animation: toast-out-left 0.24s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.toast-in-right,
+	.toast-out-right,
+	.toast-in-left,
+	.toast-out-left {
+		animation: none;
+	}
+}

@@ -9,24 +9,14 @@ import {
 	Users,
 	Phone,
 	Mail,
-	ArrowLeft,
 	Check,
-	Calendar,
-	UserCheck,
 	Home,
-	Sparkles,
-	ChevronLeft,
-	ChevronRight,
 	Share2,
 	Heart,
-	Clock,
 	Shield,
-	AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import Navigation from "@/components/landingpagecomponents/Navigation";
-import Footer from "@/components/landingpagecomponents/Footer";
 import RoomCard from "@/components/RoomCard";
 import HomestayImageGrid from "@/components/Homestay/HomestayImageGrid";
 import BookingCard from "@/components/Homestay/BookingCard";
@@ -100,39 +90,39 @@ export default async function HomestayDetailsPage({
 
 	// Enhanced reviews data
 	const reviews = [
-		{ 
-			name: "Rahul Sharma", 
-			comment: "Amazing stay with breathtaking views! The homestay exceeded our expectations. The host was very welcoming and the food was delicious.", 
+		{
+			name: "Rahul Sharma",
+			comment: "Amazing stay with breathtaking views! The homestay exceeded our expectations. The host was very welcoming and the food was delicious.",
 			rating: 5,
 			date: "2 weeks ago"
 		},
-		{ 
-			name: "Tenzin Dorje", 
-			comment: "Warm hospitality and great local food. The rooms were clean and comfortable. Highly recommended for families.", 
+		{
+			name: "Tenzin Dorje",
+			comment: "Warm hospitality and great local food. The rooms were clean and comfortable. Highly recommended for families.",
 			rating: 4,
 			date: "1 month ago"
 		},
-		{ 
-			name: "Priya Mehta", 
-			comment: "Perfect location with stunning mountain views. The host made us feel at home and shared wonderful stories about the local culture.", 
+		{
+			name: "Priya Mehta",
+			comment: "Perfect location with stunning mountain views. The host made us feel at home and shared wonderful stories about the local culture.",
 			rating: 5,
 			date: "3 weeks ago"
 		},
-		{ 
-			name: "Amit Kumar", 
-			comment: "Great value for money. The rooms are spacious and well-maintained. The local cuisine served here is authentic and tasty.", 
+		{
+			name: "Amit Kumar",
+			comment: "Great value for money. The rooms are spacious and well-maintained. The local cuisine served here is authentic and tasty.",
 			rating: 4,
 			date: "1 month ago"
 		},
-		{ 
-			name: "Sarah Johnson", 
-			comment: "One of the best homestays in Arunachal Pradesh. The peaceful atmosphere and beautiful surroundings made our stay memorable.", 
+		{
+			name: "Sarah Johnson",
+			comment: "One of the best homestays in Arunachal Pradesh. The peaceful atmosphere and beautiful surroundings made our stay memorable.",
 			rating: 5,
 			date: "2 months ago"
 		},
-		{ 
-			name: "David Chen", 
-			comment: "Comfortable stay with modern amenities. The host was very helpful in arranging local tours and activities.", 
+		{
+			name: "David Chen",
+			comment: "Comfortable stay with modern amenities. The host was very helpful in arranging local tours and activities.",
 			rating: 4,
 			date: "1 month ago"
 		},
@@ -153,10 +143,13 @@ export default async function HomestayDetailsPage({
 
 	return (
 		<div className="min-h-screen bg-white">
-			<Navigation />
 			<main className="relative min-h-screen bg-white">
 				{/* Banner Carousel */}
-				<div className="mt-16 sm:mt-20 md:mt-24 bg-white py-4 sm:py-6 md:py-8">
+				<div className="relative mt-16 bg-white py-6 sm:py-8 md:py-10 overflow-hidden">
+					<div className="absolute inset-0 -z-10">
+						<div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#FC611E]/10 blur-3xl" />
+						<div className="absolute -bottom-24 left-8 h-72 w-72 rounded-full bg-[#4F87C7]/10 blur-3xl" />
+					</div>
 					<div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
 						<div className="overflow-x-hidden">
 							<HomestayImageGrid images={[
@@ -179,8 +172,22 @@ export default async function HomestayDetailsPage({
 					<div className="bg-white pb-8 sm:pb-12 md:pb-16">
 
 						{/* HEADER */}
-						<div className="pt-4 sm:pt-6 md:pt-8 pb-4 sm:pb-6 border-b border-gray-200">
-							<h1 
+						<div className="pt-4 sm:pt-6 md:pt-8 pb-4 sm:pb-6 border-b border-[#DDE7E0]/70">
+							<div className="flex flex-wrap items-center gap-2 mb-3">
+								<span
+									className="px-3 py-1 rounded-full text-xs font-semibold bg-[#FC611E]/10 text-[#FC611E]"
+									style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+								>
+									Local Homestay
+								</span>
+								<span
+									className="px-3 py-1 rounded-full text-xs font-semibold bg-[#005246]/10 text-[#005246]"
+									style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+								>
+									Host Verified
+								</span>
+							</div>
+							<h1
 								className="text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-3 sm:mb-4"
 								style={{
 									fontFamily: "var(--font-subjectivity), sans-serif",
@@ -212,11 +219,11 @@ export default async function HomestayDetailsPage({
 
 								{/* ACTIONS */}
 								<div className="flex items-center gap-3 sm:gap-4" style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500, fontSize: "clamp(12px, 3vw, 14px)", color: "#27261C" }}>
-									<button className="flex items-center gap-1.5 hover:opacity-70 transition">
+									<button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F5F1E6]/70 border border-[#DDE7E0]/70 hover:opacity-80 transition">
 										<Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
 										<span className="hidden sm:inline">Share</span>
 									</button>
-									<button className="flex items-center gap-1.5 hover:opacity-70 transition">
+									<button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F5F1E6]/70 border border-[#DDE7E0]/70 hover:opacity-80 transition">
 										<Heart className="w-3 h-3 sm:w-4 sm:h-4" />
 										<span className="hidden sm:inline">Save</span>
 									</button>
@@ -231,8 +238,8 @@ export default async function HomestayDetailsPage({
 							<div className="lg:col-span-2 space-y-6 sm:space-y-8 md:space-y-10">
 
 								{/* HOST INFO */}
-								<div className="border-b border-gray-200 pb-4 sm:pb-6 md:pb-8">
-									<h2 
+								<div className="border-b border-[#DDE7E0]/70 pb-4 sm:pb-6 md:pb-8">
+									<h2
 										className="text-lg sm:text-xl md:text-2xl mb-2 sm:mb-3"
 										style={{
 											fontFamily: "var(--font-subjectivity), sans-serif",
@@ -243,7 +250,7 @@ export default async function HomestayDetailsPage({
 									>
 										Hosted by {homestay.host}
 									</h2>
-									<p 
+									<p
 										className="leading-relaxed max-w-3xl"
 										style={{
 											fontFamily: "var(--font-mona-sans), sans-serif",
@@ -259,7 +266,7 @@ export default async function HomestayDetailsPage({
 
 								{/* ROOMS */}
 								<div>
-									<h2 
+									<h2
 										className="text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4 md:mb-6"
 										style={{
 											fontFamily: "var(--font-subjectivity), sans-serif",
@@ -277,11 +284,11 @@ export default async function HomestayDetailsPage({
 									</div>
 								</div>
 
-							<div className="border-t border-gray-200"></div>
+								<div className="border-t border-[#DDE7E0]/70"></div>
 
 								{/* AMENITIES */}
 								<div>
-									<h2 
+									<h2
 										className="text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4 md:mb-6"
 										style={{
 											fontFamily: "var(--font-subjectivity), sans-serif",
@@ -292,30 +299,48 @@ export default async function HomestayDetailsPage({
 									>
 										What this place offers
 									</h2>
-									<div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
+									<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 										{homestay.amenities.map((amenity, i) => (
-											<div key={i} className="flex items-center gap-2 sm:gap-3">
-												<span className="text-gray-600">{getAmenityIcon(amenity)}</span>
-												<span 
-													style={{
-														fontFamily: "var(--font-mona-sans), sans-serif",
-														fontWeight: 500,
-														color: "#27261C",
-														fontSize: "clamp(13px, 3.5vw, 15px)",
-													}}
-												>
-													{amenity}
+											<div
+												key={i}
+												className="group flex items-center gap-3 p-3 sm:p-4 rounded-2xl bg-white border border-[#DDE7E0]/70 shadow-[0_12px_35px_-30px_rgba(0,0,0,0.35)] hover:shadow-[0_16px_45px_-30px_rgba(0,0,0,0.4)] transition-all"
+											>
+												<span className="w-10 h-10 rounded-full bg-[#F5F1E6] border border-[#DDE7E0]/70 flex items-center justify-center text-[#005246]">
+													{getAmenityIcon(amenity)}
 												</span>
+												<div>
+													<span
+														className="block"
+														style={{
+															fontFamily: "var(--font-mona-sans), sans-serif",
+															fontWeight: 600,
+															color: "#27261C",
+															fontSize: "clamp(13px, 3.5vw, 15px)",
+														}}
+													>
+														{amenity}
+													</span>
+													<span
+														className="text-xs"
+														style={{
+															fontFamily: "var(--font-mona-sans), sans-serif",
+															fontWeight: 500,
+															color: "#686766",
+														}}
+													>
+														Included in your stay
+													</span>
+												</div>
 											</div>
 										))}
 									</div>
 								</div>
 
-							<div className="border-t border-gray-200"></div>
+								<div className="border-t border-[#DDE7E0]/70"></div>
 
 								{/* REVIEWS */}
 								<div>
-									<h2 
+									<h2
 										className="text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4"
 										style={{
 											fontFamily: "var(--font-subjectivity), sans-serif",
@@ -326,7 +351,7 @@ export default async function HomestayDetailsPage({
 									>
 										What People have to Say
 									</h2>
-									<div 
+									<div
 										className="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3"
 										style={{
 											fontFamily: "var(--font-mona-sans), sans-serif",
@@ -345,61 +370,61 @@ export default async function HomestayDetailsPage({
 
 									<div className="grid sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
 										{reviews.map((r, i) => (
-											<div key={i} className="space-y-2 sm:space-y-3 p-4 sm:p-5 bg-gray-50 rounded-xl">
-											<div className="flex items-start justify-between">
-												<div className="flex-1">
-													<div 
-														className="font-semibold mb-1"
-														style={{
-															fontFamily: "var(--font-mona-sans), sans-serif",
-															fontWeight: 600,
-															color: "#353030",
-															fontSize: "clamp(13px, 3.5vw, 15px)",
-														}}
-													>
-														{r.name}
+											<div key={i} className="space-y-2 sm:space-y-3 p-4 sm:p-5 bg-white rounded-2xl border border-[#DDE7E0]/70 shadow-[0_14px_40px_-32px_rgba(0,0,0,0.35)]">
+												<div className="flex items-start justify-between">
+													<div className="flex-1">
+														<div
+															className="font-semibold mb-1"
+															style={{
+																fontFamily: "var(--font-mona-sans), sans-serif",
+																fontWeight: 600,
+																color: "#353030",
+																fontSize: "clamp(13px, 3.5vw, 15px)",
+															}}
+														>
+															{r.name}
+														</div>
+														<div
+															className="text-xs"
+															style={{
+																fontFamily: "var(--font-mona-sans), sans-serif",
+																fontWeight: 400,
+																color: "#686766",
+															}}
+														>
+															{r.date}
+														</div>
 													</div>
-													<div 
-														className="text-xs"
-														style={{
-															fontFamily: "var(--font-mona-sans), sans-serif",
-															fontWeight: 400,
-															color: "#686766",
-														}}
-													>
-														{r.date}
+													<div className="flex gap-0.5 sm:gap-1 flex-shrink-0">
+														{Array.from({ length: r.rating }).map((_, s) => (
+															<Star
+																key={s}
+																className="w-3 h-3 sm:w-4 sm:h-4 fill-emerald-500 text-emerald-500"
+															/>
+														))}
 													</div>
 												</div>
-												<div className="flex gap-0.5 sm:gap-1 flex-shrink-0">
-													{Array.from({ length: r.rating }).map((_, s) => (
-														<Star
-															key={s}
-															className="w-3 h-3 sm:w-4 sm:h-4 fill-emerald-500 text-emerald-500"
-														/>
-													))}
-												</div>
+												<p
+													style={{
+														fontFamily: "var(--font-mona-sans), sans-serif",
+														fontWeight: 500,
+														color: "#686766",
+														fontSize: "clamp(13px, 3.5vw, 14px)",
+														lineHeight: "clamp(18px, 4.5vw, 20px)",
+													}}
+												>
+													{r.comment}
+												</p>
 											</div>
-											<p 
-												style={{
-													fontFamily: "var(--font-mona-sans), sans-serif",
-													fontWeight: 500,
-													color: "#686766",
-													fontSize: "clamp(13px, 3.5vw, 14px)",
-													lineHeight: "clamp(18px, 4.5vw, 20px)",
-												}}
-											>
-												{r.comment}
-											</p>
-										</div>
-									))}
+										))}
+									</div>
 								</div>
-							</div>
 
-							<div className="border-t border-gray-200"></div>
+								<div className="border-t border-[#DDE7E0]/70"></div>
 
 								{/* THINGS TO KNOW */}
 								<div>
-									<h2 
+									<h2
 										className="text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4 md:mb-6"
 										style={{
 											fontFamily: "var(--font-subjectivity), sans-serif",
@@ -415,7 +440,7 @@ export default async function HomestayDetailsPage({
 										<div>
 											<div className="flex items-center gap-2 mb-3 sm:mb-4">
 												<Home className="w-4 h-4 sm:w-5 sm:h-5 text-[#686766]" />
-												<h3 
+												<h3
 													className="text-base sm:text-lg"
 													style={{
 														fontFamily: "var(--font-subjectivity), sans-serif",
@@ -437,7 +462,7 @@ export default async function HomestayDetailsPage({
 												].map((rule, i) => (
 													<li key={i} className="flex items-start gap-2">
 														<Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-														<span 
+														<span
 															style={{
 																fontFamily: "var(--font-mona-sans), sans-serif",
 																fontWeight: 500,
@@ -456,7 +481,7 @@ export default async function HomestayDetailsPage({
 										<div>
 											<div className="flex items-center gap-2 mb-3 sm:mb-4">
 												<Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#686766]" />
-												<h3 
+												<h3
 													className="text-base sm:text-lg"
 													style={{
 														fontFamily: "var(--font-subjectivity), sans-serif",
@@ -478,7 +503,7 @@ export default async function HomestayDetailsPage({
 												].map((item, i) => (
 													<li key={i} className="flex items-start gap-2">
 														<Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
-														<span 
+														<span
 															style={{
 																fontFamily: "var(--font-mona-sans), sans-serif",
 																fontWeight: 500,
@@ -495,11 +520,11 @@ export default async function HomestayDetailsPage({
 									</div>
 								</div>
 
-							<div className="border-t border-gray-200"></div>
+								<div className="border-t border-[#DDE7E0]/70"></div>
 
 								{/* CONTACT INFORMATION */}
 								<div>
-									<h2 
+									<h2
 										className="text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4 md:mb-6"
 										style={{
 											fontFamily: "var(--font-subjectivity), sans-serif",
@@ -513,13 +538,13 @@ export default async function HomestayDetailsPage({
 									<div className="grid sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
 										<a
 											href={`tel:${homestay.contact.phone}`}
-											className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+											className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-[#F5F1E6]/60 rounded-2xl border border-[#DDE7E0]/70 hover:bg-[#F5F1E6] transition-colors"
 										>
-											<div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-												<Phone className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+											<div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0 border border-[#DDE7E0]/70">
+												<Phone className="w-4 h-4 sm:w-5 sm:h-5 text-[#005246]" />
 											</div>
 											<div className="min-w-0">
-												<div 
+												<div
 													className="text-xs mb-1"
 													style={{
 														fontFamily: "var(--font-mona-sans), sans-serif",
@@ -529,7 +554,7 @@ export default async function HomestayDetailsPage({
 												>
 													Phone
 												</div>
-												<div 
+												<div
 													className="truncate"
 													style={{
 														fontFamily: "var(--font-mona-sans), sans-serif",
@@ -544,13 +569,13 @@ export default async function HomestayDetailsPage({
 										</a>
 										<a
 											href={`mailto:${homestay.contact.email}`}
-											className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+											className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-[#F5F1E6]/60 rounded-2xl border border-[#DDE7E0]/70 hover:bg-[#F5F1E6] transition-colors"
 										>
-											<div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-												<Mail className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+											<div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0 border border-[#DDE7E0]/70">
+												<Mail className="w-4 h-4 sm:w-5 sm:h-5 text-[#005246]" />
 											</div>
 											<div className="min-w-0">
-												<div 
+												<div
 													className="text-xs mb-1"
 													style={{
 														fontFamily: "var(--font-mona-sans), sans-serif",
@@ -560,7 +585,7 @@ export default async function HomestayDetailsPage({
 												>
 													Email
 												</div>
-												<div 
+												<div
 													className="truncate"
 													style={{
 														fontFamily: "var(--font-mona-sans), sans-serif",
@@ -578,9 +603,11 @@ export default async function HomestayDetailsPage({
 							</div>
 
 							{/* RIGHT – BOOKING CARD */}
-							<div className="lg:col-span-1 overflow-auto mt-6 lg:mt-0">
+							<div className="lg:col-span-1 mt-6 lg:mt-0">
 								<div className="sticky top-20 sm:top-24">
-									<BookingCard rooms={rooms} />
+									<div className="rounded-3xl bg-[#F5F1E6]/60 border border-[#DDE7E0]/70 p-3">
+										<BookingCard rooms={rooms} />
+									</div>
 								</div>
 							</div>
 						</div>
@@ -591,7 +618,7 @@ export default async function HomestayDetailsPage({
 				{similarHomestays.length > 0 && (
 					<div className="bg-white py-8 sm:py-12 md:py-16">
 						<div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
-							<h2 
+							<h2
 								className="text-xl sm:text-2xl md:text-3xl mb-4 sm:mb-6 md:mb-8"
 								style={{
 									fontFamily: "var(--font-subjectivity), sans-serif",
@@ -604,10 +631,10 @@ export default async function HomestayDetailsPage({
 							</h2>
 							<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
 								{similarHomestays.map((similar) => (
-									<Link 
-										key={similar.id} 
+									<Link
+										key={similar.id}
 										href={`/homestays/${similar.id}`}
-										className="group bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+										className="group bg-white rounded-2xl overflow-hidden border border-[#DDE7E0]/70 shadow-[0_18px_45px_-35px_rgba(0,0,0,0.35)] hover:shadow-[0_22px_55px_-35px_rgba(0,0,0,0.4)] transition-all duration-300"
 									>
 										<div className="relative h-40 sm:h-48 md:h-56 overflow-hidden">
 											<Image
@@ -624,7 +651,7 @@ export default async function HomestayDetailsPage({
 										</div>
 										<div className="p-4 sm:p-5">
 											<div className="flex items-center justify-between mb-2">
-												<h3 
+												<h3
 													className="text-base sm:text-lg font-bold flex-1 pr-2"
 													style={{
 														fontFamily: "var(--font-subjectivity), sans-serif",
@@ -636,7 +663,7 @@ export default async function HomestayDetailsPage({
 												</h3>
 												<div className="flex items-center gap-1 flex-shrink-0">
 													<Star className="w-3 h-3 sm:w-4 sm:h-4 fill-emerald-500 text-emerald-500" />
-													<span 
+													<span
 														style={{
 															fontFamily: "var(--font-mona-sans), sans-serif",
 															fontWeight: 600,
@@ -650,7 +677,7 @@ export default async function HomestayDetailsPage({
 											</div>
 											<div className="flex items-center gap-2 mb-2 sm:mb-3">
 												<MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[#686766] flex-shrink-0" />
-												<span 
+												<span
 													className="truncate"
 													style={{
 														fontFamily: "var(--font-mona-sans), sans-serif",
@@ -662,7 +689,7 @@ export default async function HomestayDetailsPage({
 													{similar.location}
 												</span>
 											</div>
-											<p 
+											<p
 												className="mb-3 sm:mb-4 line-clamp-2"
 												style={{
 													fontFamily: "var(--font-mona-sans), sans-serif",
@@ -675,7 +702,7 @@ export default async function HomestayDetailsPage({
 												{similar.description}
 											</p>
 											<div className="flex items-center justify-between gap-2">
-												<span 
+												<span
 													className="text-base sm:text-lg font-bold"
 													style={{
 														fontFamily: "var(--font-mona-sans), sans-serif",
@@ -684,7 +711,7 @@ export default async function HomestayDetailsPage({
 													}}
 												>
 													₹{similar.price}
-													<span 
+													<span
 														className="text-xs sm:text-sm font-normal ml-1"
 														style={{
 															fontFamily: "var(--font-mona-sans), sans-serif",
@@ -695,7 +722,7 @@ export default async function HomestayDetailsPage({
 														/night
 													</span>
 												</span>
-												<span 
+												<span
 													className="text-xs sm:text-sm flex-shrink-0"
 													style={{
 														fontFamily: "var(--font-mona-sans), sans-serif",
@@ -714,7 +741,6 @@ export default async function HomestayDetailsPage({
 					</div>
 				)}
 			</main>
-			<Footer />
 		</div>
 	);
 }

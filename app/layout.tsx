@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import Providers from "./providers";
+import SiteChrome from "@/components/SiteChrome";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,7 +14,6 @@ const geistMono = Geist_Mono({
 	variable: "--font-geist-mono",
 	subsets: ["latin"],
 });
-
 
 const subjectivity = localFont({
 	src: [
@@ -72,7 +72,9 @@ export default function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} ${subjectivity.variable} antialiased overflow-x-hidden`}
 				style={{ "--font-mona-sans": '"Mona Sans", sans-serif' } as React.CSSProperties}
 			>
-				<Providers>{children}</Providers>
+				<Providers>
+					<SiteChrome>{children}</SiteChrome>
+				</Providers>
 			</body>
 		</html>
 	);

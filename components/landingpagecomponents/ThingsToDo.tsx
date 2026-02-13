@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Things1, Things2, Things3, Things4 } from "@/assets";
 
@@ -46,13 +47,13 @@ export default function ThingsToDo() {
 			id: 2,
 			title: "Spiritual Places",
 			image: Things2.src,
-			badge: "Adventure",
+			badge: "Cultural",
 		},
 		{
 			id: 3,
 			title: "Wildlife Safaris",
 			image: Things3.src,
-			badge: "Adventure",
+			badge: "Nature",
 		},
 		{
 			id: 4,
@@ -113,14 +114,15 @@ export default function ThingsToDo() {
 						{/* Center Hover Button - desktop only */}
 						{viewMode === "desktop" && (
 							<div className="absolute inset-0 flex items-center justify-center">
-								<button
+								<Link
+									href={`/activities?activity=${activity.id}`}
 									className={`px-4 sm:px-5 md:px-4 lg:px-6 py-2 sm:py-2.5 bg-white rounded-full text-xs sm:text-sm font-semibold text-gray-900 shadow-lg flex items-center gap-2 transition-all duration-300 ${isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
 										}`}
 									style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
 								>
 									Explore {activity.title}
 									<ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-								</button>
+								</Link>
 							</div>
 						)}
 
