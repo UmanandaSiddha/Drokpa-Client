@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Mail, Lock, Facebook, Apple } from "lucide-react";
-import Image from "next/image";
-import { useSearchParams } from "next/navigation";
-import { DrokpaGreenLogo } from "@/assets";
+import { Mail, Lock, User, ArrowRight, CheckCircle2 } from "lucide-react";
+import { SiGoogle, SiMeta, SiApple } from "react-icons/si";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AuthForm({ defaultMode = "signin" }: { defaultMode?: "signin" | "signup" }) {
+	const router = useRouter();
 	const searchParams = useSearchParams();
-	const mode = searchParams.get("mode"); // 'signup' or null
+	const mode = searchParams.get("mode");
 	const [isSignUp, setIsSignUp] = useState(mode === "signup" || (!mode && defaultMode === "signup"));
 
 	useEffect(() => {
@@ -16,121 +16,290 @@ export default function AuthForm({ defaultMode = "signin" }: { defaultMode?: "si
 	}, [mode, defaultMode]);
 
 	return (
-		<section className="relative py-16 sm:py-20 md:py-24 lg:py-28 overflow-hidden">
-			<div className="absolute inset-0 bg-linear-to-b from-[#F5F1E6] via-white to-white" />
-			<div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#FC611E]/10 blur-3xl" />
-			<div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[#4F87C7]/10 blur-3xl" />
+		<section className="relative py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">
+			{/* Background Elements */}
+			<div className="absolute inset-0 bg-gradient-to-b from-[#F5F1E6] via-[#F5F1E6]/30 to-white" />
+			<div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-[#FC611E]/10 blur-3xl" />
+			<div className="absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-[#4F87C7]/10 blur-3xl" />
 
-			<div className="relative w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1200px] mx-auto">
-				<div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-16 items-start">
+			<div className="relative w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1400px] mx-auto">
+				<div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-8 lg:gap-16 items-start">
+					{/* LEFT - Info Section */}
 					<div>
-						<div className="flex items-center gap-2 mb-4">
-							<span className="inline-flex h-3 w-3 rounded-sm bg-[#FC611E]" />
+						<div className="flex items-center gap-2 mb-5 sm:mb-6">
+							<span className="inline-flex h-4 w-4 sm:h-5 sm:w-5 rounded-sm bg-[#FC611E]" />
 							<p
 								className="text-xs sm:text-sm tracking-widest uppercase text-[#686766]"
-								style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+								style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 							>
 								{isSignUp ? "Create account" : "Welcome back"}
 							</p>
 						</div>
-						<h2
-							className="leading-tight mb-5 sm:mb-6"
+						<h1
+							className="leading-[1.1] mb-6 sm:mb-7"
 							style={{
 								fontFamily: "var(--font-subjectivity), sans-serif",
 								fontWeight: 700,
-								fontSize: "clamp(32px, 6vw, 54px)",
-								color: "#353030",
+								fontSize: "clamp(36px, 7vw, 64px)",
+								color: "#27261C",
 								letterSpacing: "-0.06em",
 							}}
 						>
-							{isSignUp ? "Start your journey with Drokpa." : "Sign in to continue your journey."}
-						</h2>
+							{isSignUp ? (
+								<>
+									Start your journey <br />
+									with Drokpa.
+								</>
+							) : (
+								<>
+									Welcome back <br />
+									to Drokpa.
+								</>
+							)}
+						</h1>
 						<p
-							className="text-base sm:text-lg leading-relaxed max-w-xl"
-							style={{ color: "#686766", fontWeight: 500 }}
+							className="text-base sm:text-lg md:text-xl leading-relaxed mb-8 sm:mb-10"
+							style={{ color: "#686766", fontWeight: 500, lineHeight: "1.7" }}
 						>
-							Access curated stays, route tools, and local experiences designed for Arunachal.
+							{isSignUp
+								? "Create an account to access curated homestays, route planning tools, and authentic local experiences across Arunachal Pradesh."
+								: "Sign in to continue exploring authentic stays, routes, and experiences across Arunachal Pradesh."}
 						</p>
+
+						{/* Benefits Section */}
+						<div className="space-y-4 sm:space-y-5">
+							<BenefitItem
+								icon={<CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />}
+								title="Authentic Homestays"
+								description="Access verified local accommodations"
+							/>
+							<BenefitItem
+								icon={<CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />}
+								title="Route Planning"
+								description="Plan your journey with real-time insights"
+							/>
+							<BenefitItem
+								icon={<CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />}
+								title="Local Experiences"
+								description="Connect with authentic cultural activities"
+							/>
+						</div>
 					</div>
 
-					<div className="bg-white/90 backdrop-blur-sm p-6 sm:p-8 lg:p-10 rounded-3xl shadow-2xl border border-white/70">
-						<div className="flex items-center justify-between mb-6">
-							<h3
-								className="text-xl sm:text-2xl"
+					{/* RIGHT - Form Section */}
+					<div className="bg-white border-2 border-[#DDE7E0] p-6 sm:p-8 lg:p-10 rounded-3xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
+						<div className="flex items-center justify-between mb-6 sm:mb-8">
+							<h2
+								className="text-xl sm:text-2xl md:text-3xl"
 								style={{
 									fontFamily: "var(--font-subjectivity), sans-serif",
 									fontWeight: 700,
-									color: "#353030",
+									color: "#27261C",
+									letterSpacing: "-0.04em",
 								}}
 							>
-								{isSignUp ? "Create your account" : "Sign in via email"}
-							</h3>
-							<Image src={DrokpaGreenLogo} alt="logo" width={40} height={40} priority className="w-10 h-10" />
+								{isSignUp ? "Create Account" : "Sign In"}
+							</h2>
 						</div>
 
-						<form className="space-y-4">
-							<div className="relative">
-								<Mail className="absolute left-3 top-3 text-gray-500" size={18} />
-								<input
-									type="email"
-									placeholder="Email"
-									autoComplete="email"
-									className="w-full bg-white text-black rounded-xl pl-10 py-3 border border-gray-200 placeholder-gray-500 outline-none focus:ring-2 focus:ring-[#005246] focus:border-transparent"
-									required
-									style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
-								/>
+						<form className="space-y-5">
+							{/* Name Field (Sign Up Only) */}
+							{isSignUp && (
+								<div>
+									<label
+										htmlFor="name"
+										className="block text-sm font-semibold mb-2 text-[#27261C]"
+										style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+									>
+										Full Name
+									</label>
+									<div className="relative">
+										<User className="absolute left-4 top-1/2 -translate-y-1/2 text-[#686766]" size={18} />
+										<input
+											type="text"
+											id="name"
+											name="name"
+											placeholder="Enter your full name"
+											autoComplete="name"
+											className="w-full bg-white text-[#27261C] rounded-xl pl-11 pr-4 py-3 border-2 border-gray-200 placeholder-gray-400 outline-none focus:border-[#FC611E] transition-colors"
+											required
+											style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
+										/>
+									</div>
+								</div>
+							)}
+
+							{/* Email Field */}
+							<div>
+								<label
+									htmlFor="email"
+									className="block text-sm font-semibold mb-2 text-[#27261C]"
+									style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+								>
+									Email Address
+								</label>
+								<div className="relative">
+									<Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#686766]" size={18} />
+									<input
+										type="email"
+										id="email"
+										name="email"
+										placeholder="your.email@example.com"
+										autoComplete="email"
+										className="w-full bg-white text-[#27261C] rounded-xl pl-11 pr-4 py-3 border-2 border-gray-200 placeholder-gray-400 outline-none focus:border-[#FC611E] transition-colors"
+										required
+										style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
+									/>
+								</div>
 							</div>
 
-							<div className="relative">
-								<Lock className="absolute left-3 top-3 text-gray-500" size={18} />
-								<input
-									type="password"
-									placeholder="Password"
-									autoComplete="current-password"
-									className="w-full bg-white text-black rounded-xl pl-10 py-3 border border-gray-200 placeholder-gray-500 outline-none focus:ring-2 focus:ring-[#005246] focus:border-transparent"
-									required
-									style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
-								/>
+							{/* Password Field */}
+							<div>
+								<label
+									htmlFor="password"
+									className="block text-sm font-semibold mb-2 text-[#27261C]"
+									style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+								>
+									Password
+								</label>
+								<div className="relative">
+									<Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#686766]" size={18} />
+									<input
+										type="password"
+										id="password"
+										name="password"
+										placeholder="Enter your password"
+										autoComplete={isSignUp ? "new-password" : "current-password"}
+										className="w-full bg-white text-[#27261C] rounded-xl pl-11 pr-4 py-3 border-2 border-gray-200 placeholder-gray-400 outline-none focus:border-[#FC611E] transition-colors"
+										required
+										style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
+									/>
+								</div>
 							</div>
 
+							{/* Forgot Password Link (Sign In Only) */}
+							{!isSignUp && (
+								<div className="flex justify-end">
+									<button
+										type="button"
+										className="text-sm text-[#4F87C7] hover:text-[#FC611E] font-medium transition-colors"
+										style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+									>
+										Forgot password?
+									</button>
+								</div>
+							)}
+
+							{/* Submit Button */}
 							<button
-								className="w-full mt-2 bg-[#005246] text-white font-semibold py-3 rounded-xl hover:bg-[#004536] transition"
-								style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+								type="submit"
+								className="w-full bg-[#FC611E] hover:bg-[#f46a2f] text-white py-3.5 rounded-full font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl mt-6"
+								style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 700, color: "#27261C" }}
 							>
-								{isSignUp ? "Create account" : "Sign in"}
+								{isSignUp ? "Create Account" : "Sign In"}
+								<ArrowRight className="w-5 h-5" />
 							</button>
 						</form>
 
-						<p className="text-center text-[#686766] mt-4" style={{ fontWeight: 500 }}>
+						{/* Toggle Sign In/Sign Up */}
+						<p className="text-center text-[#686766] mt-6" style={{ fontWeight: 500 }}>
 							{isSignUp ? "Already have an account?" : "Don't have an account?"}
-							<span
-								className="text-[#005246] cursor-pointer ml-1"
-								onClick={() => setIsSignUp(!isSignUp)}
+							<button
+								type="button"
+								className="text-[#FC611E] hover:text-[#f46a2f] font-semibold ml-1 transition-colors"
+								onClick={() => {
+									if (isSignUp) {
+										router.push("/signin");
+									} else {
+										router.push("/signup");
+									}
+								}}
+								style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
 							>
 								{isSignUp ? "Sign in" : "Sign up"}
-							</span>
+							</button>
 						</p>
 
-						<div className="flex items-center my-6">
-							<span className="flex-1 h-px bg-gray-200" />
-							<span className="px-3 text-[#686766] text-xs sm:text-sm">Or continue with</span>
-							<span className="flex-1 h-px bg-gray-200" />
+						{/* Divider */}
+						<div className="flex items-center my-6 sm:my-8">
+							<span className="flex-1 h-px bg-[#DDE7E0]" />
+							<span className="px-4 text-[#686766] text-xs sm:text-sm font-medium">Or continue with</span>
+							<span className="flex-1 h-px bg-[#DDE7E0]" />
 						</div>
 
-						<div className="flex justify-center gap-4">
-							<button className="p-3 bg-white rounded-full shadow hover:scale-105 transition">
-								<Image src="/google.svg" width={22} height={22} alt="google" />
+						{/* Social Login Buttons */}
+						<div className="flex justify-center gap-3 sm:gap-4">
+							<button
+								type="button"
+								className="p-3 sm:p-3.5 bg-white border-2 border-[#DDE7E0] rounded-full text-[#1F2937] hover:border-[#FC611E] hover:shadow-md transition-all duration-300 hover:bg-gray-50"
+								aria-label="Sign in with Google"
+								title="Sign in with Google"
+							>
+								<SiGoogle size={20} className="sm:w-6 sm:h-6" />
 							</button>
-							<button className="p-3 bg-[#1877f2] rounded-full text-white shadow hover:scale-105 transition">
-								<Facebook size={22} />
+							<button
+								type="button"
+								className="p-3 sm:p-3.5 bg-white border-2 border-[#DDE7E0] rounded-full text-[#1B74E4] hover:border-[#FC611E] hover:shadow-md transition-all duration-300 hover:bg-gray-50"
+								aria-label="Sign in with Meta"
+								title="Sign in with Meta"
+							>
+								<SiMeta size={20} className="sm:w-6 sm:h-6" />
 							</button>
-							<button className="p-3 bg-black rounded-full text-white shadow hover:scale-105 transition">
-								<Apple size={22} />
+							<button
+								type="button"
+								className="p-3 sm:p-3.5 bg-white border-2 border-[#DDE7E0] rounded-full text-black hover:border-[#FC611E] hover:shadow-md transition-all duration-300 hover:bg-gray-50"
+								aria-label="Sign in with Apple"
+								title="Sign in with Apple"
+							>
+								<SiApple size={20} className="sm:w-6 sm:h-6" />
 							</button>
 						</div>
+
+						{/* Terms & Privacy */}
+						{isSignUp && (
+							<p className="text-xs text-center text-[#686766] mt-6 leading-relaxed" style={{ fontWeight: 400 }}>
+								By signing up, you agree to our{" "}
+								<a href="/terms" className="text-[#4F87C7] hover:text-[#FC611E] underline">
+									Terms of Service
+								</a>{" "}
+								and{" "}
+								<a href="/privacy" className="text-[#4F87C7] hover:text-[#FC611E] underline">
+									Privacy Policy
+								</a>
+							</p>
+						)}
 					</div>
 				</div>
 			</div>
 		</section>
+	);
+}
+
+function BenefitItem({
+	icon,
+	title,
+	description,
+}: {
+	icon: React.ReactNode;
+	title: string;
+	description: string;
+}) {
+	return (
+		<div className="flex items-start gap-4 group">
+			<div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-[#FC611E]/10 text-[#FC611E] flex-shrink-0 transition-transform duration-300 group-hover:scale-110">
+				{icon}
+			</div>
+			<div className="flex-1 min-w-0">
+				<h3
+					className="text-base sm:text-lg font-semibold text-[#27261C] mb-1"
+					style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
+				>
+					{title}
+				</h3>
+				<p className="text-sm sm:text-base text-[#686766]" style={{ fontWeight: 500 }}>
+					{description}
+				</p>
+			</div>
+		</div>
 	);
 }

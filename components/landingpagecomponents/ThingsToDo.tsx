@@ -14,25 +14,25 @@ interface Activity {
 export default function ThingsToDo() {
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [hoveredId, setHoveredId] = useState<number | null>(null);
-	const [itemsPerView, setItemsPerView] = useState(3);
+	const [viewMode, setViewMode] = useState<"mobile" | "tablet" | "desktop">("desktop");
 
 	useEffect(() => {
-		const updateItemsPerView = () => {
+		const updateViewMode = () => {
 			if (typeof window !== "undefined") {
 				const width = window.innerWidth;
 				if (width < 768) {
-					setItemsPerView(1); // Mobile
+					setViewMode("mobile");
 				} else if (width < 1024) {
-					setItemsPerView(2); // Tablet
+					setViewMode("tablet");
 				} else {
-					setItemsPerView(3); // Desktop
+					setViewMode("desktop");
 				}
 			}
 		};
 
-		updateItemsPerView();
-		window.addEventListener("resize", updateItemsPerView);
-		return () => window.removeEventListener("resize", updateItemsPerView);
+		updateViewMode();
+		window.addEventListener("resize", updateViewMode);
+		return () => window.removeEventListener("resize", updateViewMode);
 	}, []);
 
 	const activities: Activity[] = [
@@ -62,6 +62,8 @@ export default function ThingsToDo() {
 		},
 	];
 
+	const itemsPerView = viewMode === "desktop" ? 3 : 1;
+
 	const handleNext = () => {
 		if (currentIndex < activities.length - itemsPerView) {
 			setCurrentIndex(currentIndex + 1);
@@ -78,6 +80,88 @@ export default function ThingsToDo() {
 	const gapTotal = gap * (itemsPerView - 1);
 	const cardWidthPercent = `calc((100% - ${gapTotal}rem) / ${itemsPerView})`;
 	const translateX = `translateX(calc(-${currentIndex} * (${cardWidthPercent} + ${gap}rem)))`;
+
+	const renderCard = (activity: Activity) => {
+		const isHovered = hoveredId === activity.id;
+
+		return (
+			<div
+				key={activity.id}
+				onMouseEnter={() => setHoveredId(activity.id)}
+				onMouseLeave={() => setHoveredId(null)}
+				className="relative rounded-2xl overflow-hidden cursor-pointer group"
+			>
+				{/* Image */}
+				<div className="relative h-[280px] sm:h-[320px] md:h-[240px] lg:h-[420px]">
+					<img
+						src={activity.image}
+						alt={activity.title}
+						className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+					/>
+
+					{/* Gradient Overlay (always visible) */}
+					<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+
+					{/* Hover Overlay (black/blur) */}
+					<div
+						className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isHovered && viewMode === "desktop" ? "opacity-60" : "opacity-0"
+							}`}
+					/>
+
+					{/* Content */}
+					<div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-5 md:p-4 lg:p-6">
+						{/* Center Hover Button - desktop only */}
+						{viewMode === "desktop" && (
+							<div className="absolute inset-0 flex items-center justify-center">
+								<button
+									className={`px-4 sm:px-5 md:px-4 lg:px-6 py-2 sm:py-2.5 bg-white rounded-full text-xs sm:text-sm font-semibold text-gray-900 shadow-lg flex items-center gap-2 transition-all duration-300 ${isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+										}`}
+									style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+								>
+									Explore {activity.title}
+									<ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+								</button>
+							</div>
+						)}
+
+						{/* Bottom Content */}
+						<div className="flex items-end justify-between w-full">
+							{/* Title */}
+							<h3
+								className={`text-lg sm:text-xl md:text-base lg:text-xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${isHovered && viewMode === "desktop" ? "opacity-0 translate-y-2" : "opacity-100"
+									}`}
+								style={{
+									fontFamily: "var(--font-subjectivity), sans-serif",
+									fontWeight: 500,
+								}}
+							>
+								{activity.title}
+							</h3>
+
+							{/* Badge */}
+							{activity.badge && (
+								<div
+									className={`transition-all duration-300 ${isHovered && viewMode === "desktop" ? "opacity-0 translate-y-2" : "opacity-100"
+										}`}
+								>
+									<span
+										className="px-3 md:px-2.5 lg:px-4 py-1.5 md:py-1 lg:py-2 bg-white/90 rounded-full text-xs font-semibold"
+										style={{
+											fontFamily: "var(--font-mona-sans), sans-serif",
+											fontWeight: 600,
+											color: "#27261C",
+										}}
+									>
+										{activity.badge}
+									</span>
+								</div>
+							)}
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	};
 
 	return (
 		<div className="pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-8 sm:pb-12 md:pb-16" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
@@ -96,7 +180,8 @@ export default function ThingsToDo() {
 						Things To Do
 					</h1>
 
-					<div className="flex gap-2">
+					{/* Carousel controls - desktop only */}
+					<div className={`flex gap-2 ${viewMode === "desktop" ? "" : "invisible"}`}>
 						<button
 							onClick={handlePrev}
 							disabled={currentIndex === 0}
@@ -120,101 +205,43 @@ export default function ThingsToDo() {
 				{/* Horizontal Line */}
 				<div className="border-t border-gray-200 mb-4 sm:mb-6"></div>
 
-				{/* Carousel */}
-				<div className="relative overflow-hidden">
-					<div
-						className="flex gap-6"
-						style={{
-							transform: translateX,
-							transition: "transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-							willChange: "transform"
-						}}
-					>
-						{activities.map((activity) => {
-							const isHovered = hoveredId === activity.id;
-
-							return (
+				{/* Desktop: Carousel */}
+				{viewMode === "desktop" && (
+					<div className="relative overflow-hidden">
+						<div
+							className="flex gap-6"
+							style={{
+								transform: translateX,
+								transition: "transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+								willChange: "transform",
+							}}
+						>
+							{activities.map((activity) => (
 								<div
 									key={activity.id}
-									onMouseEnter={() => setHoveredId(activity.id)}
-									onMouseLeave={() => setHoveredId(null)}
-									className="relative flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer group"
-									style={{ width: cardWidthPercent, fontFamily: "var(--font-mona-sans), sans-serif" }}
+									className="flex-shrink-0"
+									style={{ width: cardWidthPercent }}
 								>
-									{/* Image */}
-									<div className="relative h-[280px] sm:h-[320px] md:h-[380px] lg:h-[420px]">
-										<img
-											src={activity.image}
-											alt={activity.title}
-											className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-										/>
-
-										{/* Gradient Overlay (always visible) */}
-										<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-
-										{/* Hover Overlay (black/blur) */}
-										<div
-											className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isHovered ? "opacity-60" : "opacity-0"
-												}`}
-										/>
-
-										{/* Content */}
-										<div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-5 md:p-6">
-
-											{/* Center Hover Button */}
-											<div className="absolute inset-0 flex items-center justify-center">
-												<button
-													className={`px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 bg-white rounded-full text-xs sm:text-sm font-semibold text-gray-900 shadow-lg flex items-center gap-2 transition-all duration-300 ${isHovered
-														? "opacity-100 scale-100"
-														: "opacity-0 scale-95 pointer-events-none"
-														}`}
-													style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
-												>
-													Explore {activity.title}
-													<ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-												</button>
-											</div>
-
-											{/* Bottom Content */}
-											<div className="flex items-end justify-between w-full">
-												{/* Title */}
-												<h3
-													className={`text-lg sm:text-xl font-semibold text-white drop-shadow-lg transition-all duration-300 ${isHovered ? "opacity-0 translate-y-2" : "opacity-100"
-														}`}
-													style={{
-														fontFamily: "var(--font-subjectivity), sans-serif",
-														fontWeight: 500
-													}}
-												>
-													{activity.title}
-												</h3>
-
-												{/* Badge */}
-												{activity.badge && (
-													<div
-														className={`transition-all duration-300 ${isHovered ? "opacity-0 translate-y-2" : "opacity-100"
-															}`}
-													>
-														<span
-															className="px-4 py-2 bg-white/90 rounded-full text-xs font-semibold"
-															style={{
-																fontFamily: "var(--font-mona-sans), sans-serif",
-																fontWeight: 600,
-																color: "#27261C"
-															}}
-														>
-															{activity.badge}
-														</span>
-													</div>
-												)}
-											</div>
-										</div>
-									</div>
+									{renderCard(activity)}
 								</div>
-							);
-						})}
+							))}
+						</div>
 					</div>
-				</div>
+				)}
+
+				{/* Tablet: 2x2 Grid */}
+				{viewMode === "tablet" && (
+					<div className="grid grid-cols-2 gap-4 sm:gap-5">
+						{activities.map((activity) => renderCard(activity))}
+					</div>
+				)}
+
+				{/* Mobile: Vertical Stack */}
+				{viewMode === "mobile" && (
+					<div className="flex flex-col gap-4">
+						{activities.map((activity) => renderCard(activity))}
+					</div>
+				)}
 			</div>
 		</div>
 	);

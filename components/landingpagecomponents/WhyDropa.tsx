@@ -84,12 +84,11 @@ export default function WhyDroppa() {
 						</span>
 					</div>
 					<h1
+						className="text-[30px] sm:text-[36px] md:text-[44px] lg:text-[52px] leading-tight md:leading-[1.08]"
 						style={{
 							fontFamily: "var(--font-subjectivity), sans-serif",
 							fontWeight: 700,
-							fontSize: "clamp(32px, 8vw, 56px)",
 							color: "#353030",
-							lineHeight: "clamp(38px, 9vw, 60px)",
 							letterSpacing: "-0.07em",
 						}}
 					>
@@ -108,12 +107,11 @@ export default function WhyDroppa() {
 							<Image src={feature.icon as string} alt={feature.title} width={40} height={40} className="w-8 h-8 sm:w-10 sm:h-10" />
 
 							<h3
+								className="text-[15px] sm:text-[16px] md:text-[18px] lg:text-[20px] leading-snug"
 								style={{
 									fontFamily: "var(--font-subjectivity), sans-serif",
 									fontWeight: 500,
-									fontSize: "clamp(16px, 4vw, 20px)",
 									color: "#FFFFFF",
-									lineHeight: "clamp(22px, 5vw, 28px)",
 									letterSpacing: "-0.07em",
 								}}
 							>
@@ -121,12 +119,11 @@ export default function WhyDroppa() {
 							</h3>
 
 							<p
+								className="text-[13px] sm:text-[14px] md:text-[15px] leading-relaxed"
 								style={{
 									fontFamily: "var(--font-mona-sans)",
 									fontWeight: 500,
-									fontSize: "clamp(14px, 3.5vw, 16px)",
 									color: "#FFFFFF",
-									lineHeight: "clamp(18px, 4vw, 18px)",
 									letterSpacing: "-0.05em",
 									textAlign: "center",
 								}}

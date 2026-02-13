@@ -68,7 +68,7 @@ export default function TourHomeComponent({
 
 	return (
 		<div className="pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-8 sm:pb-12 md:pb-16" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
-			<div className="mx-auto px-2 sm:px-6 md:px-8 lg:px-0">
+			<div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
 
 				{/* Header */}
 				<div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -125,7 +125,7 @@ export default function TourHomeComponent({
 								style={{ width: cardWidthPercent }}
 							>
 								{/* Image */}
-								<div className="relative h-48 md:h-56 overflow-hidden">
+								<div className="relative h-60 sm:h-72 md:h-56 overflow-hidden">
 									<img
 										src={tour.image}
 										alt={tour.title}

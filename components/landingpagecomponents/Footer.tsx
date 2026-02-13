@@ -72,7 +72,7 @@ export default function Footer({ showCta = false }: FooterProps) {
 	return (
 		<div className="">
 			{showCta && (
-				<div className="w-full px-4 md:px-6 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto py-8 md:py-12 lg:py-18">
+				<div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto py-8 md:py-12 lg:py-18">
 					<div className="relative rounded-[20px] sm:rounded-[40px] md:rounded-[60px] overflow-hidden min-h-[480px] sm:min-h-[560px] md:min-h-[600px] lg:min-h-[560px]">
 						{/* Background */}
 						<Image
@@ -180,7 +180,7 @@ export default function Footer({ showCta = false }: FooterProps) {
 
 			{/* Footer */}
 			<footer className="w-full bg-[#F6F6F6] rounded-t-[60px] p-0 md:p-12">
-				<div className="w-full px-6 sm:px-8 md:px-16 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto py-8 sm:py-12 lg:py-16">
+				<div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto py-8 sm:py-12 lg:py-16">
 					<div className="flex flex-col gap-8 p-2 sm:p-4 md:p-8 lg:p-16 sm:gap-10 lg:h-[360px] lg:grid lg:grid-cols-3 lg:gap-12">
 						{/* Newsletter Section */}
 						<div className="lg:col-span-1 lg:pr-10">

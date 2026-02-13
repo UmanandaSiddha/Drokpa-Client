@@ -50,7 +50,7 @@ export default function GetInspired() {
 
 	return (
 		<section className="pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-8 sm:pb-12 md:pb-16 bg-white">
-			<div className="mx-auto px-4 sm:px-6 md:px-8">
+			<div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
 				{/* Header */}
 
 				<div className="flex items-center gap-2 mb-3 sm:mb-4">
