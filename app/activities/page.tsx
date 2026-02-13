@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Clock, Users, MapPin, Star } from "lucide-react";
 import { Things1, Things2, Things3, Things4 } from "@/assets";
@@ -18,7 +18,7 @@ interface ActivityType {
     groupSize: string;
 }
 
-export default function ActivitiesPage() {
+function ActivitiesContent() {
     const searchParams = useSearchParams();
     const activityParam = searchParams.get('activity');
     const initialActivityId = activityParam ? parseInt(activityParam) : 1;
@@ -313,6 +313,14 @@ export default function ActivitiesPage() {
                 />
             </main>
         </div>
+    );
+}
+
+export default function ActivitiesPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-white" />}>
+            <ActivitiesContent />
+        </Suspense>
     );
 }
 
