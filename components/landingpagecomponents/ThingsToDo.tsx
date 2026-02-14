@@ -92,6 +92,13 @@ export default function ThingsToDo() {
 				onMouseLeave={() => setHoveredId(null)}
 				className="relative rounded-2xl overflow-hidden cursor-pointer group"
 			>
+				{viewMode !== "desktop" && (
+					<Link
+						href={`/activities?activity=${activity.id}`}
+						aria-label={`Explore ${activity.title}`}
+						className="absolute inset-0 z-10"
+					/>
+				)}
 				{/* Image */}
 				<div className="relative h-[280px] sm:h-[320px] md:h-[240px] lg:h-[420px]">
 					<img
