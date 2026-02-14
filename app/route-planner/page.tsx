@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, MapPin, Zap, Clock, Route, Timer, Wallet } from "lucide-react";
+import { ArrowRight, Calendar, MapPin, Zap, Clock, Route, Timer, Wallet } from "lucide-react";
 import NotifyModal from "@/components/NotifyModal";
 
 export default function RoutePlannerPage() {
@@ -194,7 +194,7 @@ export default function RoutePlannerPage() {
 							onClick={() => setNotifyOpen(true)}
 						>
 							Get Notified
-							<span>→</span>
+							<ArrowRight className="w-4 h-4" />
 						</button>
 					</div>
 				</section>

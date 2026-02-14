@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Clock, Users, MapPin, Star } from "lucide-react";
+import { Clock, Users, MapPin, Star, ArrowRight } from "lucide-react";
 import { Things1, Things2, Things3, Things4 } from "@/assets";
 import NotifyModal from "@/components/NotifyModal";
 
@@ -266,7 +266,7 @@ function ActivitiesContent() {
                                     }}
                                 >
                                     Notify Me
-                                    <span>→</span>
+                                    <ArrowRight className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
