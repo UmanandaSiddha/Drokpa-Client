@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, MapPin, Zap, Clock } from "lucide-react";
+import { Calendar, MapPin, Zap, Clock, Route, Timer, Wallet } from "lucide-react";
 import NotifyModal from "@/components/NotifyModal";
 
 export default function RoutePlannerPage() {
@@ -117,7 +117,7 @@ export default function RoutePlannerPage() {
 								<div className="space-y-6">
 									<div className="flex items-start gap-4">
 										<div className="w-12 h-12 rounded-2xl bg-[#FC611E]/10 flex items-center justify-center flex-shrink-0">
-											<span className="text-2xl">🗺️</span>
+											<Route className="w-6 h-6 text-[#FC611E]" />
 										</div>
 										<div>
 											<h3
@@ -134,7 +134,7 @@ export default function RoutePlannerPage() {
 
 									<div className="flex items-start gap-4">
 										<div className="w-12 h-12 rounded-2xl bg-[#4F87C7]/10 flex items-center justify-center flex-shrink-0">
-											<span className="text-2xl">⏱️</span>
+											<Timer className="w-6 h-6 text-[#4F87C7]" />
 										</div>
 										<div>
 											<h3
@@ -151,7 +151,7 @@ export default function RoutePlannerPage() {
 
 									<div className="flex items-start gap-4">
 										<div className="w-12 h-12 rounded-2xl bg-[#2D7A3E]/10 flex items-center justify-center flex-shrink-0">
-											<span className="text-2xl">💰</span>
+											<Wallet className="w-6 h-6 text-[#2D7A3E]" />
 										</div>
 										<div>
 											<h3
