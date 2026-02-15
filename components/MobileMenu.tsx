@@ -73,7 +73,7 @@ const MobileMenu = () => {
 
                         {/* Log In Button */}
                         <Link
-                            href="/signin"
+                            href="/sign-in"
                             className="inline-flex md:hidden px-10 sm:px-14 py-2 sm:py-2.5 bg-[#4F87C7] text-base sm:text-lg text-white font-normal rounded-full mb-6 transition-colors text-center"
                             onClick={() => setMobileMenuOpen(false)}
                         >

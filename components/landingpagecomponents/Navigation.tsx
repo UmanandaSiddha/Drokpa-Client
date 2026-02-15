@@ -171,7 +171,7 @@ const Navigation = () => {
                 {/* Desktop Auth Buttons */}
                 <div className="hidden md:flex items-center gap-4">
                     <Link
-                        href="/signin"
+                        href="/sign-in"
                         className="text-gray-700 hover:text-gray-900"
                         style={{
                             fontSize: "14px",

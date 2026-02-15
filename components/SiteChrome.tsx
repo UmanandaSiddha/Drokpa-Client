@@ -21,10 +21,26 @@ const showCtaRoutes = new Set([
     "/terms",
 ]);
 
+const authRoutes = new Set([
+    "/sign-in",
+    "/sign-up",
+    "/otp-verification",
+    "/reset-password",
+]);
+
 function shouldShowCta(pathname: string | null): boolean {
     if (!pathname) return false;
     if (showCtaRoutes.has(pathname)) return true;
     return pathname.startsWith("/articles/");
+}
+
+function shouldHideChrome(pathname: string | null): boolean {
+    if (!pathname) return false;
+    if (authRoutes.has(pathname)) return true;
+    for (const route of authRoutes) {
+        if (pathname.startsWith(`${route}/`)) return true;
+    }
+    return false;
 }
 
 type SiteChromeProps = {
@@ -34,14 +50,15 @@ type SiteChromeProps = {
 export default function SiteChrome({ children }: SiteChromeProps) {
     const pathname = usePathname();
     const showCta = shouldShowCta(pathname);
+    const hideChrome = shouldHideChrome(pathname);
 
     return (
         <MobileMenuProvider>
             <div className="min-h-screen bg-white">
-                <Navigation />
-                <MobileMenu />
+                {!hideChrome && <Navigation />}
+                {!hideChrome && <MobileMenu />}
                 {children}
-                <Footer showCta={showCta} />
+                {!hideChrome && <Footer showCta={showCta} />}
             </div>
         </MobileMenuProvider>
     );

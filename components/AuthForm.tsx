@@ -1,31 +1,56 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { Mail, Lock, User, ArrowRight, CheckCircle2 } from "lucide-react";
 import { SiGoogle, SiMeta, SiApple } from "react-icons/si";
 import { useRouter, useSearchParams } from "next/navigation";
+import { MainLogo } from "@/assets";
 
-export default function AuthForm({ defaultMode = "signin" }: { defaultMode?: "signin" | "signup" }) {
+export default function AuthForm({ defaultMode = "sign-in" }: { defaultMode?: "sign-in" | "sign-up" }) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const mode = searchParams.get("mode");
-	const [isSignUp, setIsSignUp] = useState(mode === "signup" || (!mode && defaultMode === "signup"));
+	const [isSignUp, setIsSignUp] = useState(mode === "sign-up" || (!mode && defaultMode === "sign-up"));
 
 	useEffect(() => {
-		setIsSignUp(mode === "signup" || (!mode && defaultMode === "signup"));
+		setIsSignUp(mode === "sign-up" || (!mode && defaultMode === "sign-up"));
 	}, [mode, defaultMode]);
 
 	return (
-		<section className="relative py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">
+		<section className="relative min-h-screen flex items-center py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">
 			{/* Background Elements */}
 			<div className="absolute inset-0 bg-gradient-to-b from-[#F5F1E6] via-[#F5F1E6]/30 to-white" />
 			<div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-[#FC611E]/10 blur-3xl" />
 			<div className="absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-[#4F87C7]/10 blur-3xl" />
 
 			<div className="relative w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1400px] mx-auto">
-				<div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-8 lg:gap-16 items-start">
+				<div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-8 lg:gap-16 items-start w-full">
 					{/* LEFT - Info Section */}
 					<div>
+						<Link href="/" className="inline-flex items-center gap-2 mb-6 sm:mb-8">
+							<Image
+								src={MainLogo}
+								alt="Drokpa Logo"
+								priority
+								width={44}
+								height={44}
+								className="w-8 h-8 md:w-11 md:h-11"
+							/>
+							<span
+								className="text-lg md:text-2xl"
+								style={{
+									fontFamily: "var(--font-subjectivity), sans-serif",
+									fontWeight: 700,
+									lineHeight: "32px",
+									letterSpacing: "-0.07em",
+									color: "#353030",
+								}}
+							>
+								Drokpa.
+							</span>
+						</Link>
 						<div className="flex items-center gap-2 mb-5 sm:mb-6">
 							<span className="inline-flex h-4 w-4 sm:h-5 sm:w-5 rounded-sm bg-[#FC611E]" />
 							<p
@@ -209,9 +234,9 @@ export default function AuthForm({ defaultMode = "signin" }: { defaultMode?: "si
 								className="text-[#FC611E] hover:text-[#f46a2f] font-semibold ml-1 transition-colors"
 								onClick={() => {
 									if (isSignUp) {
-										router.push("/signin");
+										router.push("/sign-in");
 									} else {
-										router.push("/signup");
+										router.push("/sign-up");
 									}
 								}}
 								style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
