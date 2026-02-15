@@ -8,6 +8,7 @@ import { MainLogo } from "@/assets";
 
 export default function OtpVerificationClient() {
     const inputCount = 6;
+    const otpEmail = "you@example.com";
     const [digits, setDigits] = useState<string[]>(Array.from({ length: inputCount }, () => ""));
     const [timeLeft, setTimeLeft] = useState(180);
     const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -175,7 +176,7 @@ export default function OtpVerificationClient() {
                     </div>
 
                     <div className="bg-white border-2 border-[#DDE7E0] p-6 sm:p-8 lg:p-10 rounded-3xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
-                        <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center justify-between mb-2">
                             <h2
                                 className="text-xl sm:text-2xl"
                                 style={{
@@ -194,6 +195,9 @@ export default function OtpVerificationClient() {
                                 {formattedTime}
                             </span>
                         </div>
+                        <p className="text-xs sm:text-sm text-[#686766] mb-6" style={{ fontWeight: 500 }}>
+                            OTP sent to <span className="text-[#27261C] font-semibold">{otpEmail}</span>
+                        </p>
 
                         <form className="space-y-6" onSubmit={handleSubmit}>
                             <div className="grid grid-cols-6 gap-2 sm:gap-3">
