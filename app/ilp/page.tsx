@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight, Headset, Info, MapPin, Zap } from "lucide-react";
+import { BadgeIndianRupee, Calendar as CalendarIcon, ChevronRight, Headset, Info, MapPin, Zap } from "lucide-react";
 import {
     Select,
     SelectContent,
@@ -9,13 +9,21 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useCountryOptions } from "@/hooks/useCountryOptions";
 
 export default function ILPPage() {
+    const countryOptions = useCountryOptions();
     const [formData, setFormData] = useState({
         name: "",
+        email: "",
         age: "",
+        arrivalDate: undefined as Date | undefined,
+        countryIso: "IN",
         countryCode: "+91",
         phone: "",
+        passportPhoto: null as File | null,
         aadhaarFile: null as File | null,
     });
 
@@ -37,6 +45,14 @@ export default function ILPPage() {
         }
     };
 
+    const handlePassportPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        setFormData((prev) => ({ ...prev, passportPhoto: file }));
+        if (errors.passportPhoto) {
+            setErrors((prev) => ({ ...prev, passportPhoto: "" }));
+        }
+    };
+
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
 
@@ -44,10 +60,20 @@ export default function ILPPage() {
             newErrors.name = "Name is required";
         }
 
+        if (!formData.email.trim()) {
+            newErrors.email = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            newErrors.email = "Please enter a valid email address";
+        }
+
         if (!formData.age) {
             newErrors.age = "Age is required";
         } else if (parseInt(formData.age) < 1 || parseInt(formData.age) > 120) {
             newErrors.age = "Please enter a valid age";
+        }
+
+        if (!formData.arrivalDate) {
+            newErrors.arrivalDate = "Date of arrival is required";
         }
 
         if (!formData.phone) {
@@ -64,6 +90,17 @@ export default function ILPPage() {
                 newErrors.aadhaarFile = "Please upload a valid file (JPG, PNG, or PDF)";
             } else if (formData.aadhaarFile.size > 5 * 1024 * 1024) {
                 newErrors.aadhaarFile = "File size must be less than 5MB";
+            }
+        }
+
+        if (!formData.passportPhoto) {
+            newErrors.passportPhoto = "Passport photo is required";
+        } else {
+            const validTypes = ["image/jpeg", "image/jpg", "image/png"];
+            if (!validTypes.includes(formData.passportPhoto.type)) {
+                newErrors.passportPhoto = "Please upload a valid photo (JPG or PNG)";
+            } else if (formData.passportPhoto.size > 5 * 1024 * 1024) {
+                newErrors.passportPhoto = "Photo size must be less than 5MB";
             }
         }
 
@@ -120,35 +157,72 @@ export default function ILPPage() {
                         </p>
                     </div>
 
-                    {/* Info Banner */}
-                    <div className="mb-8 sm:mb-12 bg-[#F5F1E6] rounded-2xl p-4 sm:p-6 border border-[#DDE7E0]/40">
-                        <div className="flex gap-3">
-                            <Info className="w-5 h-5 text-[#FC611E] flex-shrink-0 mt-0.5" />
-                            <div>
-                                <h3
-                                    className="text-sm sm:text-base font-semibold mb-1"
-                                    style={{
-                                        fontFamily: "var(--font-subjectivity), sans-serif",
-                                        fontWeight: 700,
-                                        color: "#27261C",
-                                    }}
-                                >
-                                    What you'll need
-                                </h3>
-                                <ul
-                                    className="text-xs sm:text-sm space-y-1"
-                                    style={{
-                                        fontFamily: "var(--font-mona-sans)",
-                                        fontWeight: 500,
-                                        color: "#686766",
-                                    }}
-                                >
-                                    <li>• Valid Aadhaar Card document (photo/scan)</li>
-                                    <li>• Active phone number for verification</li>
-                                    <li>• Your travel dates and destinations</li>
-                                </ul>
+                    {/* Info Banners */}
+                    <div className="mb-10 sm:mb-14 grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
+
+                        <div className="bg-[#E9F1FF] rounded-2xl p-4 sm:p-6 border border-[#C8DBFF]">
+                            <div className="flex gap-3">
+                                <Info className="w-5 h-5 text-[#2D6CDF] flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <h3
+                                        className="text-sm sm:text-base font-semibold mb-1"
+                                        style={{
+                                            fontFamily: "var(--font-subjectivity), sans-serif",
+                                            fontWeight: 700,
+                                            color: "#27261C",
+                                        }}
+                                    >
+                                        Who needs ILP
+                                    </h3>
+                                    <ul
+                                        className="text-xs sm:text-sm space-y-1"
+                                        style={{
+                                            fontFamily: "var(--font-mona-sans)",
+                                            fontWeight: 500,
+                                            color: "#4A5B7A",
+                                        }}
+                                    >
+                                        <li>• Non-residents traveling to Arunachal Pradesh</li>
+                                        <li>• Visitors for tourism, work, business, or transit</li>
+                                        <li>• Indian citizens from other states (residents exempt)</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
+
+                        <div className="bg-[#F5F1E6] rounded-2xl p-4 sm:p-6 border border-[#DDE7E0]/40">
+                            <div className="flex gap-3">
+                                <Info className="w-5 h-5 text-[#FC611E] flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <h3
+                                        className="text-sm sm:text-base font-semibold mb-1"
+                                        style={{
+                                            fontFamily: "var(--font-subjectivity), sans-serif",
+                                            fontWeight: 700,
+                                            color: "#27261C",
+                                        }}
+                                    >
+                                        What you'll need
+                                    </h3>
+                                    <ul
+                                        className="text-xs sm:text-sm space-y-1"
+                                        style={{
+                                            fontFamily: "var(--font-mona-sans)",
+                                            fontWeight: 500,
+                                            color: "#686766",
+                                        }}
+                                    >
+                                        <li>• Valid Aadhaar Card document (photo/scan)</li>
+                                        <li>• Passport-size photo (JPG/PNG)</li>
+                                        <li>• Active phone number for verification</li>
+                                        {/* <li>• Email address for updates</li>
+                                        <li>• Your travel dates and destinations</li>
+                                        <li>• Fee: INR 300 per person (valid for 5 days)</li> */}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     {/* Form Section */}
@@ -215,6 +289,43 @@ export default function ILPPage() {
                                         )}
                                     </div>
 
+                                    {/* Email Field */}
+                                    <div>
+                                        <label
+                                            htmlFor="email"
+                                            className="block text-sm font-semibold mb-2"
+                                            style={{
+                                                fontFamily: "var(--font-mona-sans)",
+                                                fontWeight: 600,
+                                                color: "#27261C",
+                                            }}
+                                        >
+                                            Email <span className="text-[#FC611E]">*</span>
+                                        </label>
+                                        <input
+                                            type="email"
+                                            id="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            placeholder="Enter your email"
+                                            className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors ${errors.email
+                                                ? "border-red-400 focus:border-red-500"
+                                                : "border-gray-200 focus:border-[#FC611E]"
+                                                }`}
+                                            style={{
+                                                fontFamily: "var(--font-mona-sans)",
+                                                fontWeight: 500,
+                                                color: "#27261C",
+                                            }}
+                                        />
+                                        {errors.email && (
+                                            <p className="mt-1 text-xs text-red-500" style={{ fontFamily: "var(--font-mona-sans)" }}>
+                                                {errors.email}
+                                            </p>
+                                        )}
+                                    </div>
+
                                     {/* Age Field */}
                                     <div>
                                         <label
@@ -254,6 +365,67 @@ export default function ILPPage() {
                                         )}
                                     </div>
 
+                                    {/* Date of Arrival Field */}
+                                    <div>
+                                        <label
+                                            htmlFor="arrivalDate"
+                                            className="block text-sm font-semibold mb-2"
+                                            style={{
+                                                fontFamily: "var(--font-mona-sans)",
+                                                fontWeight: 600,
+                                                color: "#27261C",
+                                            }}
+                                        >
+                                            Date of Arrival <span className="text-[#FC611E]">*</span>
+                                        </label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <button
+                                                    type="button"
+                                                    id="arrivalDate"
+                                                    className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors text-left flex items-center gap-2 ${errors.arrivalDate
+                                                        ? "border-red-400 focus:border-red-500"
+                                                        : "border-gray-200 focus:border-[#FC611E]"
+                                                        }`}
+                                                    style={{
+                                                        fontFamily: "var(--font-mona-sans)",
+                                                        fontWeight: 500,
+                                                        color: formData.arrivalDate ? "#27261C" : "#686766",
+                                                    }}
+                                                >
+                                                    <span className="flex-1">
+                                                        {formData.arrivalDate
+                                                            ? formData.arrivalDate.toLocaleDateString("en-GB", {
+                                                                day: "2-digit",
+                                                                month: "short",
+                                                                year: "numeric",
+                                                            })
+                                                            : "Select arrival date"}
+                                                    </span>
+                                                    <CalendarIcon className="w-4 h-4 text-[#686766]" />
+                                                </button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={formData.arrivalDate}
+                                                    onSelect={(date) => {
+                                                        setFormData((prev) => ({ ...prev, arrivalDate: date }));
+                                                        if (errors.arrivalDate) {
+                                                            setErrors((prev) => ({ ...prev, arrivalDate: "" }));
+                                                        }
+                                                    }}
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                        {errors.arrivalDate && (
+                                            <p className="mt-1 text-xs text-red-500" style={{ fontFamily: "var(--font-mona-sans)" }}>
+                                                {errors.arrivalDate}
+                                            </p>
+                                        )}
+                                    </div>
+
                                     {/* Phone Field */}
                                     <div>
                                         <label
@@ -267,15 +439,23 @@ export default function ILPPage() {
                                         >
                                             Phone Number <span className="text-[#FC611E]">*</span>
                                         </label>
-                                        <div className="flex gap-2">
+                                        <div className="flex flex-col gap-2 sm:flex-row">
                                             <Select
-                                                value={formData.countryCode}
+                                                value={formData.countryIso}
                                                 onValueChange={(value) => {
-                                                    setFormData((prev) => ({ ...prev, countryCode: value }));
+                                                    const selected = countryOptions.find((option) => option.code === value);
+                                                    if (!selected) {
+                                                        return;
+                                                    }
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        countryIso: selected.code,
+                                                        countryCode: selected.callingCode,
+                                                    }));
                                                 }}
                                             >
                                                 <SelectTrigger
-                                                    className={`w-32 px-4 py-3 rounded-xl border-2 outline-none transition-colors ${errors.phone
+                                                    className={`w-full sm:w-44 px-4 py-3 rounded-xl border-2 outline-none transition-colors ${errors.phone
                                                         ? "border-red-400"
                                                         : "border-gray-200 focus:border-[#FC611E]"
                                                         }`}
@@ -286,20 +466,14 @@ export default function ILPPage() {
                                                         height: "auto",
                                                     }}
                                                 >
-                                                    <SelectValue />
+                                                    <SelectValue placeholder="Country" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value={"+91"}>🇮🇳 +91</SelectItem>
-                                                    <SelectItem value={"+1"}>🇺🇸 +1</SelectItem>
-                                                    <SelectItem value={"+44"}>🇬🇧 +44</SelectItem>
-                                                    <SelectItem value={"+61"}>🇦🇺 +61</SelectItem>
-                                                    <SelectItem value={"+86"}>🇨🇳 +86</SelectItem>
-                                                    <SelectItem value={"+81"}>🇯🇵 +81</SelectItem>
-                                                    <SelectItem value={"+82"}>🇰🇷 +82</SelectItem>
-                                                    <SelectItem value={"+65"}>🇸🇬 +65</SelectItem>
-                                                    <SelectItem value={"+971"}>🇦🇪 +971</SelectItem>
-                                                    <SelectItem value={"+33"}>🇫🇷 +33</SelectItem>
-                                                    <SelectItem value={"+49"}>🇩🇪 +49</SelectItem>
+                                                    {countryOptions.map((option) => (
+                                                        <SelectItem key={option.code} value={option.code}>
+                                                            {option.name} ({option.callingCode})
+                                                        </SelectItem>
+                                                    ))}
                                                 </SelectContent>
                                             </Select>
                                             <input
@@ -310,7 +484,7 @@ export default function ILPPage() {
                                                 onChange={handleChange}
                                                 placeholder="10-digit mobile number"
                                                 maxLength={10}
-                                                className={`flex-1 px-4 py-3 rounded-xl border-2 outline-none transition-colors ${errors.phone
+                                                className={`w-full flex-1 px-4 py-3 rounded-xl border-2 outline-none transition-colors ${errors.phone
                                                     ? "border-red-400 focus:border-red-500"
                                                     : "border-gray-200 focus:border-[#FC611E]"
                                                     }`}
@@ -324,6 +498,88 @@ export default function ILPPage() {
                                         {errors.phone && (
                                             <p className="mt-1 text-xs text-red-500" style={{ fontFamily: "var(--font-mona-sans)" }}>
                                                 {errors.phone}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* Passport Photo Field */}
+                                    <div>
+                                        <label
+                                            htmlFor="passportPhoto"
+                                            className="block text-sm font-semibold mb-2"
+                                            style={{
+                                                fontFamily: "var(--font-mona-sans)",
+                                                fontWeight: 600,
+                                                color: "#27261C",
+                                            }}
+                                        >
+                                            Passport Photo <span className="text-[#FC611E]">*</span>
+                                        </label>
+                                        <div className="relative border-2 border-dashed border-[#DDE7E0] rounded-2xl p-6 bg-[#FDFBF6]">
+                                            <input
+                                                type="file"
+                                                id="passportPhoto"
+                                                name="passportPhoto"
+                                                onChange={handlePassportPhotoChange}
+                                                accept=".jpg,.jpeg,.png"
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            />
+                                            <div className="flex flex-col items-center text-center pointer-events-none">
+                                                <div className="w-12 h-12 rounded-full bg-[#F5F1E6] flex items-center justify-center mb-3">
+                                                    <ChevronRight className="w-6 h-6 text-[#FC611E] rotate-90" />
+                                                </div>
+                                                {formData.passportPhoto ? (
+                                                    <>
+                                                        <p
+                                                            className="text-sm font-semibold mb-1"
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans)",
+                                                                fontWeight: 600,
+                                                                color: "#27261C",
+                                                            }}
+                                                        >
+                                                            {formData.passportPhoto.name}
+                                                        </p>
+                                                        <p
+                                                            className="text-xs"
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans)",
+                                                                fontWeight: 500,
+                                                                color: "#686766",
+                                                            }}
+                                                        >
+                                                            {(formData.passportPhoto.size / 1024).toFixed(2)} KB • Click to change
+                                                        </p>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <p
+                                                            className="text-sm font-semibold mb-1"
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans)",
+                                                                fontWeight: 600,
+                                                                color: "#27261C",
+                                                            }}
+                                                        >
+                                                            Click to upload passport photo
+                                                        </p>
+                                                        <p
+                                                            className="text-xs"
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans)",
+                                                                fontWeight: 500,
+                                                                color: "#686766",
+                                                            }}
+                                                        >
+                                                            JPG or PNG (max 5MB)
+                                                        </p>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {errors.passportPhoto && (
+                                            <p className="mt-1 text-xs text-red-500" style={{ fontFamily: "var(--font-mona-sans)" }}>
+                                                {errors.passportPhoto}
                                             </p>
                                         )}
                                     </div>
@@ -464,6 +720,34 @@ export default function ILPPage() {
                                     }}
                                 >
                                     Most applications are processed within 24-48 hours. You'll receive updates via SMS and email.
+                                </p>
+                            </div>
+
+                            <div className="bg-[#F5F1E6] rounded-2xl p-6 border border-[#DDE7E0]/40">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <div className="w-10 h-10 rounded-full bg-[#4F87C7] flex items-center justify-center">
+                                        <BadgeIndianRupee className="w-5 h-5 text-white" />
+                                    </div>
+                                    <h3
+                                        className="text-base font-semibold"
+                                        style={{
+                                            fontFamily: "var(--font-subjectivity), sans-serif",
+                                            fontWeight: 700,
+                                            color: "#27261C",
+                                        }}
+                                    >
+                                        Fee & Validity
+                                    </h3>
+                                </div>
+                                <p
+                                    className="text-sm"
+                                    style={{
+                                        fontFamily: "var(--font-mona-sans)",
+                                        fontWeight: 500,
+                                        color: "#686766",
+                                    }}
+                                >
+                                    ILP fee is INR 300 per person and the permit is valid for 5 days from the date of arrival.
                                 </p>
                             </div>
 
