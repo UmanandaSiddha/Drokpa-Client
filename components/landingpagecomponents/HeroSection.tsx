@@ -7,7 +7,7 @@ import WeatherWidget from "./WeatherWidget";
 import InnerLinePermitWidget from "./InnerLinePermitWidget";
 
 const HeroSection = () => {
-	const heroImages = [HeroBg2.src, HeroBg2.src];
+	const heroImages = [HeroBg2.src];
 	const [currentIndex, setCurrentIndex] = useState(0);
 
 	useEffect(() => {
