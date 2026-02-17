@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HeroBg1, HeroBg2 } from "@/assets";
+import { HeroBg2 } from "@/assets";
 import TrekCard from "./TrekCard";
 import WeatherWidget from "./WeatherWidget";
 import InnerLinePermitWidget from "./InnerLinePermitWidget";
 
 const HeroSection = () => {
-	const heroImages = [HeroBg1.src, HeroBg2.src];
+	const heroImages = [HeroBg2.src, HeroBg2.src];
 	const [currentIndex, setCurrentIndex] = useState(0);
 
 	useEffect(() => {
@@ -25,7 +25,7 @@ const HeroSection = () => {
 				<div className="absolute inset-0 z-0">
 					{heroImages.map((img, index) => (
 						<img
-							key={img}
+							key={index}
 							src={img}
 							alt="Hero Background"
 							width={1000}

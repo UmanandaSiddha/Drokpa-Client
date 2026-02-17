@@ -1,7 +1,23 @@
+import type { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "Terms of Service | Drokpa",
     description: "Terms of Service for Drokpa - Read our terms and conditions",
+    alternates: {
+        canonical: "https://www.drokpa.in/terms",
+    },
+    openGraph: {
+        title: "Terms of Service - Drokpa",
+        description: "Terms of Service for Drokpa - Read our terms and conditions",
+        url: "https://www.drokpa.in/terms",
+        images: ["https://www.drokpa.in/og.png"],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Terms of Service - Drokpa",
+        description: "Terms of Service for Drokpa - Read our terms and conditions",
+        images: ["https://www.drokpa.in/og.png"],
+    },
 };
 
 export default function TermsPage() {

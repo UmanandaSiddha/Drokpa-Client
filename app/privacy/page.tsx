@@ -1,7 +1,23 @@
+import type { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "Privacy Policy | Drokpa",
     description: "Privacy Policy for Drokpa - Learn how we protect your data",
+    alternates: {
+        canonical: "https://www.drokpa.in/privacy",
+    },
+    openGraph: {
+        title: "Privacy Policy - Drokpa",
+        description: "Privacy Policy for Drokpa - Learn how we protect your data",
+        url: "https://www.drokpa.in/privacy",
+        images: ["https://www.drokpa.in/og.png"],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Privacy Policy - Drokpa",
+        description: "Privacy Policy for Drokpa - Learn how we protect your data",
+        images: ["https://www.drokpa.in/og.png"],
+    },
 };
 
 export default function PrivacyPage() {

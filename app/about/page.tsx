@@ -1,5 +1,19 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { BookOpen, Home, Leaf, Users } from "lucide-react";
+
+export const metadata: Metadata = {
+	title: "About Us - Drokpa's Story and Vision",
+	description: "Learn about Drokpa, a curated collection of authentic stories, homes, routes, and traditions in Arunachal Pradesh. Discover how we're revolutionizing local travel experiences.",
+	alternates: {
+		canonical: "https://www.drokpa.in/about",
+	},
+	openGraph: {
+		title: "About Drokpa - Your Local Travel Buddy",
+		description: "Learn about Drokpa's mission to showcase authentic travel experiences in Arunachal Pradesh",
+		url: "https://www.drokpa.in/about",
+	},
+};
 
 export default function AboutPage() {
 	return (

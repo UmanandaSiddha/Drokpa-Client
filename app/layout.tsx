@@ -57,9 +57,72 @@ const subjectivity = localFont({
 });
 
 export const metadata: Metadata = {
-	title: "Drokpa",
-	description: "Created by Siddha",
+	title: {
+		default: "Drokpa - Your Local Travel Buddy in Arunachal Pradesh",
+		template: "%s | Drokpa",
+	},
+	description: "Discover authentic travel experiences in Arunachal Pradesh. Explore local homestays, guided treks, cultural activities, and exclusive experiences curated by locals.",
+	keywords: [
+		"Arunachal Pradesh travel",
+		"homestays in Arunachal Pradesh",
+		"trekking Arunachal Pradesh",
+		"local travel experiences",
+		"adventure tourism",
+		"ILP Arunachal Pradesh",
+		"travel buddy",
+		"authentic travel",
+	],
+	openGraph: {
+		title: "Drokpa - Your Local Travel Buddy in Arunachal Pradesh",
+		description: "Discover authentic travel experiences in Arunachal Pradesh. Explore local homestays, guided treks, cultural activities, and exclusive experiences curated by locals.",
+		images: [
+			{
+				url: "https://www.drokpa.in/og.png",
+				width: 1200,
+				height: 630,
+				alt: "Drokpa - Your Local Travel Buddy",
+				type: "image/png",
+			},
+		],
+		url: "https://www.drokpa.in",
+		siteName: "Drokpa",
+		type: "website",
+		locale: "en_IN",
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: "Drokpa - Your Local Travel Buddy",
+		description: "Discover authentic travel experiences in Arunachal Pradesh",
+		images: ["https://www.drokpa.in/og.png"],
+		creator: "@drokpa",
+	},
+	alternates: {
+		canonical: "https://www.drokpa.in",
+	},
+	authors: [
+		{
+			name: "Drokpa",
+			url: "https://www.drokpa.in",
+		},
+	],
+	creator: "Drokpa",
+	publisher: "Drokpa",
+	robots: {
+		index: true,
+		follow: true,
+		"max-image-preview": "large",
+		"max-snippet": -1,
+		"max-video-preview": -1,
+	},
+	icons: {
+		icon: "/favicon.ico",
+	},
+	category: "Travel & Tourism",
+	verification: {
+		google: "your-google-verification-code",
+	},
 };
+
 
 export default function RootLayout({
 	children,

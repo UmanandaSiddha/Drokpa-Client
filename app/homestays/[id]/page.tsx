@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
 	MapPin,
@@ -21,6 +22,19 @@ import RoomCard from "@/components/RoomCard";
 import HomestayImageGrid from "@/components/Homestay/HomestayImageGrid";
 import BookingCard from "@/components/Homestay/BookingCard";
 import homestays from "@/data/homestays";
+
+export const metadata: Metadata = {
+	title: "Homestays in Arunachal Pradesh - Authentic Local Stays",
+	description: "Book authentic homestays in Arunachal Pradesh with Drokpa. Experience local hospitality, home-cooked meals, and cultural immersion with families across the region.",
+	alternates: {
+		canonical: "https://www.drokpa.in/homestays",
+	},
+	openGraph: {
+		title: "Homestays - Drokpa",
+		description: "Authentic homestays and local stays in Arunachal Pradesh",
+		url: "https://www.drokpa.in/homestays",
+	},
+};
 
 export default async function HomestayDetailsPage({
 	params,
