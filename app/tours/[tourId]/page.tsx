@@ -4,13 +4,14 @@ import tours from "@/data/tours";
 import TourBookingPageClient from "../../../client/TourBookingClient";
 
 type TourPageProps = {
-    params: {
+    params: Promise<{
         tourId: string;
-    };
+    }>;
 };
 
-export function generateMetadata({ params }: TourPageProps): Metadata {
-    const tourId = Number(params.tourId);
+export async function generateMetadata({ params }: TourPageProps): Promise<Metadata> {
+    const { tourId: tourIdParam } = await params;
+    const tourId = Number(tourIdParam);
     const tour = tours.find((item) => item.id === tourId);
 
     if (!tour) {
@@ -38,13 +39,14 @@ export function generateMetadata({ params }: TourPageProps): Metadata {
     };
 }
 
-export default function TourBookingPage({ params }: TourPageProps) {
-    const tourId = Number(params.tourId);
+export default async function TourBookingPage({ params }: TourPageProps) {
+    const { tourId: tourIdParam } = await params;
+    const tourId = Number(tourIdParam);
     const tour = tours.find((item) => item.id === tourId);
 
     if (!tour) {
         notFound();
     }
 
-    return <TourBookingPageClient params={Promise.resolve({ tourId: params.tourId })} />;
+    return <TourBookingPageClient params={Promise.resolve({ tourId: tourIdParam })} />;
 }

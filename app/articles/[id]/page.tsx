@@ -4,13 +4,14 @@ import { articles } from "@/data/articles";
 import ArticlePageClient from "../../../client/ArticleClient";
 
 type ArticlePageProps = {
-    params: {
+    params: Promise<{
         id: string;
-    };
+    }>;
 };
 
-export function generateMetadata({ params }: ArticlePageProps): Metadata {
-    const article = articles.find((item) => item.id === params.id);
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+    const { id } = await params;
+    const article = articles.find((item) => item.id === id);
 
     if (!article) {
         return {
@@ -37,8 +38,9 @@ export function generateMetadata({ params }: ArticlePageProps): Metadata {
     };
 }
 
-export default function ArticlePage({ params }: ArticlePageProps) {
-    const article = articles.find((item) => item.id === params.id);
+export default async function ArticlePage({ params }: ArticlePageProps) {
+    const { id } = await params;
+    const article = articles.find((item) => item.id === id);
 
     if (!article) {
         notFound();
