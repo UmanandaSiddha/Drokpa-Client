@@ -297,6 +297,7 @@ export default function Footer({ showCta = false }: FooterProps) {
 										<li>
 											<Link
 												href="https://www.instagram.com/drokpa.in?utm_source=qr&igsh=MTFpdmtrdHE5MnkxcQ%3D%3D"
+												target='blank'
 												className="text-gray-700 hover:text-emerald-600 font-medium"
 												style={{ fontFamily: "var(--font-subjectivity), sans-serif", fontWeight: 700 }}
 											>
