@@ -5,7 +5,9 @@ import { usePathname } from "next/navigation";
 import Navigation from "@/components/landingpagecomponents/Navigation";
 import MobileMenu from "@/components/MobileMenu";
 import Footer from "@/components/landingpagecomponents/Footer";
+import DevBanner from "@/components/DevBanner";
 import { MobileMenuProvider } from "@/context/MobileMenuContext";
+import { DevBannerProvider } from "@/context/DevBannerContext";
 
 const showCtaRoutes = new Set([
     "/",
@@ -53,13 +55,16 @@ export default function SiteChrome({ children }: SiteChromeProps) {
     const hideChrome = shouldHideChrome(pathname);
 
     return (
-        <MobileMenuProvider>
-            <div className="min-h-screen bg-white">
-                {!hideChrome && <Navigation />}
-                {!hideChrome && <MobileMenu />}
-                {children}
-                {!hideChrome && <Footer showCta={showCta} />}
-            </div>
-        </MobileMenuProvider>
+        <DevBannerProvider>
+            <MobileMenuProvider>
+                <div className="min-h-screen bg-white">
+                    <DevBanner />
+                    {!hideChrome && <Navigation />}
+                    {!hideChrome && <MobileMenu />}
+                    {children}
+                    {!hideChrome && <Footer showCta={showCta} />}
+                </div>
+            </MobileMenuProvider>
+        </DevBannerProvider>
     );
 }

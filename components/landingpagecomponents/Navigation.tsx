@@ -6,11 +6,13 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from 'react';
 import { GreenArrow, MainLogo } from '@/assets';
 import { useMobileMenu } from '@/context/MobileMenuContext';
+import { useDevBanner } from '@/context/DevBannerContext';
 
 // Navigation Component
 const Navigation = () => {
     const [openMenu, setOpenMenu] = useState<"experiences" | "treks" | null>(null);
     const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
+    const { isVisible: bannerVisible, bannerHeight } = useDevBanner();
     const [isScrolled, setIsScrolled] = useState(false);
     const [showNav, setShowNav] = useState(true);
     const navRef = useRef<HTMLDivElement>(null);
@@ -40,13 +42,20 @@ const Navigation = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const topOffset = bannerVisible ? bannerHeight : 0;
+
     return (
         <nav
-            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${showNav ? "translate-y-0" : "-translate-y-full"} ${isScrolled
+            className={`fixed left-0 w-full z-50 transition-all duration-300 ${isScrolled
                 ? 'bg-white/95 backdrop-blur-sm border-b border-gray-200/50 shadow-sm'
                 : 'bg-transparent'
                 } py-3`}
-            style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500 }}
+            style={{ 
+                fontFamily: "var(--font-mona-sans)", 
+                fontWeight: 500,
+                top: `${topOffset}px`,
+                transform: showNav ? 'translateY(0)' : `translateY(-100%)`
+            }}
         >
             <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto flex items-center justify-between">
                 <div className="flex items-center gap-2">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { BookOpen, Home, Leaf, Users } from "lucide-react";
+import PageWrapper from "@/components/PageWrapper";
 
 export const metadata: Metadata = {
 	title: "About Us - Drokpa's Story and Vision",
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
 	return (
 		<div className="min-h-screen bg-white text-gray-800" style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}>
-			<main className="relative min-h-screen bg-white pt-16">
+			<PageWrapper>
 				{/* Hero Section */}
 				<section className="relative overflow-hidden bg-gradient-to-b from-[#F5F1E6] via-[#F5F1E6]/30 to-white">
 					<div className="relative w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto py-12 sm:py-16 md:py-20 lg:py-24">
@@ -220,8 +221,7 @@ export default function AboutPage() {
 						</div>
 					</div>
 				</section>
-			</main>
-		</div>
+			</PageWrapper>		</div>
 	);
 }
 
@@ -230,8 +230,7 @@ function ValueCard({
 	title,
 	description,
 	color,
-}: {
-	icon: React.ReactNode;
+}: {	icon: React.ReactNode;
 	title: string;
 	description: string;
 	color: string;
