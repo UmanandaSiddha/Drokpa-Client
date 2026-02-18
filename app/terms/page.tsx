@@ -116,7 +116,7 @@ export default function TermsPage() {
                             If you have any questions about these Terms of Service, please contact us at:
                             <div className="mt-4 p-4 bg-[#F5F1E6] rounded-xl border border-[#DDE7E0]">
                                 <p className="text-[#27261C] font-semibold">Drokpa</p>
-                                <p className="text-[#686766]">Email: dokpa@gmail.com</p>
+                                <p className="text-[#686766]">Email: drokpa.contact@gmail.com</p>
                                 <p className="text-[#686766]">Location: Tawang, Arunachal Pradesh, India</p>
                             </div>
                         </TermsSection>

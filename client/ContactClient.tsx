@@ -111,7 +111,7 @@ export default function ContactPageClient() {
                                     <ContactCard
                                         icon={<Mail className="w-5 h-5" />}
                                         title="Email"
-                                        value="dokpa@gmail.com"
+                                        value="drokpa.contact@gmail.com"
                                         color="#FC611E"
                                     />
                                     <ContactCard

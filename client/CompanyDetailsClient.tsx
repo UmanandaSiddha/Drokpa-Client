@@ -168,7 +168,7 @@ export default function CompanyDetailsPage() {
                                 Contact
                             </p>
                             <div className="mt-4 space-y-3 text-sm text-[#686766]" style={{ fontFamily: "var(--font-mona-sans)" }}>
-                                <p>hello@drokpa.in</p>
+                                <p>drokpa.contact@gmail.com</p>
                                 <p>+91 00000 00000</p>
                                 <p>Itanagar, Arunachal Pradesh</p>
                                 <p>Mon - Sat, 10:00 - 18:00</p>

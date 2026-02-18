@@ -105,7 +105,7 @@ const ContactUs: React.FC = () => {
                   <Mail size={20} />
                 </div>
                 <span className="text-sm sm:text-base text-[#353030]" style={{ fontWeight: 600 }}>
-                  dokpa@gmail.com
+                  drokpa.contact@gmail.com
                 </span>
               </div>
 

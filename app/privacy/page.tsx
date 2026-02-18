@@ -145,7 +145,7 @@ export default function PrivacyPage() {
                             If you have questions or comments about this privacy policy, please contact us at:
                             <div className="mt-4 p-4 bg-[#F5F1E6] rounded-xl border border-[#DDE7E0]">
                                 <p className="text-[#27261C] font-semibold">Drokpa Privacy Team</p>
-                                <p className="text-[#686766]">Email: dokpa@gmail.com</p>
+                                <p className="text-[#686766]">Email: drokpa.contact@gmail.com</p>
                                 <p className="text-[#686766]">Location: Tawang, Arunachal Pradesh, India</p>
                                 <p className="text-[#686766] mt-2 text-sm">Last Updated: February 2026</p>
                             </div>
