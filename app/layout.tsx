@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import Providers from "./providers";
 import SiteChrome from "@/components/SiteChrome";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -138,6 +139,7 @@ export default function RootLayout({
 				<Providers>
 					<SiteChrome>{children}</SiteChrome>
 				</Providers>
+				<Analytics />
 			</body>
 		</html>
 	);
