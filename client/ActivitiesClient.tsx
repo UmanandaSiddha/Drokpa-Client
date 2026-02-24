@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { Clock, Users, MapPin, Star, ArrowRight } from "lucide-react";
 import { Things1, Things2, Things3, Things4 } from "@/assets";
 import NotifyModal from "@/components/NotifyModal";
@@ -144,9 +145,11 @@ function ActivitiesContent() {
                                         : "hover:shadow-lg"
                                         }`}
                                 >
-                                    <img
+                                    <Image
                                         src={activity.image}
                                         alt={activity.title}
+                                        width={600}
+                                        height={600}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />

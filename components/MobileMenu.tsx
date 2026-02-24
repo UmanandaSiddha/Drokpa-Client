@@ -6,10 +6,12 @@ import Link from "next/link";
 import { ChevronDown } from 'lucide-react';
 import { GreenArrow } from '@/assets';
 import { useMobileMenu } from '@/context/MobileMenuContext';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useEffect, useState } from 'react';
 
 const MobileMenu = () => {
     const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
+    const { user, isAuthenticated } = useAuth();
     const [isMobile, setIsMobile] = useState(false);
 
     // Track screen size to ensure menu never renders on desktop
@@ -64,23 +66,51 @@ const MobileMenu = () => {
                     </div>
 
                     <div className='p-5 sm:p-6 bg-white rounded-3xl'>
-                        {/* Offer Banner */}
-                        <div className="block md:hidden mb-4">
-                            <h3 className="text-xl sm:text-2xl font-bold text-[#353030]" style={{ fontFamily: "var(--font-subjectivity), sans-serif" }}>
-                                Get Exclusive offers when you log in for the first time.
-                            </h3>
-                        </div>
+                        {isAuthenticated && user ? (
+                            /* User Profile */
+                            <>
+                                <Link
+                                    href="/account"
+                                    className="block md:hidden mb-6"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                        <div className="w-12 h-12 rounded-full bg-[#4F87C7] flex items-center justify-center text-white font-bold text-lg">
+                                            {user.firstName?.[0]}{user.lastName?.[0]}
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-bold text-[#27261C]" style={{ fontFamily: "var(--font-subjectivity), sans-serif" }}>
+                                                {user.firstName} {user.lastName}
+                                            </h3>
+                                            <p className="text-sm text-gray-600">
+                                                {user.email}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </Link>
+                                <hr className='block md:hidden pb-6' />
+                            </>
+                        ) : (
+                            <>
+                                {/* Offer Banner */}
+                                <div className="block md:hidden mb-4">
+                                    <h3 className="text-xl sm:text-2xl font-bold text-[#353030]" style={{ fontFamily: "var(--font-subjectivity), sans-serif" }}>
+                                        Get Exclusive offers when you log in for the first time.
+                                    </h3>
+                                </div>
 
-                        {/* Log In Button */}
-                        <Link
-                            href="/sign-in"
-                            className="inline-flex md:hidden px-10 sm:px-14 py-2 sm:py-2.5 bg-[#4F87C7] text-base sm:text-lg text-white font-normal rounded-full mb-6 transition-colors text-center"
-                            onClick={() => setMobileMenuOpen(false)}
-                        >
-                            Log In
-                        </Link>
+                                {/* Log In Button */}
+                                <Link
+                                    href="/sign-in"
+                                    className="inline-flex md:hidden px-10 sm:px-14 py-2 sm:py-2.5 bg-[#4F87C7] text-base sm:text-lg text-white font-normal rounded-full mb-6 transition-colors text-center"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    Log In
+                                </Link>
 
-                        <hr className='block md:hidden pb-6' />
+                                <hr className='block md:hidden pb-6' />
+                            </>
+                        )}
 
                         {/* Main Menu Items */}
                         <div className="space-y-4 mb-6">

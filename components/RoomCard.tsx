@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight, Heart, Sparkles, Star } from "lucide-react";
 import GalleryLightbox from "@/components/GalleryLightbox";
 
@@ -31,9 +32,11 @@ export default function RoomCard({ room }: { room: Room }) {
     return (
         <div className="group bg-white rounded-2xl border border-[#DDE7E0]/70 shadow-[0_18px_45px_-35px_rgba(0,0,0,0.35)] hover:shadow-[0_22px_55px_-35px_rgba(0,0,0,0.45)] transition-all overflow-hidden">
             <div className="relative">
-                <img
+                <Image
                     src={room.images[currentImage]}
                     alt={room.name}
+                    width={600}
+                    height={224}
                     className="w-full h-56 object-cover cursor-pointer group-hover:scale-[1.02] transition-transform"
                     onClick={() => setOpen(true)}
                 />

@@ -338,6 +338,18 @@ body.no-scroll {
 	animation: toast-out-left 0.24s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
+@keyframes pulse-dot {
+	0%, 100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	50% {
+		opacity: 0.5;
+		transform: scale(0.8);
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 
 	.toast-in-right,

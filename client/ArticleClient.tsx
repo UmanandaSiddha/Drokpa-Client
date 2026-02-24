@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { notFound, useParams } from "next/navigation";
 import { articles } from "@/data/articles";
 
@@ -84,10 +85,13 @@ export default function ArticlePage() {
                         </div>
 
                         <div className="relative overflow-hidden rounded-2xl shadow-[0_24px_60px_rgba(29,25,19,0.12)]">
-                            <img
+                            <Image
                                 src={article.image}
                                 alt={article.title}
+                                width={1200}
+                                height={800}
                                 className="h-90 sm:h-105 md:h-130 w-full object-cover"
+                                priority
                             />
                             <div className="absolute inset-0 bg-linear-to-t from-black/35 via-black/0 to-black/0" />
                             <div className="absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-[#FC611E]/20 blur-2xl" />
@@ -148,9 +152,11 @@ export default function ArticlePage() {
                                         className="group rounded-2xl border border-[#EFEAE0] bg-white p-4 hover:shadow-md transition"
                                     >
                                         <div className="relative overflow-hidden rounded-xl">
-                                            <img
+                                            <Image
                                                 src={item.image}
                                                 alt={item.title}
+                                                width={600}
+                                                height={288}
                                                 className="h-72 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                                             />
                                         </div>

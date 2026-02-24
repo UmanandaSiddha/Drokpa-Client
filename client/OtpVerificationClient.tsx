@@ -3,15 +3,28 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { MainLogo } from "@/assets";
+import { useVerifyOTP } from "@/hooks/auth/useVerifyOTP";
+import { useRequestOTP } from "@/hooks/auth/useRequestOtp";
+import { useAuth } from "@/hooks/auth/useAuth";
 
 export default function OtpVerificationClient() {
+    const searchParams = useSearchParams();
+    const { user } = useAuth();
+
+    const email = searchParams.get("email") || user?.email || "";
+
     const inputCount = 6;
-    const otpEmail = "you@example.com";
     const [digits, setDigits] = useState<string[]>(Array.from({ length: inputCount }, () => ""));
     const [timeLeft, setTimeLeft] = useState(180);
     const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+
+    const verifyOTPMutation = useVerifyOTP();
+    const requestOTPMutation = useRequestOTP();
+
+    const isLoading = verifyOTPMutation.isPending;
 
     useEffect(() => {
         if (timeLeft <= 0) return;
@@ -68,16 +81,30 @@ export default function OtpVerificationClient() {
     };
 
     const handleResend = () => {
-        setDigits(Array.from({ length: inputCount }, () => ""));
-        setTimeLeft(180);
-        focusInput(0);
+        if (!email) return;
+
+        requestOTPMutation.mutate(
+            { email },
+            {
+                onSuccess: () => {
+                    setDigits(Array.from({ length: inputCount }, () => ""));
+                    setTimeLeft(180);
+                    focusInput(0);
+                },
+            }
+        );
     };
 
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         const code = digits.join("");
-        if (code.length !== inputCount) return;
-        // Submit OTP code here.
+
+        if (code.length !== inputCount || !email) return;
+
+        verifyOTPMutation.mutate({
+            email,
+            otpString: code,
+        });
     };
 
     return (
@@ -196,7 +223,7 @@ export default function OtpVerificationClient() {
                             </span>
                         </div>
                         <p className="text-xs sm:text-sm text-[#686766] mb-6" style={{ fontWeight: 500 }}>
-                            OTP sent to <span className="text-[#27261C] font-semibold">{otpEmail}</span>
+                            OTP sent to <span className="text-[#27261C] font-semibold">{email || "your email"}</span>
                         </p>
 
                         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -212,10 +239,11 @@ export default function OtpVerificationClient() {
                                         onChange={(event) => handleChange(index, event.target.value)}
                                         onKeyDown={(event) => handleKeyDown(index, event)}
                                         onPaste={handlePaste}
+                                        disabled={isLoading}
                                         ref={(el) => {
                                             inputRefs.current[index] = el;
                                         }}
-                                        className="h-12 sm:h-14 rounded-xl border-2 border-[#DDE7E0] bg-white text-center text-lg font-semibold text-[#27261C] focus:outline-none focus:border-[#FC611E]"
+                                        className="h-12 sm:h-14 rounded-xl border-2 border-[#DDE7E0] bg-white text-center text-lg font-semibold text-[#27261C] focus:outline-none focus:border-[#FC611E] disabled:opacity-50"
                                         style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}
                                     />
                                 ))}
@@ -230,12 +258,24 @@ export default function OtpVerificationClient() {
 
                             <button
                                 type="submit"
-                                disabled={digits.join("").length !== inputCount}
-                                className="w-full bg-[#FC611E] hover:bg-[#f46a2f] text-white py-3.5 rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                                disabled={digits.join("").length !== inputCount || isLoading}
+                                className="w-full bg-[#FC611E] hover:bg-[#f46a2f] text-white py-3.5 rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 700, color: "#27261C" }}
                             >
-                                Verify code
-                                <ArrowRight className="w-5 h-5" />
+                                {isLoading ? (
+                                    <span className="flex items-center gap-2">
+                                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Verifying...
+                                    </span>
+                                ) : (
+                                    <>
+                                        Verify code
+                                        <ArrowRight className="w-5 h-5" />
+                                    </>
+                                )}
                             </button>
 
                             <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -245,11 +285,11 @@ export default function OtpVerificationClient() {
                                 <button
                                     type="button"
                                     onClick={handleResend}
-                                    disabled={timeLeft > 0}
-                                    className="text-[#005246] font-semibold hover:underline"
+                                    disabled={timeLeft > 0 || requestOTPMutation.isPending}
+                                    className="text-[#005246] font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                                     style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
                                 >
-                                    Resend
+                                    {requestOTPMutation.isPending ? "Sending..." : "Resend"}
                                 </button>
                             </div>
                         </form>

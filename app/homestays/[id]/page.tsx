@@ -19,8 +19,8 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import RoomCard from "@/components/RoomCard";
-import HomestayImageGrid from "@/components/Homestay/HomestayImageGrid";
-import BookingCard from "@/components/Homestay/BookingCard";
+import HomestayImageGrid from "@/components/HomestayImageGrid";
+import BookingCard from "@/components/BookingCard";
 import homestays from "@/data/homestays";
 
 export const metadata: Metadata = {

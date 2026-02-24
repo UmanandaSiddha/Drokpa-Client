@@ -145,9 +145,11 @@ export default function ArticlesPageClient() {
                                 className="group flex flex-col rounded-2xl bg-white border border-[#EFEAE0] hover:border-[#DDE7E0] shadow-sm hover:shadow-md transition"
                             >
                                 <div className="relative overflow-hidden rounded-t-2xl">
-                                    <img
+                                    <Image
                                         src={article.image}
                                         alt={article.title}
+                                        width={600}
+                                        height={224}
                                         className="h-56 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                                     />
                                 </div>

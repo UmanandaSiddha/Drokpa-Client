@@ -1,11 +1,11 @@
 "use client";
 
-import GetInspired from "@/components/landingpagecomponents/GetInspired";
-import HeroSection from "@/components/landingpagecomponents/HeroSection";
-import IlpSection from "@/components/landingpagecomponents/IlpSection";
-import ThingsToDo from "@/components/landingpagecomponents/ThingsToDo";
-import TourHomeComponent from "@/components/landingpagecomponents/TourHomeComponent";
-import WhyDroppa from "@/components/landingpagecomponents/WhyDropa";
+import GetInspired from "@/components/landing/GetInspired";
+import HeroSection from "@/components/landing/HeroSection";
+import IlpSection from "@/components/landing/IlpSection";
+import ThingsToDo from "@/components/landing/ThingsToDo";
+import TourHomeComponent from "@/components/landing/TourHomeComponent";
+import WhyDroppa from "@/components/landing/WhyDropa";
 import { useDevBanner } from "@/context/DevBannerContext";
 
 interface HomePageClientProps {

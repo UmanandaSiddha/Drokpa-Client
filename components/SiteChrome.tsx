@@ -2,9 +2,9 @@
 
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import Navigation from "@/components/landingpagecomponents/Navigation";
+import Navigation from "@/components/landing/Navigation";
 import MobileMenu from "@/components/MobileMenu";
-import Footer from "@/components/landingpagecomponents/Footer";
+import Footer from "@/components/landing/Footer";
 import DevBanner from "@/components/DevBanner";
 import { MobileMenuProvider } from "@/context/MobileMenuContext";
 import { DevBannerProvider } from "@/context/DevBannerContext";

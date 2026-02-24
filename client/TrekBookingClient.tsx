@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import {
     Calendar as CalendarIcon,
     ChevronRight,
@@ -275,23 +276,29 @@ export default function TrekBookingClient({
                             </div>
                             <div className="grid grid-cols-2 grid-rows-2 gap-3">
                                 <div className="col-span-2 relative h-64 sm:h-72 md:h-80 overflow-hidden rounded-2xl shadow-[0_18px_50px_-25px_rgba(0,0,0,0.35)]">
-                                    <img
+                                    <Image
                                         src={images[0]}
                                         alt={trek.title}
+                                        width={800}
+                                        height={320}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
                                 <div className="relative h-32 sm:h-36 overflow-hidden rounded-2xl">
-                                    <img
+                                    <Image
                                         src={images[1]}
                                         alt="Trek view"
+                                        width={400}
+                                        height={144}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
                                 <div className="relative h-32 sm:h-36 overflow-hidden rounded-2xl">
-                                    <img
+                                    <Image
                                         src={images[2]}
                                         alt="Trek trail"
+                                        width={400}
+                                        height={144}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
@@ -372,9 +379,11 @@ export default function TrekBookingClient({
                                 </h2>
                                 <div className="mt-5 flex flex-col sm:flex-row gap-5">
                                     <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden">
-                                        <img
+                                        <Image
                                             src={trek.guide.image}
                                             alt={trek.guide.name}
+                                            width={112}
+                                            height={112}
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
