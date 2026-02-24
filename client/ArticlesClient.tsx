@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { articles } from "@/data/articles";
+import Image from "next/image";
 
 export default function ArticlesPageClient() {
     const [query, setQuery] = useState("");
