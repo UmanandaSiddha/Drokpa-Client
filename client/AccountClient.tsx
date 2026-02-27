@@ -8,6 +8,7 @@ import {
     CreditCard,
     FileText,
     Heart,
+    LogOut,
     MapPin,
     MessageSquare,
     Settings,
@@ -15,13 +16,8 @@ import {
     Ticket,
     User,
 } from "lucide-react";
-
-const user = {
-    name: "Tenzin Dorjee",
-    location: "Tawang, Arunachal Pradesh",
-    memberSince: "Member since 2022",
-    level: "Explorer",
-};
+import { useAuth } from "@/hooks/auth/useAuth";
+import LoadingComponent from "@/components/LoadingComponent";
 
 const initialBookings = [
     {
@@ -130,6 +126,7 @@ const initialPayments = [
 ];
 
 export default function AccountPage() {
+    const { user, isLoading, logout } = useAuth();
     const [activeSection, setActiveSection] = useState<
         | "overview"
         | "bookings"
@@ -162,6 +159,32 @@ export default function AccountPage() {
     const [articles] = useState(initialArticles);
     const [payments, setPayments] = useState(initialPayments);
     const [profileStatus, setProfileStatus] = useState("Available for new trips");
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+        try {
+            await logout();
+        } catch (error: any) {
+            console.log(error.message);
+        } finally {
+            setIsLoggingOut(false);
+        }
+    };
+
+    if (isLoading) {
+        return <LoadingComponent message="Loading your profile..." size="medium" />;
+    }
+
+    if (!user) {
+        return null;
+    }
+
+    console.log(user);
+
+    const userDisplayName = `${user.firstName} ${user.lastName}`;
+    const memberSince = `Member since ${new Date(user.createdAt).getFullYear()}`;
+    const userLevel = user.isVerified ? "Verified Explorer" : "Explorer";
 
     const handleRemoveBucket = (id: string) => {
         setBucketItems((prev) => prev.filter((item) => item.id !== id));
@@ -218,25 +241,38 @@ export default function AccountPage() {
                         <aside className="space-y-6">
                             <div className="bg-white border border-[#DDE7E0]/70 rounded-3xl p-6 shadow-[0_16px_40px_-32px_rgba(0,0,0,0.3)]">
                                 <div className="flex items-center gap-4">
-                                    <div className="h-14 w-14 rounded-2xl bg-[#F5F1E6] flex items-center justify-center text-[#005246]">
-                                        <User className="w-6 h-6" />
-                                    </div>
+                                    {user.avatarUrl ? (
+                                        <img
+                                            src={user.avatarUrl}
+                                            alt={userDisplayName}
+                                            className="h-14 w-14 rounded-2xl object-cover"
+                                        />
+                                    ) : (
+                                        <div className="h-14 w-14 rounded-2xl bg-[#F5F1E6] flex items-center justify-center text-[#005246]">
+                                            <User className="w-6 h-6" />
+                                        </div>
+                                    )}
                                     <div>
                                         <p className="text-lg font-semibold text-[#27261C]" style={{ fontWeight: 700 }}>
-                                            {user.name}
+                                            {userDisplayName}
                                         </p>
                                         <p className="text-sm text-[#686766]" style={{ fontWeight: 500 }}>
-                                            {user.memberSince}
+                                            {memberSince}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="mt-4 flex items-center gap-2 text-sm text-[#686766]" style={{ fontWeight: 500 }}>
                                     <MapPin className="w-4 h-4" />
-                                    {user.location}
+                                    {user.email}
                                 </div>
+                                {user.phoneNumber && (
+                                    <div className="mt-2 flex items-center gap-2 text-sm text-[#686766]" style={{ fontWeight: 500 }}>
+                                        {user.phoneNumber}
+                                    </div>
+                                )}
                                 <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#005246] text-white text-xs">
                                     <Star className="w-3.5 h-3.5" />
-                                    {user.level}
+                                    {userLevel}
                                 </div>
                                 <div className="mt-5 rounded-2xl border border-[#F5F1E6] px-4 py-3">
                                     <p className="text-xs text-[#686766]" style={{ fontWeight: 600 }}>
@@ -249,6 +285,15 @@ export default function AccountPage() {
                                         style={{ fontWeight: 600 }}
                                     />
                                 </div>
+                                <button
+                                    onClick={handleLogout}
+                                    disabled={isLoggingOut}
+                                    className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-[#DDE7E0] text-sm text-[#27261C] hover:bg-[#F5F1E6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    style={{ fontWeight: 600 }}
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    {isLoggingOut ? "Logging out..." : "Logout"}
+                                </button>
                             </div>
 
                             <div className="bg-white border border-[#DDE7E0]/70 rounded-3xl p-5 space-y-4">
@@ -475,9 +520,13 @@ export default function AccountPage() {
                             {activeSection === "settings" && (
                                 <Card title="Settings" icon={<Settings className="w-4 h-4" />} onManage={() => openModal("settings")} manageLabel="Edit">
                                     <div className="space-y-4">
-                                        <InputRow label="Full name" value={user.name} />
-                                        <InputRow label="Home base" value={user.location} />
-                                        <InputRow label="Travel style" value="Balanced" />
+                                        <InputRow label="First name" value={user.firstName} />
+                                        <InputRow label="Last name" value={user.lastName} />
+                                        <InputRow label="Email" value={user.email} />
+                                        <InputRow label="Phone number" value={user.phoneNumber || ""} />
+                                        {user.dateOfBirth && (
+                                            <InputRow label="Date of birth" value={new Date(user.dateOfBirth).toLocaleDateString()} />
+                                        )}
                                         <div className="flex flex-wrap gap-3">
                                             <button className="px-4 py-2 rounded-full bg-[#005246] text-white text-xs" style={{ fontWeight: 600 }}>
                                                 Save changes

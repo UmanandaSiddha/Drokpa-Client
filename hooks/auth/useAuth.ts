@@ -3,7 +3,7 @@
 import { apiClient } from '@/lib/axiosClient'
 import { authService } from '@/services/auth.service'
 import { userService } from '@/services/user.service'
-import type { User } from '@/types/auth'
+import type { User, UserRole } from '@/types/auth'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 
@@ -44,6 +44,15 @@ export function useAuth() {
     const isAuthenticated = !!user
     const isVerified = user?.isVerified ?? false
 
+    // Flatten roles from UserRoleMap[] → UserRole[]
+    const roles: UserRole[] = user?.roles?.map((r) => r.role) ?? []
+    const isAdmin = roles.includes('ADMIN' as UserRole)
+    const isHost = roles.includes('HOST' as UserRole)
+    const isVendor = roles.includes('VENDOR' as UserRole)
+    const isGuide = roles.includes('GUIDE' as UserRole)
+    const isProvider = isHost || isVendor || isGuide
+    const hasAdminAccess = isAdmin || isProvider // can access admin panel
+
     // ─── Actions ──────────────────────────────────────────────────────
 
     // Call this after successful sign-in/sign-up/OTP to update cache
@@ -70,6 +79,15 @@ export function useAuth() {
         // derived
         isAuthenticated,
         isVerified,
+
+        // role helpers
+        roles,
+        isAdmin,
+        isHost,
+        isVendor,
+        isGuide,
+        isProvider,
+        hasAdminAccess,
 
         // actions
         setUser,

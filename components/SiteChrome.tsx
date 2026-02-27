@@ -30,6 +30,8 @@ const authRoutes = new Set([
     "/reset-password",
 ]);
 
+const chromeHiddenPrefixes = ["/admin"];
+
 function shouldShowCta(pathname: string | null): boolean {
     if (!pathname) return false;
     if (showCtaRoutes.has(pathname)) return true;
@@ -41,6 +43,9 @@ function shouldHideChrome(pathname: string | null): boolean {
     if (authRoutes.has(pathname)) return true;
     for (const route of authRoutes) {
         if (pathname.startsWith(`${route}/`)) return true;
+    }
+    for (const prefix of chromeHiddenPrefixes) {
+        if (pathname === prefix || pathname.startsWith(`${prefix}/`)) return true;
     }
     return false;
 }

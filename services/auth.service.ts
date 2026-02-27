@@ -8,10 +8,10 @@ import type {
     ResetPasswordRequest,
     AuthResponse,
     OTPResponse,
-    MessageResponse,
     RefreshTokenResponse,
     GoogleAuthResponse,
 } from "@/types/auth";
+import type { MessageResponse } from "@/types/common";
 import { AxiosResponse } from "axios";
 
 // ──────────────────────────────────────────────

@@ -61,6 +61,11 @@ export interface ResetPasswordRequest {
 // User & Auth Response Types
 // ──────────────────────────────────────────────
 
+export interface UserRoleMap {
+    id: string;
+    role: UserRole;
+}
+
 export interface User {
     id: string;
     email: string;
@@ -73,7 +78,7 @@ export interface User {
     isVerified: boolean;
     isOnline: boolean;
     isDisabled: boolean;
-    roles?: UserRole[];
+    roles?: UserRoleMap[];
     provider?: {
         id: string;
         name: string;
@@ -104,11 +109,6 @@ export interface OTPResponse {
     data: {
         email: string;
     };
-}
-
-export interface MessageResponse {
-    success: boolean;
-    message: string;
 }
 
 export interface GoogleAuthExistingUserResponse {

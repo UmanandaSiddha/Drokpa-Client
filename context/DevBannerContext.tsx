@@ -11,7 +11,7 @@ interface DevBannerContextType {
 const DevBannerContext = createContext<DevBannerContextType | undefined>(undefined);
 
 export function DevBannerProvider({ children }: { children: ReactNode }) {
-    const [isVisible, setIsVisible] = useState(true);
+    const [isVisible, setIsVisible] = useState(false);
     const bannerHeight = 44; // Approximate height in pixels
 
     return (
