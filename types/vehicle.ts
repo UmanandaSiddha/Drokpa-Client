@@ -67,7 +67,7 @@ export interface UpdateVehicleRequest extends Partial<CreateVehicleRequest> { }
 export interface VehicleQueryParams {
     page?: number;
     limit?: number;
-    search?: string;
+    keyword?: string;
     type?: VehicleType;
     isActive?: boolean;
 }

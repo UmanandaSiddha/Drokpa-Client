@@ -68,12 +68,61 @@ export function useAddItineraryDay() {
     });
 }
 
+export function useUpdateItineraryDay() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({
+            tourId,
+            dayNumber,
+            data,
+        }: {
+            tourId: string;
+            dayNumber: number;
+            data: Partial<AddItineraryDayRequest>;
+        }) => tourService.updateItineraryDay(tourId, dayNumber, data),
+        onSuccess: (_, { tourId }) => qc.invalidateQueries({ queryKey: TOUR_KEYS.one(tourId) }),
+    });
+}
+
+export function useDeleteItineraryDay() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ tourId, dayNumber }: { tourId: string; dayNumber: number }) =>
+            tourService.deleteItineraryDay(tourId, dayNumber),
+        onSuccess: (_, { tourId }) => qc.invalidateQueries({ queryKey: TOUR_KEYS.one(tourId) }),
+    });
+}
+
 export function useLinkPOIToItinerary() {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: ({ itineraryId, poiId, order }: { itineraryId: string; poiId: string; order: number }) =>
+        mutationFn: ({
+            itineraryId,
+            poiId,
+            order,
+        }: {
+            itineraryId: string;
+            poiId: string;
+            order: number;
+            tourId: string;
+        }) =>
             tourService.linkPOIToItinerary(itineraryId, poiId, { order }),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['tours'] }),
+        onSuccess: (_, { tourId }) => {
+            qc.invalidateQueries({ queryKey: ['tours'] });
+            qc.invalidateQueries({ queryKey: TOUR_KEYS.one(tourId) });
+        },
+    });
+}
+
+export function useRemovePOIFromItinerary() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ itineraryId, poiId }: { itineraryId: string; poiId: string; tourId: string }) =>
+            tourService.removePOIFromItinerary(itineraryId, poiId),
+        onSuccess: (_, { tourId }) => {
+            qc.invalidateQueries({ queryKey: ['tours'] });
+            qc.invalidateQueries({ queryKey: TOUR_KEYS.one(tourId) });
+        },
     });
 }
 

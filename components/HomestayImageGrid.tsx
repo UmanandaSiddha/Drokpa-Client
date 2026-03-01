@@ -37,6 +37,7 @@ export default function HomestayImageGrid({ images }: Props) {
 						width={800}
 						height={600}
 						className="w-full h-full object-cover"
+						unoptimized
 					/>
 					<div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition" />
 				</div>
@@ -55,6 +56,7 @@ export default function HomestayImageGrid({ images }: Props) {
 								width={400}
 								height={300}
 								className="w-full h-full object-cover"
+								unoptimized
 							/>
 							<div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition" />
 

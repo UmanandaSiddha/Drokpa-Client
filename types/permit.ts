@@ -47,7 +47,7 @@ export interface SubmitPermitRequest {
 }
 
 export interface ApprovePermitRequest {
-    permitDocumentId: string;
+    permitDocumentId?: string;
 }
 
 export interface RejectPermitRequest {

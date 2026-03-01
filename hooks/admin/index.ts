@@ -9,6 +9,7 @@ import type {
     CreateCancellationPolicyRequest,
     UpdateCancellationPolicyRequest,
     CancellationPolicyQueryParams,
+    AssignRoleRequest,
 } from '@/types/admin';
 import type {
     CreateCouponRequest,
@@ -71,12 +72,29 @@ export function useAdminRejectTourBooking() {
     });
 }
 
+export function useAdminCompleteBooking() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (bookingId: string) => adminService.completeBooking(bookingId),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+    });
+}
+
 // ─── Users ────────────────────────────────────
 
 export function useAdminAllUsers(params?: AdminUserQueryParams) {
     return useQuery({
         queryKey: ADMIN_KEYS.users(params),
         queryFn: () => adminService.getAllUsers(params),
+    });
+}
+
+export function useAdminAssignRole() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ userId, data }: { userId: string; data: AssignRoleRequest }) =>
+            adminService.assignRole(userId, data),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
     });
 }
 
@@ -123,6 +141,17 @@ export function useDeleteCancellationPolicy() {
     });
 }
 
+export function useAdminDeleteReview() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (reviewId: string) => adminService.deleteReview(reviewId),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ['admin', 'reviews'] });
+            qc.invalidateQueries({ queryKey: ['reviews'] });
+        },
+    });
+}
+
 // ─── Coupons ──────────────────────────────────
 
 export function useAdminCoupons(params?: CouponQueryParams) {
@@ -132,10 +161,11 @@ export function useAdminCoupons(params?: CouponQueryParams) {
     });
 }
 
-export function useAdminCoupon(id: string) {
+export function useAdminCoupon(id: string | undefined) {
     return useQuery({
-        queryKey: ADMIN_KEYS.coupon(id),
-        queryFn: () => couponService.getCouponById(id),
+        queryKey: ADMIN_KEYS.coupon(id!),
+        queryFn: () => couponService.getCouponById(id!),
+        enabled: !!id, // Only run query when id exists
     });
 }
 
@@ -189,10 +219,11 @@ export function useRemoveCouponFromUser() {
     });
 }
 
-export function useGetCouponAssignments(couponId: string) {
+export function useGetCouponAssignments(couponId: string | undefined) {
     return useQuery({
-        queryKey: ADMIN_KEYS.couponAssignments(couponId),
-        queryFn: () => couponService.getCouponAssignments(couponId),
+        queryKey: ADMIN_KEYS.couponAssignments(couponId!),
+        queryFn: () => couponService.getCouponAssignments(couponId!),
+        enabled: !!couponId, // Only run query when couponId exists
     });
 }
 

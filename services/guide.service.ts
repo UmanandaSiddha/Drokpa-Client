@@ -32,8 +32,9 @@ class GuideService {
         return response.data.data;
     }
 
-    async createGuide(data: CreateGuideRequest): Promise<LocalGuide> {
-        const response = await apiClient.post<{ data: LocalGuide }>("/local-guide", data);
+    async createGuide(data: CreateGuideRequest, onBehalfOf?: string): Promise<LocalGuide> {
+        const params = onBehalfOf ? { onBehalfOf } : undefined;
+        const response = await apiClient.post<{ data: LocalGuide }>("/local-guide", data, { params });
         return response.data.data;
     }
 

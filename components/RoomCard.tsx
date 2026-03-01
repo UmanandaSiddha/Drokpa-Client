@@ -39,6 +39,7 @@ export default function RoomCard({ room }: { room: Room }) {
                     height={224}
                     className="w-full h-56 object-cover cursor-pointer group-hover:scale-[1.02] transition-transform"
                     onClick={() => setOpen(true)}
+                    unoptimized
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                 {room.recommended && (

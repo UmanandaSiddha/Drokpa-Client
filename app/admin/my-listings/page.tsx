@@ -154,43 +154,45 @@ function MyListingsContent() {
     const { isHost, isVendor, isGuide } = useAuth()
 
     return (
-        <div className="admin-page">
-            <div className="admin-page__header">
-                <div className="admin-page__titles">
-                    <h1 className="admin-page__title">My Listings</h1>
-                    <p className="admin-page__subtitle">Manage your active service listings</p>
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
+            <div className="admin-page">
+                <div className="admin-page__header">
+                    <div className="admin-page__titles">
+                        <h1 className="admin-page__title" style={{ fontFamily: 'var(--font-subjectivity), sans-serif', color: '#353030' }}>My Listings</h1>
+                        <p className="admin-page__subtitle" style={{ fontFamily: 'var(--font-mona-sans), sans-serif' }}>Manage your active service listings</p>
+                    </div>
                 </div>
+
+                {isHost && (
+                    <div className="admin-section-gap">
+                        <div className="admin-section-header">
+                            <Building2 size={20} style={{ color: '#005246' }} />
+                            <h2 className="admin-section-title">Homestays</h2>
+                        </div>
+                        <HomestaySection />
+                    </div>
+                )}
+
+                {isVendor && (
+                    <div className="admin-section-gap">
+                        <div className="admin-section-header">
+                            <Car size={20} style={{ color: '#005246' }} />
+                            <h2 className="admin-section-title">Vehicles</h2>
+                        </div>
+                        <VehicleSection />
+                    </div>
+                )}
+
+                {isGuide && (
+                    <div className="admin-section-gap">
+                        <div className="admin-section-header">
+                            <PersonStanding size={20} style={{ color: '#005246' }} />
+                            <h2 className="admin-section-title">Guide Profile</h2>
+                        </div>
+                        <GuideSection />
+                    </div>
+                )}
             </div>
-
-            {isHost && (
-                <div className="admin-section-gap">
-                    <div className="admin-section-header">
-                        <Building2 size={20} style={{ color: '#005246' }} />
-                        <h2 className="admin-section-title">Homestays</h2>
-                    </div>
-                    <HomestaySection />
-                </div>
-            )}
-
-            {isVendor && (
-                <div className="admin-section-gap">
-                    <div className="admin-section-header">
-                        <Car size={20} style={{ color: '#005246' }} />
-                        <h2 className="admin-section-title">Vehicles</h2>
-                    </div>
-                    <VehicleSection />
-                </div>
-            )}
-
-            {isGuide && (
-                <div className="admin-section-gap">
-                    <div className="admin-section-header">
-                        <PersonStanding size={20} style={{ color: '#005246' }} />
-                        <h2 className="admin-section-title">Guide Profile</h2>
-                    </div>
-                    <GuideSection />
-                </div>
-            )}
         </div>
     )
 }

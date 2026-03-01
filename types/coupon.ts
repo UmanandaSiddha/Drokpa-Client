@@ -39,6 +39,11 @@ export interface Coupon {
     maxUsesPerUser?: number;
     currentUses: number;
     allowedRoles: UserRole[];
+    // Business rules
+    minParticipants?: number;
+    applicableProductTypes: string[];
+    applicableProductIds: string[];
+    firstTimeOnly: boolean;
     rules?: Record<string, any>;
     isActive: boolean;
     createdBy?: string;
@@ -81,6 +86,11 @@ export interface CreateCouponRequest {
     maxUsesTotal?: number;
     maxUsesPerUser?: number;
     allowedRoles?: UserRole[];
+    // Business rules
+    minParticipants?: number;
+    applicableProductTypes?: string[];
+    applicableProductIds?: string[];
+    firstTimeOnly?: boolean;
     rules?: Record<string, any>;
     isActive?: boolean;
 }
@@ -94,6 +104,11 @@ export interface UpdateCouponRequest {
     maxUsesTotal?: number;
     maxUsesPerUser?: number;
     allowedRoles?: UserRole[];
+    // Business rules
+    minParticipants?: number;
+    applicableProductTypes?: string[];
+    applicableProductIds?: string[];
+    firstTimeOnly?: boolean;
     rules?: Record<string, any>;
     isActive?: boolean;
 }

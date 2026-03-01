@@ -282,6 +282,7 @@ export default function TrekBookingClient({
                                         width={800}
                                         height={320}
                                         className="w-full h-full object-cover"
+                                        unoptimized
                                     />
                                 </div>
                                 <div className="relative h-32 sm:h-36 overflow-hidden rounded-2xl">
@@ -291,6 +292,7 @@ export default function TrekBookingClient({
                                         width={400}
                                         height={144}
                                         className="w-full h-full object-cover"
+                                        unoptimized
                                     />
                                 </div>
                                 <div className="relative h-32 sm:h-36 overflow-hidden rounded-2xl">
@@ -300,6 +302,7 @@ export default function TrekBookingClient({
                                         width={400}
                                         height={144}
                                         className="w-full h-full object-cover"
+                                        unoptimized
                                     />
                                 </div>
                             </div>
@@ -385,6 +388,7 @@ export default function TrekBookingClient({
                                             width={112}
                                             height={112}
                                             className="w-full h-full object-cover"
+                                            unoptimized
                                         />
                                     </div>
                                     <div className="flex-1">

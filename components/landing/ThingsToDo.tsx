@@ -108,12 +108,8 @@ export default function ThingsToDo() {
 						width={600}
 						height={420}
 						className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+						unoptimized
 					/>
-
-					{/* Gradient Overlay (always visible) */}
-					<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-
-					{/* Hover Overlay (black/blur) */}
 					<div
 						className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isHovered && viewMode === "desktop" ? "opacity-60" : "opacity-0"
 							}`}

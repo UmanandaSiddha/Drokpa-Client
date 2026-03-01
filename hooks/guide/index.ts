@@ -34,7 +34,8 @@ export function useMyGuides() {
 export function useCreateGuide() {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: (data: CreateGuideRequest) => guideService.createGuide(data),
+        mutationFn: ({ data, onBehalfOf }: { data: CreateGuideRequest; onBehalfOf?: string }) =>
+            guideService.createGuide(data, onBehalfOf),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['guides'] }),
     });
 }

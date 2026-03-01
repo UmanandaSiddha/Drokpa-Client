@@ -18,6 +18,7 @@ export const HOMESTAY_KEYS = {
     nearby: (params?: object) => ['homestays', 'nearby', params] as const,
     availability: (homestayId: string, params?: AvailabilityQueryParams) => ['homestays', homestayId, 'availability', params] as const,
     roomAvailability: (roomId: string, params?: AvailabilityQueryParams) => ['rooms', roomId, 'availability', params] as const,
+    offlineBookings: (roomId: string) => ['rooms', roomId, 'offline-bookings'] as const,
 };
 
 // ─── Homestays ────────────────────────────────
@@ -55,7 +56,8 @@ export function useMyHomestays() {
 export function useCreateHomestay() {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: (data: CreateHomestayRequest) => homestayService.createHomestay(data),
+        mutationFn: ({ data, onBehalfOf }: { data: CreateHomestayRequest; onBehalfOf?: string }) =>
+            homestayService.createHomestay(data, onBehalfOf),
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ['homestays'] });
         },
@@ -69,6 +71,16 @@ export function useUpdateHomestay() {
         onSuccess: (_, { id }) => {
             qc.invalidateQueries({ queryKey: ['homestays'] });
             qc.invalidateQueries({ queryKey: HOMESTAY_KEYS.one(id) });
+        },
+    });
+}
+
+export function useDeleteHomestay() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (id: string) => homestayService.deleteHomestay(id),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ['homestays'] });
         },
     });
 }
@@ -123,17 +135,24 @@ export function useCreateRoom() {
 export function useUpdateRoom() {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: ({ roomId, data }: { roomId: string; data: UpdateRoomRequest }) =>
-            homestayService.updateRoom(roomId, data),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['homestays'] }),
+        mutationFn: ({ homestayId, roomId, data }: { homestayId: string; roomId: string; data: UpdateRoomRequest }) =>
+            homestayService.updateRoom(homestayId, roomId, data),
+        onSuccess: (_, { homestayId }) => {
+            qc.invalidateQueries({ queryKey: ['homestays'] });
+            qc.invalidateQueries({ queryKey: HOMESTAY_KEYS.one(homestayId) });
+        },
     });
 }
 
 export function useDeleteRoom() {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: (roomId: string) => homestayService.deleteRoom(roomId),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['homestays'] }),
+        mutationFn: ({ homestayId, roomId }: { homestayId: string; roomId: string }) =>
+            homestayService.deleteRoom(homestayId, roomId),
+        onSuccess: (_, { homestayId }) => {
+            qc.invalidateQueries({ queryKey: ['homestays'] });
+            qc.invalidateQueries({ queryKey: HOMESTAY_KEYS.one(homestayId) });
+        },
     });
 }
 
@@ -181,3 +200,47 @@ export function useBlockDates() {
         onSuccess: () => qc.invalidateQueries({ queryKey: ['rooms'] }),
     });
 }
+
+// ─── Offline Bookings ─────────────────────────
+
+export function useOfflineBookings(roomId: string) {
+    return useQuery({
+        queryKey: HOMESTAY_KEYS.offlineBookings(roomId),
+        queryFn: () => homestayService.getOfflineBookings(roomId),
+        enabled: !!roomId,
+    });
+}
+
+export function useCreateOfflineBooking() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ roomId, data }: { roomId: string; data: any }) =>
+            homestayService.createOfflineBooking(roomId, data),
+        onSuccess: (_, { roomId }) => {
+            qc.invalidateQueries({ queryKey: HOMESTAY_KEYS.offlineBookings(roomId) });
+        },
+    });
+}
+
+export function useUpdateOfflineBooking() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ roomId, bookingId, data }: { roomId: string; bookingId: string; data: any }) =>
+            homestayService.updateOfflineBooking(roomId, bookingId, data),
+        onSuccess: (_, { roomId }) => {
+            qc.invalidateQueries({ queryKey: HOMESTAY_KEYS.offlineBookings(roomId) });
+        },
+    });
+}
+
+export function useDeleteOfflineBooking() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ roomId, bookingId }: { roomId: string; bookingId: string }) =>
+            homestayService.deleteOfflineBooking(roomId, bookingId),
+        onSuccess: (_, { roomId }) => {
+            qc.invalidateQueries({ queryKey: HOMESTAY_KEYS.offlineBookings(roomId) });
+        },
+    });
+}
+

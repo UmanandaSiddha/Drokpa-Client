@@ -51,6 +51,7 @@ const TrekCard = ({ className = "" }: TrekCardProps) => {
 							height={140}
 							className={`absolute inset-0 w-full h-full rounded-[4px] object-cover transition-opacity duration-1000 ${i === currentImage ? "opacity-100" : "opacity-0"
 								}`}
+							unoptimized
 						/>
 					))}
 

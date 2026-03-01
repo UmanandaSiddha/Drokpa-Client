@@ -68,6 +68,7 @@ export interface HomestayRoom {
 export interface Homestay {
     id: string;
     name: string;
+    slug: string;
     description: string;
     houseRules: string[];
     safetyNSecurity: string[];
@@ -101,6 +102,7 @@ export interface CreateHomestayRequest {
     email: string;
     phoneNumber: string;
     addressId?: string;
+    isActive?: boolean;
 }
 
 export interface UpdateHomestayRequest extends Partial<CreateHomestayRequest> { }
@@ -151,7 +153,7 @@ export interface AddFacilitiesRequest {
 export interface HomestayQueryParams {
     page?: number;
     limit?: number;
-    search?: string;
+    keyword?: string;
     bookingCriteria?: BookingCriteria;
 }
 

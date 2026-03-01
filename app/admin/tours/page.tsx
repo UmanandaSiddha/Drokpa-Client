@@ -1,344 +1,253 @@
 'use client'
 
+import { useTours, useDeleteTour } from '@/hooks/tours'
 import { RoleGuard } from '@/components/admin/RoleGuard'
 import { UserRole } from '@/types/auth'
-import { useQuery } from '@tanstack/react-query'
-import { useTours, useCreateTour, useUpdateTour, useDeleteTour } from '@/hooks/tours'
-import { useAuth } from '@/hooks/auth/useAuth'
+import { TourType } from '@/types/tour'
 import { useState } from 'react'
-import { Loader2, Plus, Edit2, Trash2, X, MapPin, Clock } from 'lucide-react'
+import { Loader2, MapPin, Clock, Plus, Edit2, Trash2, Eye, Users, Search } from 'lucide-react'
+import Link from 'next/link'
+import { useDebounce } from '@/hooks/useDebounce'
 
-interface TourFormData {
-    title: string
-    description: string
-    duration: number
-    maxCapacity: number
-    basePrice: number
-    isActive: boolean
-}
-
-function TourForm({ tour, onSave, onCancel, isLoading }: any) {
-    const [formData, setFormData] = useState<TourFormData>(
-        tour ? {
-            title: tour.title,
-            description: tour.description,
-            duration: tour.duration,
-            maxCapacity: tour.maxCapacity,
-            basePrice: tour.basePrice,
-            isActive: tour.isActive,
-        } : {
-            title: '',
-            description: '',
-            duration: 1,
-            maxCapacity: 4,
-            basePrice: 0,
-            isActive: true,
-        }
-    )
-
-    const handleChange = (e: any) => {
-        const { name, value, type, checked } = e.target
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : (name === 'duration' || name === 'maxCapacity' || name === 'basePrice' ? parseFloat(value) : value),
-        }))
-    }
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        onSave({ ...formData, ...(tour?.id && { id: tour.id }) })
-    }
-
-    return (
-        <form onSubmit={handleSubmit} className="admin-form">
-            <div className="admin-form__group">
-                <label className="admin-form__label">Tour Title</label>
-                <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    placeholder="e.g. Leh-Ladakh Adventure"
-                    className="admin-form__input"
-                    required
-                />
-            </div>
-
-            <div className="admin-form__group">
-                <label className="admin-form__label">Description</label>
-                <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    placeholder="Tour details..."
-                    className="admin-form__textarea"
-                    rows={4}
-                />
-            </div>
-
-            <div className="admin-form__row">
-                <div className="admin-form__group">
-                    <label className="admin-form__label">Duration (days)</label>
-                    <input
-                        type="number"
-                        name="duration"
-                        value={formData.duration}
-                        onChange={handleChange}
-                        min="1"
-                        className="admin-form__input"
-                    />
-                </div>
-                <div className="admin-form__group">
-                    <label className="admin-form__label">Max Capacity</label>
-                    <input
-                        type="number"
-                        name="maxCapacity"
-                        value={formData.maxCapacity}
-                        onChange={handleChange}
-                        min="1"
-                        className="admin-form__input"
-                    />
-                </div>
-            </div>
-
-            <div className="admin-form__row">
-                <div className="admin-form__group">
-                    <label className="admin-form__label">Base Price (₹)</label>
-                    <input
-                        type="number"
-                        name="basePrice"
-                        value={formData.basePrice}
-                        onChange={handleChange}
-                        min="0"
-                        className="admin-form__input"
-                    />
-                </div>
-                <div className="admin-form__group">
-                    <label className="admin-form__label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <input
-                            type="checkbox"
-                            name="isActive"
-                            checked={formData.isActive}
-                            onChange={handleChange}
-                            style={{ width: 'auto', margin: 0 }}
-                        />
-                        Active
-                    </label>
-                </div>
-            </div>
-
-            <div className="admin-form__actions">
-                <button type="submit" className="admin-btn admin-btn--primary" disabled={isLoading}>
-                    {isLoading ? <Loader2 size={14} className="admin-loading__spinner" /> : null}
-                    {tour ? 'Update Tour' : 'Create Tour'}
-                </button>
-                <button type="button" onClick={onCancel} className="admin-btn admin-btn--secondary">
-                    Cancel
-                </button>
-            </div>
-        </form>
-    )
-}
-
-function ToursContent() {
-    const [page, setPage] = useState(1)
-    const [showForm, setShowForm] = useState(false)
-    const [editingTour, setEditingTour] = useState<any>(null)
-
-    const { data, isLoading } = useTours({
-        page,
-        limit: 20,
-    })
-
-    const createMutation = useCreateTour()
-    const updateMutation = useUpdateTour()
-    const deleteMutation = useDeleteTour()
-
-    const handleSave = (formData: any) => {
-        if (editingTour) {
-            updateMutation.mutate(
-                { id: editingTour.id, data: formData },
-                {
-                    onSuccess: () => {
-                        setEditingTour(null)
-                        setShowForm(false)
-                    },
-                }
-            )
-        } else {
-            createMutation.mutate(formData, {
-                onSuccess: () => {
-                    setShowForm(false)
-                },
-            })
-        }
-    }
-
-    const handleDeleteClick = (id: string) => {
-        if (confirm('Are you sure you want to delete this tour?')) {
-            deleteMutation.mutate(id)
-        }
-    }
-
-    const handleEditClick = (tour: any) => {
-        setEditingTour(tour)
-        setShowForm(true)
-    }
-
-    return (
-        <div className="admin-page">
-            <div className="admin-page__header">
-                <div className="admin-page__titles">
-                    <h1 className="admin-page__title">Tours</h1>
-                    <p className="admin-page__subtitle">Create and manage package tours</p>
-                </div>
-                <button
-                    onClick={() => {
-                        setEditingTour(null)
-                        setShowForm(true)
-                    }}
-                    className="admin-btn admin-btn--primary"
-                >
-                    <Plus size={14} />
-                    New Tour
-                </button>
-            </div>
-
-            {showForm && (
-                <div className="admin-modal-overlay" onClick={() => setShowForm(false)}>
-                    <div className="admin-modal" onClick={e => e.stopPropagation()}>
-                        <div className="admin-modal__header">
-                            <h2>{editingTour ? 'Edit Tour' : 'Create New Tour'}</h2>
-                            <button
-                                onClick={() => {
-                                    setShowForm(false)
-                                    setEditingTour(null)
-                                }}
-                                className="admin-modal__close"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="admin-modal__body">
-                            <TourForm
-                                tour={editingTour}
-                                onSave={handleSave}
-                                onCancel={() => {
-                                    setShowForm(false)
-                                    setEditingTour(null)
-                                }}
-                                isLoading={createMutation.isPending || updateMutation.isPending}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {isLoading && (
-                <div className="admin-loading">
-                    <Loader2 size={24} className="admin-loading__spinner" />
-                </div>
-            )}
-
-            {data && data.data?.length === 0 && !isLoading && (
-                <div className="admin-empty">
-                    <MapPin size={36} className="admin-empty__icon" />
-                    <p className="admin-empty__title">No tours created yet</p>
-                    <p className="admin-empty__body">Create your first tour to get started.</p>
-                </div>
-            )}
-
-            {data && data.data?.length > 0 && (
-                <>
-                    <div className="admin-table-wrapper">
-                        <table className="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Tour Name</th>
-                                    <th>Duration</th>
-                                    <th>Group Size</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th>Bookings</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {data.data.map((tour: any) => (
-                                    <tr key={tour.id}>
-                                        <td style={{ fontWeight: 500 }}>{tour.title}</td>
-                                        <td style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                <Clock size={12} />
-                                                {tour.duration} days
-                                            </div>
-                                        </td>
-                                        <td style={{ fontSize: '0.85rem', color: '#64748b' }}>Max {tour.maxCapacity}</td>
-                                        <td style={{ fontWeight: 500 }}>₹{tour.basePrice?.toLocaleString('en-IN')}</td>
-                                        <td>
-                                            <span className={`admin-badge admin-badge--${tour.isActive ? 'active' : 'inactive'}`}>
-                                                {tour.isActive ? 'Active' : 'Inactive'}
-                                            </span>
-                                        </td>
-                                        <td style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                                            {tour.totalReviews || 0}
-                                        </td>
-                                        <td>
-                                            <div className="admin-table__actions">
-                                                <button
-                                                    onClick={() => handleEditClick(tour)}
-                                                    className="admin-icon-btn admin-icon-btn--secondary"
-                                                    title="Edit tour"
-                                                >
-                                                    <Edit2 size={14} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteClick(tour.id)}
-                                                    className="admin-icon-btn admin-icon-btn--danger"
-                                                    title="Delete tour"
-                                                    disabled={deleteMutation.isPending}
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {data.meta && (
-                        <div className="admin-pagination">
-                            <button
-                                disabled={page <= 1}
-                                onClick={() => setPage(p => p - 1)}
-                                className="admin-pagination__btn"
-                            >
-                                ← Previous
-                            </button>
-                            <span className="admin-pagination__info">
-                                Page {page} of {data.meta.totalPages} · {data.meta.total} tours
-                            </span>
-                            <button
-                                disabled={page >= data.meta.totalPages}
-                                onClick={() => setPage(p => p + 1)}
-                                className="admin-pagination__btn"
-                            >
-                                Next →
-                            </button>
-                        </div>
-                    )}
-                </>
-            )}
-        </div>
-    )
+interface PaginationState {
+    page: number
+    limit: number
+    keyword?: string
+    type?: TourType
 }
 
 export default function ToursPage() {
+    const [pagination, setPagination] = useState<PaginationState>({ page: 1, limit: 12 })
+    const [search, setSearch] = useState('')
+    const debouncedSearch = useDebounce(search, 500)
+    const [typeFilter, setTypeFilter] = useState<TourType | 'ALL'>('ALL')
+    const { data: toursData, isLoading } = useTours({ ...pagination, keyword: debouncedSearch || undefined })
+    const deleteTour = useDeleteTour()
+
+    // Remove handleSearch function - debounce handles it automatically
+
+    const handleTypeFilter = (type: TourType | 'ALL') => {
+        setTypeFilter(type)
+        setPagination(prev => ({
+            ...prev,
+            page: 1,
+            type: type === 'ALL' ? undefined : type
+        }))
+    }
+
+    const handleDelete = (id: string) => {
+        if (confirm('Are you sure you want to delete this tour?')) {
+            deleteTour.mutate(id)
+        }
+    }
+
+    const tours = toursData?.data || []
+    const total = toursData?.meta?.total || 0
+    const totalPages = toursData?.meta?.totalPages || 1
+
     return (
         <RoleGuard allowedRoles={[UserRole.ADMIN]}>
-            <ToursContent />
+            <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 lg:px-0 space-y-8">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: 'var(--font-subjectivity), sans-serif', color: '#353030' }}>Tours & Treks</h1>
+                        <p className="text-gray-600 mt-2" style={{ fontFamily: 'var(--font-mona-sans), sans-serif' }}>Manage package tours and trekking experiences</p>
+                    </div>
+                    <Link href="/admin/tours/create">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-[#005246] text-white rounded-lg hover:bg-[#003d34] transition-colors font-medium">
+                            <Plus size={18} />
+                            Create Tour
+                        </button>
+                    </Link>
+                </div>
+
+                {/* Search & Filters */}
+                <div className="flex flex-col md:flex-row gap-3">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => { setSearch(e.target.value); setPagination(prev => ({ ...prev, page: 1 })) }}
+                            placeholder="Search tours by title..."
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#005246] focus:border-transparent"
+                        />
+                    </div>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => handleTypeFilter('ALL')}
+                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${typeFilter === 'ALL'
+                                ? 'bg-[#005246] text-white'
+                                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                }`}
+                        >
+                            All
+                        </button>
+                        <button
+                            onClick={() => handleTypeFilter(TourType.TOUR)}
+                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${typeFilter === TourType.TOUR
+                                ? 'bg-[#005246] text-white'
+                                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                }`}
+                        >
+                            Tours
+                        </button>
+                        <button
+                            onClick={() => handleTypeFilter(TourType.TREK)}
+                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${typeFilter === TourType.TREK
+                                ? 'bg-[#005246] text-white'
+                                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                }`}
+                        >
+                            Treks
+                        </button>
+                    </div>
+                </div>
+
+                {/* Loading State */}
+                {isLoading && (
+                    <div className="flex items-center justify-center py-12">
+                        <Loader2 size={32} className="animate-spin text-[#005246]" />
+                    </div>
+                )}
+
+                {/* Empty State */}
+                {!isLoading && tours.length === 0 && (
+                    <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                        <MapPin size={48} className="mx-auto mb-4 text-gray-400" />
+                        <h3 className="text-lg font-semibold mb-2">No Tours Yet</h3>
+                        <p className="text-gray-600 mb-4">Start by creating your first tour package.</p>
+                        <Link href="/admin/tours/create">
+                            <button className="inline-flex items-center gap-2 px-4 py-2 bg-[#005246] text-white rounded-lg hover:bg-[#003d34] transition-colors">
+                                <Plus size={18} />
+                                Create First Tour
+                            </button>
+                        </Link>
+                    </div>
+                )}
+
+                {/* Tours Grid */}
+                {!isLoading && tours.length > 0 && (
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {tours.map((tour: any) => (
+                                <div key={tour.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+                                    {/* Image */}
+                                    {tour.imageUrls && tour.imageUrls.length > 0 ? (
+                                        <img
+                                            src={tour.imageUrls[0]}
+                                            alt={tour.title}
+                                            className="w-full h-48 object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                            <MapPin size={48} className="text-gray-400" />
+                                        </div>
+                                    )}
+
+                                    {/* Content */}
+                                    <div className="p-4 space-y-3">
+                                        {/* Title & Type */}
+                                        <div>
+                                            <div className="flex items-start justify-between gap-2 mb-1">
+                                                <h3 className="font-semibold text-lg line-clamp-1">{tour.title}</h3>
+                                                <span className={`text-xs px-2 py-1 rounded-full shrink-0 ${tour.type === 'TREK'
+                                                    ? 'bg-orange-100 text-orange-700'
+                                                    : 'bg-blue-100 text-blue-700'
+                                                    }`}>
+                                                    {tour.type}
+                                                </span>
+                                            </div>
+                                            {tour.description && (
+                                                <p className="text-sm text-gray-600 line-clamp-2">{tour.description}</p>
+                                            )}
+                                        </div>
+
+                                        {/* Info Grid */}
+                                        <div className="grid grid-cols-2 gap-2 text-sm">
+                                            <div className="flex items-center gap-1.5 text-gray-600">
+                                                <Clock size={16} />
+                                                <span>{tour.duration} days</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-gray-600">
+                                                <Users size={16} />
+                                                <span>Max {tour.maxCapacity}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Price & Status */}
+                                        <div className="flex items-center justify-between pt-2 border-t">
+                                            <div>
+                                                <p className="text-xl font-bold text-[#005246]">
+                                                    ₹{(tour.price || tour.basePrice)?.toLocaleString('en-IN') || '0'}
+                                                </p>
+                                            </div>
+                                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${tour.isActive
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                {tour.isActive ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="flex gap-2 pt-2">
+                                            <Link href={`/admin/tours/${tour.id}`} className="flex-1">
+                                                <button className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                                    <Eye size={16} />
+                                                    View
+                                                </button>
+                                            </Link>
+                                            <Link href={`/admin/tours/${tour.id}/edit`} className="flex-1">
+                                                <button className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm border border-[#005246] text-[#005246] rounded-lg hover:bg-[#005246] hover:text-white transition-colors">
+                                                    <Edit2 size={16} />
+                                                    Edit
+                                                </button>
+                                            </Link>
+                                            <button
+                                                onClick={() => handleDelete(tour.id)}
+                                                disabled={deleteTour.isPending}
+                                                className="px-3 py-2 text-sm border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+                                                title="Delete"
+                                            >
+                                                {deleteTour.isPending ? (
+                                                    <Loader2 size={16} className="animate-spin" />
+                                                ) : (
+                                                    <Trash2 size={16} />
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-between bg-white rounded-lg border border-gray-200 px-4 py-3">
+                                <button
+                                    onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}
+                                    disabled={pagination.page <= 1}
+                                    className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Previous
+                                </button>
+                                <span className="text-sm text-gray-600">
+                                    Page {pagination.page} of {totalPages} · {total} total
+                                </span>
+                                <button
+                                    onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}
+                                    disabled={pagination.page >= totalPages}
+                                    className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
         </RoleGuard>
     )
 }

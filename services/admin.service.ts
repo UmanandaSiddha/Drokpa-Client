@@ -12,6 +12,7 @@ import type {
     AdminUserQueryParams,
     CancellationPolicyQueryParams,
 } from "@/types/admin";
+import type { ProviderType } from "@/types/provider";
 
 // ──────────────────────────────────────────────
 // Admin Service
@@ -64,13 +65,23 @@ class AdminService {
     }
 
     async confirmTourBooking(bookingId: string, data: { paymentWindowMinutes?: number }): Promise<Booking> {
-        const response = await apiClient.patch<{ data: Booking }>(`/admin/bookings/${bookingId}/tour/confirm`, data);
-        return response.data.data;
+        const response = await apiClient.patch<Booking | { data: Booking }>(`/admin/bookings/${bookingId}/tour/confirm`, data);
+        return 'data' in response.data ? response.data.data : response.data;
     }
 
     async rejectTourBooking(bookingId: string, data: { reason: string }): Promise<Booking> {
-        const response = await apiClient.patch<{ data: Booking }>(`/admin/bookings/${bookingId}/tour/reject`, data);
-        return response.data.data;
+        const response = await apiClient.patch<Booking | { data: Booking }>(`/admin/bookings/${bookingId}/tour/reject`, data);
+        return 'data' in response.data ? response.data.data : response.data;
+    }
+
+    async completeBooking(bookingId: string): Promise<Booking> {
+        const response = await apiClient.patch<Booking | { data: Booking }>(`/admin/bookings/${bookingId}/complete`);
+        return 'data' in response.data ? response.data.data : response.data;
+    }
+
+    async assignRole(userId: string, data: { role: 'HOST' | 'VENDOR' | 'GUIDE'; providerTypes?: ProviderType[] }): Promise<User> {
+        const response = await apiClient.patch<User | { data: User }>(`/admin/user/${userId}/assign-role`, data);
+        return 'data' in response.data ? response.data.data : response.data;
     }
 
     async getAllUsers(params?: AdminUserQueryParams): Promise<PaginatedResponse<User>> {
@@ -102,6 +113,11 @@ class AdminService {
 
     async deleteCancellationPolicy(id: string): Promise<MessageResponse> {
         const response = await apiClient.delete<MessageResponse>(`/admin/cancellation-policy/${id}`);
+        return response.data;
+    }
+
+    async deleteReview(reviewId: string): Promise<MessageResponse> {
+        const response = await apiClient.delete<MessageResponse>(`/admin/review/${reviewId}`);
         return response.data;
     }
 }

@@ -1,26 +1,156 @@
 "use client";
 
-import { CheckCircle2, Lock, MapPin, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CheckCircle2, Lock, MapPin, Shield, Loader2, AlertCircle } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { LoginRequiredModal } from "@/components/auth/LoginRequiredModal";
+import { bookingService } from "@/services/booking.service";
+import { paymentService } from "@/services/payment.service";
+import type { Booking } from "@/types/booking";
 
-const orderItems = [
-    {
-        id: "tour-1",
-        title: "Tawang Monastery & Sela Pass",
-        subtitle: "2 days, 1 night",
-        date: "Mar 21, 2026",
-        guests: 2,
-        price: 5800,
-    },
-];
-
-const priceBreakdown = {
-    subtotal: 5800,
-    taxes: 420,
-    service: 180,
-    total: 6400,
+type RazorpayOptions = {
+    key: string;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    order_id: string;
+    prefill: {
+        name: string;
+        email: string;
+        contact: string;
+    };
+    handler: (response: {
+        razorpay_payment_id: string;
+        razorpay_order_id: string;
+        razorpay_signature: string;
+    }) => void;
+    modal: {
+        ondismiss: () => void;
+    };
 };
 
-export default function CheckoutPage() {
+export default function CheckoutClient() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const { user, isLoading: authLoading } = useAuth();
+    
+    const bookingId = searchParams.get("bookingId");
+    const [booking, setBooking] = useState<Booking | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    useEffect(() => {
+        // Check auth
+        if (!authLoading && !user) {
+            setShowLoginModal(true);
+            return;
+        }
+
+        // Load booking details
+        if (bookingId && user) {
+            bookingService
+                .getBooking(bookingId)
+                .then((data) => {
+                    setBooking(data);
+                    setIsLoading(false);
+                })
+                .catch((error) => {
+                    console.error("Error loading booking:", error);
+                    setIsLoading(false);
+                });
+        }
+    }, [bookingId, user, authLoading]);
+
+    if (authLoading || isLoading) {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-[#005246]" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-white">
+                <LoginRequiredModal
+                    isOpen={showLoginModal}
+                    onClose={() => router.push("/")}
+                    title="Sign In to Complete Payment"
+                    message="You need to be logged in to process payment for your booking."
+                />
+            </div>
+        );
+    }
+
+    if (!booking) {
+        return (
+            <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
+                <AlertCircle className="w-8 h-8 text-red-500" />
+                <p className="text-gray-600">Booking not found</p>
+            </div>
+        );
+    }
+
+    const handlePayment = async () => {
+        try {
+            setIsProcessing(true);
+
+            // Initialize Razorpay
+            const script = document.createElement("script");
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.async = true;
+            document.body.appendChild(script);
+
+            script.onload = async () => {
+                const options: RazorpayOptions = {
+                    key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+                    amount: (booking.totalAmount || 0) * 100, // Convert to paise
+                    currency: "INR",
+                    name: "Drokpa",
+                    description: `Booking ${booking.id}`,
+                    order_id: booking.id, // Use booking ID as order ID
+                    prefill: {
+                        name: user?.name || "",
+                        email: user?.email || "",
+                        contact: user?.phone || "",
+                    },
+                    handler: async (response) => {
+                        try {
+                            // Verify payment with backend
+                            const verifyResponse = await paymentService.verifyPayment({
+                                orderId: booking.id,
+                                paymentId: response.razorpay_payment_id,
+                                signature: response.razorpay_signature,
+                            });
+
+                            console.log("Payment verified successfully:", verifyResponse);
+                            // Redirect to success page
+                            router.push(`/booking-confirmation?bookingId=${booking.id}`);
+                        } catch (error) {
+                            console.error("Payment verification error:", error);
+                            alert("Payment verification failed. Please contact support.");
+                            setIsProcessing(false);
+                        }
+                    },
+                    modal: {
+                        ondismiss: () => {
+                            setIsProcessing(false);
+                        },
+                    },
+                };
+
+                // @ts-ignore - Razorpay global type
+                const rzp = new window.Razorpay(options);
+                rzp.open();
+            };
+        } catch (error) {
+            console.error("Payment initialization error:", error);
+            setIsProcessing(false);
+        }
+    };
     return (
         <div className="min-h-screen bg-white">
             <main className="relative min-h-screen bg-white pt-16 pb-12 overflow-hidden">
@@ -198,7 +328,53 @@ export default function CheckoutPage() {
                                                 color: "#27261C",
                                             }}
                                         >
-                                            Contact details
+                                            Booking Summary
+                                        </p>
+                                        <div className="space-y-3 mb-4">
+                                            {booking.items && booking.items.map((item) => (
+                                                <div key={item.id} className="flex justify-between items-start">
+                                                    <div>
+                                                        <p style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 600, color: "#27261C" }}>
+                                                            {item.productType}
+                                                        </p>
+                                                        <p style={{ fontSize: "0.875rem", color: "#686766" }}>
+                                                            Qty: {item.quantity} × ₹{item.basePrice.toLocaleString()}
+                                                        </p>
+                                                    </div>
+                                                    <p style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 600, color: "#27261C" }}>
+                                                        ₹{item.totalAmount.toLocaleString()}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="border-t border-gray-200 pt-3">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span style={{ color: "#686766" }}>Subtotal</span>
+                                                <span>₹{((booking.totalAmount || 0) - 100).toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center mb-3">
+                                                <span style={{ color: "#686766" }}>Taxes</span>
+                                                <span>₹100</span>
+                                            </div>
+                                            {booking.discountAmount > 0 && (
+                                                <div className="flex justify-between items-center mb-3 p-2 bg-green-50 rounded">
+                                                    <span style={{ color: "#005246", fontWeight: 600 }}>Discount ({booking.couponCode})</span>
+                                                    <span style={{ color: "#005246", fontWeight: 600 }}>−₹{booking.discountAmount.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white border-2 border-gray-100 rounded-2xl p-5">
+                                        <p
+                                            className="text-sm font-semibold mb-4"
+                                            style={{
+                                                fontFamily: "var(--font-mona-sans)",
+                                                fontWeight: 600,
+                                                color: "#27261C",
+                                            }}
+                                        >
+                                            Guest Information
                                         </p>
                                         <div className="grid sm:grid-cols-2 gap-4">
                                             <div>
@@ -214,8 +390,9 @@ export default function CheckoutPage() {
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    placeholder="Enter full name"
-                                                    className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#005246] text-sm bg-white"
+                                                    value={user?.name || ""}
+                                                    disabled
+                                                    className="w-full px-4 py-3 rounded-xl border-2 outline-none bg-gray-50 text-sm"
                                                     style={{
                                                         fontFamily: "var(--font-mona-sans)",
                                                         fontWeight: 500,
@@ -236,8 +413,9 @@ export default function CheckoutPage() {
                                                 </label>
                                                 <input
                                                     type="email"
-                                                    placeholder="Enter email"
-                                                    className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#005246] text-sm bg-white"
+                                                    value={user?.email || ""}
+                                                    disabled
+                                                    className="w-full px-4 py-3 rounded-xl border-2 outline-none bg-gray-50 text-sm"
                                                     style={{
                                                         fontFamily: "var(--font-mona-sans)",
                                                         fontWeight: 500,
@@ -258,8 +436,9 @@ export default function CheckoutPage() {
                                                 </label>
                                                 <input
                                                     type="tel"
-                                                    placeholder="Enter phone number"
-                                                    className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#005246] text-sm bg-white"
+                                                    value={user?.phone || ""}
+                                                    disabled
+                                                    className="w-full px-4 py-3 rounded-xl border-2 outline-none bg-gray-50 text-sm"
                                                     style={{
                                                         fontFamily: "var(--font-mona-sans)",
                                                         fontWeight: 500,
@@ -279,7 +458,7 @@ export default function CheckoutPage() {
                                                 color: "#27261C",
                                             }}
                                         >
-                                            Billing Contact
+                                            Payment Processing
                                         </p>
                                         <p
                                             className="text-xs mt-2"
@@ -289,151 +468,99 @@ export default function CheckoutPage() {
                                                 color: "#686766",
                                             }}
                                         >
-                                            You can update billing details once payment is confirmed.
+                                            Click "Proceed to Payment" to open Razorpay checkout. You can pay using UPI, cards, net banking, and more.
                                         </p>
                                     </div>
 
                                     <button
+                                        onClick={handlePayment}
+                                        disabled={isProcessing}
                                         type="button"
-                                        className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#005246] hover:bg-[#004536] transition-colors flex items-center justify-center gap-2 text-base font-semibold"
+                                        className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#005246] hover:bg-[#004536] disabled:bg-gray-300 transition-colors flex items-center justify-center gap-2 text-base font-semibold text-white"
                                         style={{
                                             fontFamily: "var(--font-mona-sans)",
-                                            fontWeight: 700,
-                                            color: "#FFFFFF",
+                                            fontWeight: 600
                                         }}
                                     >
-                                        <Lock className="w-4 h-4" />
-                                        Pay with Razorpay
+                                        {isProcessing ? (
+                                            <>
+                                                <Loader2 size={18} className="animate-spin" />
+                                                Processing...
+                                            </>
+                                        ) : (
+                                            "Proceed to Payment"
+                                        )}
                                     </button>
-                                    <p
-                                        className="text-xs"
-                                        style={{
-                                            fontFamily: "var(--font-mona-sans)",
-                                            fontWeight: 500,
-                                            color: "#686766",
-                                        }}
-                                    >
-                                        Powered by Razorpay. Transactions are encrypted and secure.
-                                    </p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Order Summary */}
+                        {/* Order Summary Sidebar */}
                         <div className="lg:col-span-1">
-                            <div className="space-y-6 lg:sticky lg:top-24">
-                                <div className="bg-[#F5F1E6] rounded-2xl p-6 border border-[#DDE7E0]/60 shadow-[0_16px_40px_-32px_rgba(0,0,0,0.3)]">
-                                    <h3
-                                        className="text-base font-semibold mb-4"
-                                        style={{
-                                            fontFamily: "var(--font-subjectivity), sans-serif",
-                                            fontWeight: 700,
-                                            color: "#27261C",
-                                        }}
-                                    >
-                                        Order Summary
-                                    </h3>
-                                    <div className="space-y-4">
-                                        {orderItems.map((item) => (
-                                            <div key={item.id} className="space-y-2">
-                                                <div className="flex items-center justify-between">
-                                                    <p
-                                                        className="text-sm font-semibold"
-                                                        style={{
-                                                            fontFamily: "var(--font-mona-sans)",
-                                                            fontWeight: 600,
-                                                            color: "#27261C",
-                                                        }}
-                                                    >
-                                                        {item.title}
-                                                    </p>
-                                                    <p
-                                                        className="text-sm"
-                                                        style={{
-                                                            fontFamily: "var(--font-mona-sans)",
-                                                            fontWeight: 600,
-                                                            color: "#27261C",
-                                                        }}
-                                                    >
-                                                        ₹ {item.price.toLocaleString()}
-                                                    </p>
-                                                </div>
-                                                <p
-                                                    className="text-xs"
-                                                    style={{
-                                                        fontFamily: "var(--font-mona-sans)",
-                                                        fontWeight: 500,
-                                                        color: "#686766",
-                                                    }}
-                                                >
-                                                    {item.subtitle}
-                                                </p>
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-[#DDE7E0]/70">
-                                                        <MapPin className="w-3 h-3" />
-                                                        {item.date}
-                                                    </span>
-                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-white border border-[#DDE7E0]/70">
-                                                        {item.guests} travelers
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ))}
+                            <div className="bg-white rounded-2xl p-6 sticky top-24 border-2 border-gray-100 shadow-[0_18px_50px_-35px_rgba(0,0,0,0.35)]">
+                                <h3
+                                    className="text-lg font-bold mb-4"
+                                    style={{
+                                        fontFamily: "var(--font-subjectivity), sans-serif",
+                                        color: "#27261C",
+                                    }}
+                                >
+                                    Order Summary
+                                </h3>
+
+                                <div className="space-y-3 mb-4 pb-4 border-b border-gray-200">
+                                    <div className="flex justify-between">
+                                        <span style={{ color: "#686766" }}>Subtotal</span>
+                                        <span style={{ fontWeight: 600, color: "#27261C" }}>
+                                            ₹{((booking.totalAmount || 0) - 100).toLocaleString()}
+                                        </span>
                                     </div>
+                                    <div className="flex justify-between">
+                                        <span style={{ color: "#686766" }}>Taxes & Fees</span>
+                                        <span style={{ fontWeight: 600, color: "#27261C" }}>₹100</span>
+                                    </div>
+                                    {booking.discountAmount > 0 && (
+                                        <div className="flex justify-between text-green-700">
+                                            <span>Discount</span>
+                                            <span>−₹{booking.discountAmount.toLocaleString()}</span>
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className="bg-white rounded-2xl p-6 border border-[#DDE7E0]/70 shadow-[0_16px_40px_-32px_rgba(0,0,0,0.3)]">
-                                    <h3
-                                        className="text-base font-semibold mb-4"
+                                <div className="flex justify-between items-center mb-6 p-3 bg-[#F5F1E6] rounded-lg">
+                                    <span
                                         style={{
-                                            fontFamily: "var(--font-subjectivity), sans-serif",
-                                            fontWeight: 700,
+                                            fontFamily: "var(--font-mona-sans)",
+                                            fontWeight: 600,
                                             color: "#27261C",
                                         }}
                                     >
-                                        Price Breakdown
-                                    </h3>
-                                    <div className="space-y-3 text-sm">
-                                        <div className="flex items-center justify-between p-3 rounded-xl bg-[#F5F1E6]/70 border border-[#DDE7E0]/70">
-                                            <span style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 600, color: "#27261C" }}>
-                                                Total due today
-                                            </span>
-                                            <span style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 700, color: "#005246" }}>
-                                                ₹ {priceBreakdown.total.toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500, color: "#686766" }}>
-                                                Subtotal
-                                            </span>
-                                            <span style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 600, color: "#27261C" }}>
-                                                ₹ {priceBreakdown.subtotal.toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500, color: "#686766" }}>
-                                                Taxes
-                                            </span>
-                                            <span style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 600, color: "#27261C" }}>
-                                                ₹ {priceBreakdown.taxes.toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500, color: "#686766" }}>
-                                                Service fees
-                                            </span>
-                                            <span style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 600, color: "#27261C" }}>
-                                                ₹ {priceBreakdown.service.toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div className="border-t border-[#DDE7E0]/70 pt-3 flex items-center justify-between">
-                                            <span style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 700, color: "#27261C" }}>
-                                                Total
-                                            </span>
-                                            <span style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 700, color: "#005246" }}>
-                                                ₹ {priceBreakdown.total.toLocaleString()}
-                                            </span>
-                                        </div>
+                                        Total Amount
+                                    </span>
+                                    <span
+                                        className="text-2xl"
+                                        style={{
+                                            fontFamily: "var(--font-mona-sans)",
+                                            fontWeight: 700,
+                                            color: "#005246",
+                                        }}
+                                    >
+                                        ₹{(booking.totalAmount || 0).toLocaleString()}
+                                    </span>
+                                </div>
+
+                                <div className="space-y-2 text-xs">
+                                    <div className="flex items-start gap-2">
+                                        <Lock className="w-4 h-4 text-[#005246] flex-shrink-0 mt-0.5" />
+                                        <span style={{ color: "#686766" }}>Secure payment with Razorpay</span>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <Shield className="w-4 h-4 text-[#4F87C7] flex-shrink-0 mt-0.5" />
+                                        <span style={{ color: "#686766" }}>Full refund within 48 hours if cancelled</span>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <MapPin className="w-4 h-4 text-[#FC611E] flex-shrink-0 mt-0.5" />
+                                        <span style={{ color: "#686766" }}>Confirmation sent to your email</span>
                                     </div>
                                 </div>
                             </div>

@@ -19,58 +19,58 @@ class CouponService {
     // ─── Admin: Create & Manage Coupons ────────
 
     async createCoupon(data: CreateCouponRequest): Promise<Coupon> {
-        const response = await apiClient.post<{ data: Coupon }>("/admin/coupons", data);
-        return response.data.data;
+        const response = await apiClient.post<Coupon>("/coupon/admin", data);
+        return response.data;
     }
 
     async getAllCoupons(params?: CouponQueryParams): Promise<PaginatedResponse<Coupon>> {
-        const response = await apiClient.get<PaginatedResponse<Coupon>>("/admin/coupons", { params });
+        const response = await apiClient.get<PaginatedResponse<Coupon>>("/coupon/admin", { params });
         return response.data;
     }
 
     async getCouponById(id: string): Promise<Coupon> {
-        const response = await apiClient.get<{ data: Coupon }>(`/admin/coupons/${id}`);
-        return response.data.data;
+        const response = await apiClient.get<Coupon>(`/coupon/admin/${id}`);
+        return response.data;
     }
 
     async updateCoupon(id: string, data: UpdateCouponRequest): Promise<Coupon> {
-        const response = await apiClient.patch<{ data: Coupon }>(`/admin/coupons/${id}`, data);
-        return response.data.data;
+        const response = await apiClient.patch<Coupon>(`/coupon/admin/${id}`, data);
+        return response.data;
     }
 
     async deleteCoupon(id: string): Promise<{ message: string }> {
-        const response = await apiClient.delete<{ message: string }>(`/admin/coupons/${id}`);
+        const response = await apiClient.delete<{ message: string }>(`/coupon/admin/${id}`);
         return response.data;
     }
 
     // ─── User Assignments ──────────────────────
 
     async assignCouponToUser(couponId: string, data: AssignCouponUserRequest): Promise<CouponUserAssignment> {
-        const response = await apiClient.post<{ data: CouponUserAssignment }>(
-            `/admin/coupons/${couponId}/assign-user`,
+        const response = await apiClient.post<CouponUserAssignment>(
+            `/coupon/admin/${couponId}/assign`,
             data
         );
-        return response.data.data;
+        return response.data;
     }
 
     async removeCouponFromUser(couponId: string, userId: string): Promise<{ message: string }> {
         const response = await apiClient.delete<{ message: string }>(
-            `/admin/coupons/${couponId}/users/${userId}`
+            `/coupon/admin/${couponId}/assign/${userId}`
         );
         return response.data;
     }
 
     async getCouponAssignments(couponId: string): Promise<CouponUserAssignment[]> {
-        const response = await apiClient.get<{ data: CouponUserAssignment[] }>(
-            `/admin/coupons/${couponId}/assignments`
+        const response = await apiClient.get<CouponUserAssignment[]>(
+            `/coupon/admin/${couponId}/usages`
         );
-        return response.data.data;
+        return response.data;
     }
 
     // ─── Coupon Validation (User facing) ───────
 
     async validateCoupon(code: string, bookingValue?: number): Promise<ValidateCouponResponse> {
-        const response = await apiClient.post<ValidateCouponResponse>("/coupons/validate", {
+        const response = await apiClient.post<ValidateCouponResponse>("/coupon/validate", {
             code,
             bookingValue,
         });

@@ -152,6 +152,7 @@ export default function ArticlesPageClient() {
                                         width={600}
                                         height={224}
                                         className="h-56 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                                        unoptimized
                                     />
                                 </div>
                                 <div className="p-5 sm:p-6 flex flex-col gap-3">

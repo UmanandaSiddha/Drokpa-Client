@@ -60,7 +60,7 @@ class UserService {
 
     // ─── Admin actions ────────────────────────────
 
-    async getAllUsersAdmin(params?: { search?: string; page?: number; limit?: number }): Promise<PaginatedResponse<User>> {
+    async getAllUsersAdmin(params?: { keyword?: string; page?: number; limit?: number }): Promise<PaginatedResponse<User>> {
         const response = await apiClient.get<PaginatedResponse<User>>("/user/admin/all", { params });
         return response.data;
     }

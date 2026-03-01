@@ -69,7 +69,7 @@ export interface AdminBookingQueryParams {
 }
 
 export interface AdminUserQueryParams {
-    search?: string;
+    keyword?: string;
     page?: number;
     limit?: number;
 }
@@ -81,4 +81,11 @@ export interface AdminPaymentQueryParams {
 
 export interface CancellationPolicyQueryParams {
     productId?: string;
+}
+
+export type AdminAssignableRole = 'HOST' | 'VENDOR' | 'GUIDE';
+
+export interface AssignRoleRequest {
+    role: AdminAssignableRole;
+    providerTypes?: ProviderType[];
 }

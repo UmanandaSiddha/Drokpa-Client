@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
 import { Tour } from "@/data/tours";
+import { TourType } from "@/types/tour";
 import { GreenStar } from "@/assets";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,11 +11,13 @@ import Link from "next/link";
 interface TourHomeComponentProps {
 	tours: Tour[];
 	title?: string;
+	type?: 'TOUR' | 'TREK' | 'HOMESTAY';
 }
 
 export default function TourHomeComponent({
 	tours,
 	title,
+	type,
 }: TourHomeComponentProps) {
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [favorites, setFavorites] = useState<Set<number>>(new Set());
@@ -152,7 +155,7 @@ export default function TourHomeComponent({
 						{tours.map((tour) => (
 							<Link
 								key={tour.id}
-								href={title === "HomeStays" ? `/homestays/${tour.id}` : `/tours/${tour.id}`}
+								href={type === 'HOMESTAY' ? `/homestays/${tour.id}` : type === 'TREK' ? `/treks/${tour.id}` : `/tours/${tour.id}`}
 								className="flex-shrink-0 bg-white overflow-hidden"
 								style={{ width: cardWidthPercent }}
 							>
@@ -165,6 +168,21 @@ export default function TourHomeComponent({
 										height={288}
 										className="w-full h-full object-cover rounded-xl"
 									/>
+
+									{/* Differentiation Badge */}
+									{type != 'HOMESTAY' && (
+										<div
+											className="absolute bottom-3 right-3 md:bottom-4 md:right-4 px-2.5 py-1.5 md:px-3 md:py-2 rounded-full text-[10px] md:text-xs font-semibold"
+											style={{
+												backgroundColor: type === 'TREK' ? '#FC611E' : '#005246',
+												color: 'white',
+												fontFamily: "var(--font-mona-sans), sans-serif",
+												fontWeight: 600,
+											}}
+										>
+											{type === 'TREK' ? 'Trek' : 'Tour'}
+										</div>
+									)}
 
 									{/* Duration Tag */}
 									<div
@@ -182,7 +200,7 @@ export default function TourHomeComponent({
 									{/* Heart Icon */}
 									<button
 										onClick={() => toggleFavorite(tour.id)}
-										className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center hover:scale-110 transition"
+										className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center hover:scale-110 transition"
 									>
 										<Heart
 											className={`w-6 h-6 ${favorites.has(tour.id)

@@ -92,6 +92,7 @@ export default function GetInspired() {
 									width={800}
 									height={880}
 									className="w-full h-[520px] sm:h-[620px] md:h-[700px] lg:h-[750px] xl:h-[880px] object-cover"
+									unoptimized
 								/>
 							</Link>
 
@@ -142,19 +143,14 @@ export default function GetInspired() {
 									alt={article.title}
 									width={400}
 									height={400}
-										className="w-full aspect-square object-cover"
-									/>
-								</div>
-
-								<h3
-									className="mt-3 sm:mt-4 leading-snug w-[90%]"
-									style={{
-										fontFamily: "var(--font-subjectivity), sans-serif",
-										fontWeight: 700,
-										fontSize: "clamp(18px, 4.5vw, 28px)",
-										color: "#353030",
-										lineHeight: "clamp(22px, 5.5vw, 32px)",
-										letterSpacing: "-0.06em",
+									className="w-full aspect-square object-cover"
+									unoptimized
+								/>
+							</div>
+							<h3
+								className="mt-3 sm:mt-4"
+								style={{
+									fontFamily: "var(--font-mona-sans), sans-serif",
 									}}
 								>
 									{article.title}

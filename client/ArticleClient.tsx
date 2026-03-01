@@ -92,6 +92,7 @@ export default function ArticlePage() {
                                 height={800}
                                 className="h-90 sm:h-105 md:h-130 w-full object-cover"
                                 priority
+                                unoptimized
                             />
                             <div className="absolute inset-0 bg-linear-to-t from-black/35 via-black/0 to-black/0" />
                             <div className="absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-[#FC611E]/20 blur-2xl" />
@@ -158,6 +159,7 @@ export default function ArticlePage() {
                                                 width={600}
                                                 height={288}
                                                 className="h-72 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                                                unoptimized
                                             />
                                         </div>
                                         <p

@@ -12,24 +12,33 @@ import type {
 // ──────────────────────────────────────────────
 
 class AddressService {
+    private extractAddress(payload: any): Address {
+        return payload?.data ?? payload;
+    }
+
+    private extractAddressList(payload: any): Address[] {
+        const list = payload?.data ?? payload;
+        return Array.isArray(list) ? list : [];
+    }
+
     async createAddress(data: CreateAddressRequest): Promise<Address> {
-        const response = await apiClient.post<{ data: Address }>("/address", data);
-        return response.data.data;
+        const response = await apiClient.post<Address | { data: Address }>("/address", data);
+        return this.extractAddress(response.data);
     }
 
     async getAddress(id: string): Promise<Address> {
-        const response = await apiClient.get<{ data: Address }>(`/address/byId/${id}`);
-        return response.data.data;
+        const response = await apiClient.get<Address | { data: Address }>(`/address/byId/${id}`);
+        return this.extractAddress(response.data);
     }
 
     async updateAddress(id: string, data: UpdateAddressRequest): Promise<Address> {
-        const response = await apiClient.put<{ data: Address }>(`/address/byId/${id}`, data);
-        return response.data.data;
+        const response = await apiClient.put<Address | { data: Address }>(`/address/byId/${id}`, data);
+        return this.extractAddress(response.data);
     }
 
     async getNearbyAddresses(params: NearbyAddressParams): Promise<Address[]> {
-        const response = await apiClient.get<{ data: Address[] }>("/address/nearby", { params });
-        return response.data.data;
+        const response = await apiClient.get<Address[] | { data: Address[] }>("/address/nearby", { params });
+        return this.extractAddressList(response.data);
     }
 }
 

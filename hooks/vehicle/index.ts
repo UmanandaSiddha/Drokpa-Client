@@ -28,7 +28,20 @@ export function useNearbyVehicles(params?: { latitude: number; longitude: number
 }
 
 export function useMyVehicles() {
-    return useQuery({ queryKey: VEHICLE_KEYS.mine, queryFn: () => vehicleService.getMyVehicles() });
+    return useQuery({
+        queryKey: VEHICLE_KEYS.mine,
+        queryFn: async () => {
+            const vehicles = await vehicleService.getMyVehicles();
+            // Return as paginated response for consistency
+            return {
+                data: vehicles ?? [],
+                meta: {
+                    total: vehicles?.length ?? 0,
+                    totalPages: 1,
+                },
+            };
+        },
+    });
 }
 
 export function useCreateVehicle() {

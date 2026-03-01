@@ -3,6 +3,8 @@
 // ──────────────────────────────────────────────
 
 export enum UploadType {
+    PUBLIC = 'public',
+    PRIVATE = 'private',
     AVATAR = 'AVATAR',
     HOMESTAY = 'HOMESTAY',
     VEHICLE = 'VEHICLE',

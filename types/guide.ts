@@ -48,5 +48,5 @@ export interface UpdateGuideRequest extends Partial<CreateGuideRequest> { }
 export interface GuideQueryParams {
     page?: number;
     limit?: number;
-    search?: string;
+    keyword?: string;
 }

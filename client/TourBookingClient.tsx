@@ -17,6 +17,10 @@ import {
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCountryOptions } from "@/hooks/useCountryOptions";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { LoginRequiredModal } from "@/components/auth/LoginRequiredModal";
+import { bookingService } from "@/services/booking.service";
+import type { RequestTourBookingRequest } from "@/types/booking";
 import Image from "next/image";
 import GalleryLightbox from "@/components/GalleryLightbox";
 import tours from "@/data/tours";
@@ -26,12 +30,14 @@ export default function TourBookingPage({
 }: {
     params: Promise<{ tourId: string }>;
 }) {
+    const { user, isLoading: authLoading } = useAuth();
     const [tourId, setTourId] = useState<string | null>(null);
     const [selectedImage, setSelectedImage] = useState(0);
     const [prevImage, setPrevImage] = useState(0);
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [isFading, setIsFading] = useState(true);
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
     const countryOptions = useCountryOptions();
     const [formData, setFormData] = useState({
         numberOfPeople: 1,
@@ -166,6 +172,11 @@ export default function TourBookingPage({
     const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tourData.location)}`;
 
     const handleParticipantChange = (index: number, field: string, value: string | File | null) => {
+        // Check auth for file uploads
+        if ((field === 'passportPhoto' || field === 'identityProof') && !user) {
+            setShowLoginModal(true);
+            return;
+        }
         const newParticipants = [...formData.participants];
         newParticipants[index] = { ...newParticipants[index], [field]: value };
         setFormData({ ...formData, participants: newParticipants });
@@ -216,15 +227,48 @@ export default function TourBookingPage({
         });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Booking submitted:", formData);
-        setFormSubmitted(true);
-        setTimeout(() => setFormSubmitted(false), 3000);
+        
+        // Check authentication before submission
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+        
+        try {
+            setFormSubmitted(true);
+            
+            // Create booking request with form data
+            const bookingData: RequestTourBookingRequest = {
+                tourId: tourId,
+                participantCount: formData.participants.length,
+                specialRequests: formData.specialRequests,
+                // Additional fields based on RequestTourBookingRequest type
+            };
+            
+            // Call booking service
+            const booking = await bookingService.requestTourBooking(bookingData);
+            
+            // Redirect to checkout with booking ID
+            if (booking?.id) {
+                window.location.href = `/checkout?bookingId=${booking.id}`;
+            }
+        } catch (error) {
+            console.error("Failed to create booking:", error);
+            setFormSubmitted(false);
+            // Show error message to user
+        }
     };
 
     return (
         <div className="min-h-screen bg-white">
+            <LoginRequiredModal 
+                isOpen={showLoginModal} 
+                onClose={() => setShowLoginModal(false)}
+                title="Sign In to Book Your Tour"
+                message="You need to be logged in to book a tour. Please sign in to continue with your booking."
+            />
             <main className="relative min-h-screen bg-white">
                 {/* Hero Section with Image Gallery */}
                 <div className="relative mt-16 bg-white py-6 sm:py-8 md:py-10 overflow-hidden">

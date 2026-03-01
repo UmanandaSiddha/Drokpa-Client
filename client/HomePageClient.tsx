@@ -41,8 +41,8 @@ export default function HomePageClient({ tours, homestays }: HomePageClientProps
                 <IlpSection />
                 {/* Rest of the content */}
                 <div className="w-full lg:w-[90%] max-w-[1600px] mx-auto">
-                    <TourHomeComponent tours={tours} title="Tours & Treks" />
-                    <TourHomeComponent tours={homestays} title="HomeStays" />
+                    <TourHomeComponent tours={tours} title="Tours" type="TOUR" />
+                    <TourHomeComponent tours={homestays} title="Homestays" type="HOMESTAY" />
                     <WhyDroppa />
                     <ThingsToDo />
                     <GetInspired />

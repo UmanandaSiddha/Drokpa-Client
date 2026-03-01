@@ -151,6 +151,7 @@ function ActivitiesContent() {
                                         width={600}
                                         height={600}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                        unoptimized
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
                                     <div className={`absolute inset-0 transition-opacity duration-300 ${selectedActivityId === activity.id ? "bg-black/0" : "group-hover:bg-black/40"}`} />

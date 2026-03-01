@@ -54,6 +54,7 @@ export interface TourTag {
 export interface Tour {
     id: string;
     title: string;
+    slug: string;
     description: string;
     type: TourType;
     basePrice: number;
@@ -86,8 +87,7 @@ export interface CreateTourRequest {
     title: string;
     description: string;
     type?: TourType;
-    basePrice: number;
-    discount?: number;
+    price: number;
     duration: number;
     imageUrls?: string[];
     maxCapacity?: number;
@@ -100,6 +100,8 @@ export interface CreateTourRequest {
     providerId?: string;
     guideId?: string;
     tags?: string[];
+    isActive?: boolean;
+    discount?: number;
 }
 
 export interface UpdateTourRequest extends Partial<CreateTourRequest> { }
@@ -137,6 +139,6 @@ export interface UpdatePOIRequest extends Partial<CreatePOIRequest> { }
 export interface TourQueryParams {
     page?: number;
     limit?: number;
-    search?: string;
+    keyword?: string;
     type?: TourType;
 }

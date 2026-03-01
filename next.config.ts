@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
 			{
 				protocol: "https",
 				hostname: "images.pexels.com",
+			},
+			{
+				protocol: "https",
+				hostname: "drokpa-media.s3.ap-south-1.amazonaws.com",
 			}
 		],
 	},
