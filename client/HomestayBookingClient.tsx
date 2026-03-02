@@ -143,9 +143,9 @@ export default function HomestayBookingClient({ params }: HomestayBookingPageCli
 
             const bookingData: RequestHomestayBookingRequest = {
                 homestayId: homestayId,
-                checkInDate: checkInDate.toISOString().split("T")[0], // YYYY-MM-DD format
-                checkOutDate: checkOutDate.toISOString().split("T")[0],
-                guestCount: parseInt(guests),
+                checkIn: checkInDate.toISOString().split("T")[0], // YYYY-MM-DD format
+                checkOut: checkOutDate.toISOString().split("T")[0],
+                guests: parseInt(guests),
                 roomId: selectedRoom,
                 specialRequests: specialRequests,
             };
@@ -217,9 +217,8 @@ export default function HomestayBookingClient({ params }: HomestayBookingPageCli
                                                     {[...Array(5)].map((_, i) => (
                                                         <Star
                                                             key={i}
-                                                            className={`w-4 h-4 ${
-                                                                i < 4 ? "fill-[#FC611E] text-[#FC611E]" : "text-gray-300"
-                                                            }`}
+                                                            className={`w-4 h-4 ${i < 4 ? "fill-[#FC611E] text-[#FC611E]" : "text-gray-300"
+                                                                }`}
                                                         />
                                                     ))}
                                                 </div>
@@ -262,7 +261,7 @@ export default function HomestayBookingClient({ params }: HomestayBookingPageCli
                 </div>
 
                 {/* Booking Form Section */}
-                <section className="py-12 sm:py-16 bg-gradient-to-br from-[#F5F1E6] via-white to-[#F0EBDF]">
+                <section className="py-12 sm:py-16 bg-linear-to-br from-[#F5F1E6] via-white to-[#F0EBDF]">
                     <div className="w-full lg:w-[90%] max-w-400 mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
                         <div className="grid md:grid-cols-3 gap-8">
                             {/* Booking Form */}
@@ -346,11 +345,11 @@ export default function HomestayBookingClient({ params }: HomestayBookingPageCli
                                             <SelectContent>
                                                 {homestayData.rooms?.map((room) => (
                                                     <SelectItem key={room.id} value={room.id}>
-                                                        {room.name} - ₹{room.pricePerNight}/night
+                                                        {room.name} - ₹{room.finalPrice}/night
                                                     </SelectItem>
                                                 )) || (
-                                                    <SelectItem value="standard">Standard Room - ₹2,999/night</SelectItem>
-                                                )}
+                                                        <SelectItem value="standard">Standard Room - ₹2,999/night</SelectItem>
+                                                    )}
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -415,7 +414,7 @@ export default function HomestayBookingClient({ params }: HomestayBookingPageCli
 
                                     {formSubmitted && (
                                         <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl flex items-start gap-3">
-                                            <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                                            <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
                                             <span className="text-sm text-green-700">Booking created successfully! Redirecting to payment...</span>
                                         </div>
                                     )}
@@ -453,11 +452,11 @@ export default function HomestayBookingClient({ params }: HomestayBookingPageCli
 
                                     <div className="space-y-2 text-xs text-[#686766]">
                                         <div className="flex items-start gap-2">
-                                            <CheckCircle2 className="w-4 h-4 text-[#005246] flex-shrink-0 mt-0.5" />
+                                            <CheckCircle2 className="w-4 h-4 text-[#005246] shrink-0 mt-0.5" />
                                             <span>Free cancellation until 48 hours before check-in</span>
                                         </div>
                                         <div className="flex items-start gap-2">
-                                            <CheckCircle2 className="w-4 h-4 text-[#005246] flex-shrink-0 mt-0.5" />
+                                            <CheckCircle2 className="w-4 h-4 text-[#005246] shrink-0 mt-0.5" />
                                             <span>Secure payment with Razorpay</span>
                                         </div>
                                     </div>

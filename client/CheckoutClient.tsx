@@ -35,12 +35,13 @@ export default function CheckoutClient() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { user, isLoading: authLoading } = useAuth();
-    
+
     const bookingId = searchParams.get("bookingId");
     const [booking, setBooking] = useState<Booking | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const userFullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
 
     useEffect(() => {
         // Check auth
@@ -113,17 +114,18 @@ export default function CheckoutClient() {
                     description: `Booking ${booking.id}`,
                     order_id: booking.id, // Use booking ID as order ID
                     prefill: {
-                        name: user?.name || "",
+                        name: userFullName,
                         email: user?.email || "",
-                        contact: user?.phone || "",
+                        contact: user?.phoneNumber || "",
                     },
                     handler: async (response) => {
                         try {
                             // Verify payment with backend
                             const verifyResponse = await paymentService.verifyPayment({
-                                orderId: booking.id,
                                 paymentId: response.razorpay_payment_id,
-                                signature: response.razorpay_signature,
+                                razorpayOrderId: response.razorpay_order_id,
+                                razorpayPaymentId: response.razorpay_payment_id,
+                                razorpaySignature: response.razorpay_signature,
                             });
 
                             console.log("Payment verified successfully:", verifyResponse);
@@ -160,7 +162,7 @@ export default function CheckoutClient() {
                     <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-[#005246]/10 blur-3xl" />
                 </div>
 
-                <div className="w-full lg:w-[90%] max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
+                <div className="w-full lg:w-[90%] max-w-400 mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
                     {/* Hero */}
                     <div className="pt-8 sm:pt-12 md:pt-16 pb-8 sm:pb-12">
                         <div className="flex items-center gap-2 mb-4">
@@ -356,10 +358,10 @@ export default function CheckoutClient() {
                                                 <span style={{ color: "#686766" }}>Taxes</span>
                                                 <span>₹100</span>
                                             </div>
-                                            {booking.discountAmount > 0 && (
+                                            {(booking.discountAmount ?? 0) > 0 && (
                                                 <div className="flex justify-between items-center mb-3 p-2 bg-green-50 rounded">
-                                                    <span style={{ color: "#005246", fontWeight: 600 }}>Discount ({booking.couponCode})</span>
-                                                    <span style={{ color: "#005246", fontWeight: 600 }}>−₹{booking.discountAmount.toLocaleString()}</span>
+                                                    <span style={{ color: "#005246", fontWeight: 600 }}>Discount ({booking.coupon?.code ?? booking.couponId ?? "Applied"})</span>
+                                                    <span style={{ color: "#005246", fontWeight: 600 }}>−₹{(booking.discountAmount ?? 0).toLocaleString()}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -390,7 +392,7 @@ export default function CheckoutClient() {
                                                 </label>
                                                 <input
                                                     type="text"
-                                                    value={user?.name || ""}
+                                                    value={userFullName}
                                                     disabled
                                                     className="w-full px-4 py-3 rounded-xl border-2 outline-none bg-gray-50 text-sm"
                                                     style={{
@@ -436,7 +438,7 @@ export default function CheckoutClient() {
                                                 </label>
                                                 <input
                                                     type="tel"
-                                                    value={user?.phone || ""}
+                                                    value={user?.phoneNumber || ""}
                                                     disabled
                                                     className="w-full px-4 py-3 rounded-xl border-2 outline-none bg-gray-50 text-sm"
                                                     style={{
@@ -519,10 +521,10 @@ export default function CheckoutClient() {
                                         <span style={{ color: "#686766" }}>Taxes & Fees</span>
                                         <span style={{ fontWeight: 600, color: "#27261C" }}>₹100</span>
                                     </div>
-                                    {booking.discountAmount > 0 && (
+                                    {(booking.discountAmount ?? 0) > 0 && (
                                         <div className="flex justify-between text-green-700">
                                             <span>Discount</span>
-                                            <span>−₹{booking.discountAmount.toLocaleString()}</span>
+                                            <span>−₹{(booking.discountAmount ?? 0).toLocaleString()}</span>
                                         </div>
                                     )}
                                 </div>
@@ -551,15 +553,15 @@ export default function CheckoutClient() {
 
                                 <div className="space-y-2 text-xs">
                                     <div className="flex items-start gap-2">
-                                        <Lock className="w-4 h-4 text-[#005246] flex-shrink-0 mt-0.5" />
+                                        <Lock className="w-4 h-4 text-[#005246] shrink-0 mt-0.5" />
                                         <span style={{ color: "#686766" }}>Secure payment with Razorpay</span>
                                     </div>
                                     <div className="flex items-start gap-2">
-                                        <Shield className="w-4 h-4 text-[#4F87C7] flex-shrink-0 mt-0.5" />
+                                        <Shield className="w-4 h-4 text-[#4F87C7] shrink-0 mt-0.5" />
                                         <span style={{ color: "#686766" }}>Full refund within 48 hours if cancelled</span>
                                     </div>
                                     <div className="flex items-start gap-2">
-                                        <MapPin className="w-4 h-4 text-[#FC611E] flex-shrink-0 mt-0.5" />
+                                        <MapPin className="w-4 h-4 text-[#FC611E] shrink-0 mt-0.5" />
                                         <span style={{ color: "#686766" }}>Confirmation sent to your email</span>
                                     </div>
                                 </div>

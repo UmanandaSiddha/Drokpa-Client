@@ -17,6 +17,7 @@ export default function BookingConfirmationClient() {
     const [booking, setBooking] = useState<Booking | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const userFullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ");
 
     // Load booking on mount
     useEffect(() => {
@@ -45,7 +46,7 @@ export default function BookingConfirmationClient() {
 
     if (authLoading || isLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-[#F5F1E6] via-white to-[#F5F1E6] flex items-center justify-center">
+            <div className="min-h-screen bg-linear-to-br from-[#F5F1E6] via-white to-[#F5F1E6] flex items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-[#005246]" />
             </div>
         );
@@ -53,7 +54,7 @@ export default function BookingConfirmationClient() {
 
     if (error || !booking) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-[#F5F1E6] via-white to-[#F5F1E6] flex items-center justify-center px-4">
+            <div className="min-h-screen bg-linear-to-br from-[#F5F1E6] via-white to-[#F5F1E6] flex items-center justify-center px-4">
                 <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
                     <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
                     <h2 className="text-xl font-bold text-[#27261C] mb-2">Oops!</h2>
@@ -66,17 +67,15 @@ export default function BookingConfirmationClient() {
         );
     }
 
-    const firstItem = booking.items?.[0];
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#F5F1E6] via-white to-[#F5F1E6]">
+        <div className="min-h-screen bg-linear-to-br from-[#F5F1E6] via-white to-[#F5F1E6]">
             <main className="py-12 sm:py-16 md:py-20">
-                <div className="w-full lg:w-[90%] max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8">
+                <div className="w-full lg:w-[90%] max-w-300 mx-auto px-4 sm:px-6 md:px-8">
                     {/* Success Header */}
                     <div className="text-center mb-12 sm:mb-16">
                         <div className="flex justify-center mb-6">
                             <div className="relative w-20 h-20 sm:w-24 sm:h-24">
-                                <div className="absolute inset-0 bg-gradient-to-br from-[#005246] to-[#003d38] rounded-full animate-pulse opacity-20"></div>
+                                <div className="absolute inset-0 bg-linear-to-br from-[#005246] to-[#003d38] rounded-full animate-pulse opacity-20"></div>
                                 <div className="relative inset-0 flex items-center justify-center">
                                     <CheckCircle2 className="w-20 h-20 sm:w-24 sm:h-24 text-[#005246]" />
                                 </div>
@@ -124,7 +123,7 @@ export default function BookingConfirmationClient() {
                                             >
                                                 <div className="flex items-start gap-4">
                                                     {index === 0 && (
-                                                        <div className="flex-shrink-0">
+                                                        <div className="shrink-0">
                                                             <Home className="w-6 h-6 text-[#005246]" />
                                                         </div>
                                                     )}
@@ -151,16 +150,16 @@ export default function BookingConfirmationClient() {
                                     <div className="grid sm:grid-cols-2 gap-4">
                                         <div className="p-4 rounded-xl bg-[#F5F1E6]/50 border border-[#DDE7E0]/40">
                                             <p className="text-xs font-semibold text-[#686766] uppercase mb-1">Name</p>
-                                            <p className="text-sm font-medium text-[#27261C]">{user?.name}</p>
+                                            <p className="text-sm font-medium text-[#27261C]">{userFullName || "Guest"}</p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-[#F5F1E6]/50 border border-[#DDE7E0]/40">
                                             <p className="text-xs font-semibold text-[#686766] uppercase mb-1">Email</p>
                                             <p className="text-sm font-medium text-[#27261C] break-all">{user?.email}</p>
                                         </div>
-                                        {user?.phone && (
+                                        {user?.phoneNumber && (
                                             <div className="p-4 rounded-xl bg-[#F5F1E6]/50 border border-[#DDE7E0]/40">
                                                 <p className="text-xs font-semibold text-[#686766] uppercase mb-1">Phone</p>
-                                                <p className="text-sm font-medium text-[#27261C]">{user.phone}</p>
+                                                <p className="text-sm font-medium text-[#27261C]">{user.phoneNumber}</p>
                                             </div>
                                         )}
                                     </div>
@@ -198,11 +197,11 @@ export default function BookingConfirmationClient() {
                                         <span className="text-[#686766]">Taxes</span>
                                         <span className="font-medium text-[#27261C]">₹100</span>
                                     </div>
-                                    {booking.discountAmount > 0 && (
+                                    {(booking.discountAmount ?? 0) > 0 && (
                                         <div className="flex justify-between text-sm p-2 bg-green-50 rounded">
                                             <span className="text-green-700 font-medium">Discount</span>
                                             <span className="font-medium text-green-700">
-                                                −₹{booking.discountAmount.toLocaleString()}
+                                                −₹{(booking.discountAmount ?? 0).toLocaleString()}
                                             </span>
                                         </div>
                                     )}
@@ -234,15 +233,15 @@ export default function BookingConfirmationClient() {
                                 {/* Trust Signals */}
                                 <div className="mt-6 pt-6 border-t border-[#DDE7E0]/60 space-y-3 text-xs text-[#686766]">
                                     <div className="flex items-start gap-2">
-                                        <CheckCircle2 className="w-4 h-4 text-[#005246] flex-shrink-0 mt-0.5" />
+                                        <CheckCircle2 className="w-4 h-4 text-[#005246] shrink-0 mt-0.5" />
                                         <span>Payment processed securely</span>
                                     </div>
                                     <div className="flex items-start gap-2">
-                                        <CheckCircle2 className="w-4 h-4 text-[#005246] flex-shrink-0 mt-0.5" />
+                                        <CheckCircle2 className="w-4 h-4 text-[#005246] shrink-0 mt-0.5" />
                                         <span>Confirmation email sent</span>
                                     </div>
                                     <div className="flex items-start gap-2">
-                                        <CheckCircle2 className="w-4 h-4 text-[#005246] flex-shrink-0 mt-0.5" />
+                                        <CheckCircle2 className="w-4 h-4 text-[#005246] shrink-0 mt-0.5" />
                                         <span>Cancellation available anytime</span>
                                     </div>
                                 </div>
@@ -251,7 +250,7 @@ export default function BookingConfirmationClient() {
                     </div>
 
                     {/* Call to Action */}
-                    <div className="bg-gradient-to-r from-[#005246]/10 to-[#4F87C7]/10 rounded-2xl p-8 border border-[#DDE7E0]/30 text-center">
+                    <div className="bg-linear-to-r from-[#005246]/10 to-[#4F87C7]/10 rounded-2xl p-8 border border-[#DDE7E0]/30 text-center">
                         <h3 className="text-xl sm:text-2xl font-bold text-[#27261C] mb-3">Ready for your next adventure?</h3>
                         <p className="text-[#686766] mb-6 max-w-2xl mx-auto">
                             Check out our other tours, treks, and homestays to plan your next trip

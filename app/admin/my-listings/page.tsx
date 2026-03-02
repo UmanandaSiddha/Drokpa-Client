@@ -66,7 +66,7 @@ function VehicleSection() {
     const { data, isLoading } = useMyVehicles()
 
     if (isLoading) return <div className="admin-loading"><Loader2 size={24} className="admin-loading__spinner" /></div>
-    if (!data || data.length === 0) {
+    if (!data || !data.data || data.data.length === 0) {
         return (
             <div className="admin-empty">
                 <Car size={36} className="admin-empty__icon" />
@@ -77,7 +77,7 @@ function VehicleSection() {
 
     return (
         <div className="admin-listing-grid">
-            {data.map((v) => (
+            {data.data.map((v) => (
                 <div key={v.id} className="admin-listing-card">
                     {v.imageUrls?.[0] ? (
                         <img src={v.imageUrls[0]} alt={v.name} className="admin-listing-card__img" />

@@ -101,7 +101,11 @@ function DashboardContent() {
                     </div>
                 </div>
             </div>
-        </div>  
+        </div>
+    )
+}
+
+export default function AdminDashboardPage() {
     return (
         <RoleGuard allowedRoles={[UserRole.ADMIN]}>
             <DashboardContent />

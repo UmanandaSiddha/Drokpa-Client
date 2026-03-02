@@ -229,27 +229,32 @@ export default function TourBookingPage({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Check authentication before submission
         if (!user) {
             setShowLoginModal(true);
             return;
         }
-        
+
         try {
             setFormSubmitted(true);
-            
+
+            const startDate = new Date();
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + 1);
+
             // Create booking request with form data
             const bookingData: RequestTourBookingRequest = {
                 tourId: tourId,
-                participantCount: formData.participants.length,
+                startDate: startDate.toISOString().split("T")[0],
+                endDate: endDate.toISOString().split("T")[0],
+                participants: formData.participants.length,
                 specialRequests: formData.specialRequests,
-                // Additional fields based on RequestTourBookingRequest type
             };
-            
+
             // Call booking service
             const booking = await bookingService.requestTourBooking(bookingData);
-            
+
             // Redirect to checkout with booking ID
             if (booking?.id) {
                 window.location.href = `/checkout?bookingId=${booking.id}`;
@@ -263,8 +268,8 @@ export default function TourBookingPage({
 
     return (
         <div className="min-h-screen bg-white">
-            <LoginRequiredModal 
-                isOpen={showLoginModal} 
+            <LoginRequiredModal
+                isOpen={showLoginModal}
                 onClose={() => setShowLoginModal(false)}
                 title="Sign In to Book Your Tour"
                 message="You need to be logged in to book a tour. Please sign in to continue with your booking."
