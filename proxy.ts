@@ -4,7 +4,11 @@ import type { NextRequest } from 'next/server'
 export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl
 
-    if (pathname.startsWith('/admin')) {
+    if (
+        pathname.startsWith('/admin') ||
+        pathname.startsWith('/account') ||
+        pathname.startsWith('/checkout')
+    ) {
         const hasRefreshToken = request.cookies.has('refreshToken')
 
         if (!hasRefreshToken) {
@@ -18,5 +22,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*'],
+    matcher: ['/admin/:path*', '/account/:path*', '/checkout/:path*'],
 }
