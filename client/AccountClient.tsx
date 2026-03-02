@@ -180,8 +180,6 @@ export default function AccountPage() {
         return null;
     }
 
-    console.log(user);
-
     const userDisplayName = `${user.firstName} ${user.lastName}`;
     const memberSince = `Member since ${new Date(user.createdAt).getFullYear()}`;
     const userLevel = user.isVerified ? "Verified Explorer" : "Explorer";
