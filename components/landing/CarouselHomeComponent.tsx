@@ -2,28 +2,64 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Heart, Star } from "lucide-react";
-import { Tour } from "@/data/tours";
 import { TourType } from "@/types/tour";
+import { BookingCriteria } from "@/types/homestay";
 import { GreenStar } from "@/assets";
 import Image from "next/image";
 import Link from "next/link";
 
-interface TourHomeComponentProps {
-	tours: Tour[];
+// Mapped tour/homestay data interface for carousel display
+interface MappedTourData {
+	id: string;
+	slug: string;
+	title: string;
+	image: string;
+	duration?: string;
+	features: string[];
+	price: number;
+	originalPrice: number;
+	discount: string;
+	description: string;
+	rating: number;
+	type: 'TOUR' | 'TREK' | 'HOMESTAY';
+	bookingCriteria?: BookingCriteria;
+}
+
+interface CarouselHomeComponentProps {
+	data: MappedTourData[];
 	title?: string;
 	type?: 'TOUR' | 'TREK' | 'HOMESTAY';
 }
 
-export default function TourHomeComponent({
-	tours,
+export default function CarouselHomeComponent({
+	data,
 	title,
 	type,
-}: TourHomeComponentProps) {
+}: CarouselHomeComponentProps) {
 	const [currentIndex, setCurrentIndex] = useState(0);
-	const [favorites, setFavorites] = useState<Set<number>>(new Set());
+	const [favorites, setFavorites] = useState<Set<string>>(new Set());
 	const [itemsPerView, setItemsPerView] = useState(4);
 	const touchStartX = useRef<number | null>(null);
 	const touchEndX = useRef<number | null>(null);
+
+	// Helper function to get duration/booking criteria label
+	const getDurationLabel = (tour: MappedTourData): string => {
+		if (type === "HOMESTAY") {
+			switch (tour.bookingCriteria) {
+				case BookingCriteria.PER_PERSON:
+					return "Per Person";
+				case BookingCriteria.HYBRID:
+					return "Hybrid";
+				case BookingCriteria.PER_NIGHT:
+				default:
+					return "Per Night";
+			}
+		}
+
+		const days = parseInt(tour.duration || "0", 10) || 0;
+		const nights = Math.max(0, days - 1);
+		return days > 1 ? `${days} Days - ${nights} Nights` : `${days} Day`;
+	};
 
 	useEffect(() => {
 		const updateItemsPerView = () => {
@@ -45,7 +81,7 @@ export default function TourHomeComponent({
 	}, []);
 
 	const handleNext = () => {
-		if (currentIndex < tours.length - itemsPerView) {
+		if (currentIndex < data.length - itemsPerView) {
 			setCurrentIndex(currentIndex + 1);
 		}
 	};
@@ -76,7 +112,7 @@ export default function TourHomeComponent({
 		}
 	};
 
-	const toggleFavorite = (id: number) => {
+	const toggleFavorite = (id: string) => {
 		setFavorites((prev) => {
 			const updated = new Set(prev);
 			updated.has(id) ? updated.delete(id) : updated.add(id);
@@ -84,7 +120,13 @@ export default function TourHomeComponent({
 		});
 	};
 
-	if (!tours?.length) return null;
+	const getViewAllLink = (): string => {
+		if (type === "HOMESTAY") return "/homestays";
+		if (type === "TREK") return "/treks";
+		return "/tours";
+	};
+
+	if (!data?.length) return null;
 
 	const gap = 1.5; // 1.5rem = 24px = gap-6
 	const gapTotal = gap * (itemsPerView - 1);
@@ -108,24 +150,34 @@ export default function TourHomeComponent({
 						{title}
 					</h1>
 
-					<div className="flex gap-2">
-						<button
-							onClick={handlePrev}
-							disabled={currentIndex === 0}
-							className="w-8 h-8 md:w-10 md:h-10 bg-gray-200 rounded-xl flex items-center justify-center hover:bg-gray-50 transition disabled:opacity-50"
-							style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
+					<div className="flex items-center gap-3 sm:gap-4">
+						<Link
+							href={getViewAllLink()}
+							className="hidden sm:inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm text-[#353030] border border-[#DDE7E0]/70 hover:border-[#005246] transition"
+							style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
 						>
-							<ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
-						</button>
+							View all
+							<ChevronRight className="w-4 h-4" />
+						</Link>
+						<div className="flex gap-2">
+							<button
+								onClick={handlePrev}
+								disabled={currentIndex === 0}
+								className="w-8 h-8 md:w-10 md:h-10 bg-gray-200 rounded-xl flex items-center justify-center hover:bg-gray-50 transition disabled:opacity-50"
+								style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
+							>
+								<ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
+							</button>
 
-						<button
-							onClick={handleNext}
-							disabled={currentIndex >= tours.length - itemsPerView}
-							className="w-8 h-8 md:w-10 md:h-10 bg-gray-900 rounded-xl flex items-center justify-center hover:bg-gray-800 transition disabled:opacity-50"
-							style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
-						>
-							<ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-white" />
-						</button>
+							<button
+								onClick={handleNext}
+								disabled={currentIndex >= data.length - itemsPerView}
+								className="w-8 h-8 md:w-10 md:h-10 bg-gray-900 rounded-xl flex items-center justify-center hover:bg-gray-800 transition disabled:opacity-50"
+								style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500 }}
+							>
+								<ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-white" />
+							</button>
+						</div>
 					</div>
 				</div>
 
@@ -152,11 +204,17 @@ export default function TourHomeComponent({
 							willChange: "transform"
 						}}
 					>
-						{tours.map((tour) => (
+						{data.map((tour: MappedTourData) => (
 							<Link
 								key={tour.id}
-								href={type === 'HOMESTAY' ? `/homestays/${tour.id}` : type === 'TREK' ? `/treks/${tour.id}` : `/tours/${tour.id}`}
-								className="flex-shrink-0 bg-white overflow-hidden"
+								href={
+									type === 'HOMESTAY'
+										? `/homestays/${tour.slug}`
+										: tour.type === 'TREK'
+											? `/treks/${tour.slug}`
+											: `/tours/${tour.slug}`
+								}
+								className="shrink-0 bg-white overflow-hidden"
 								style={{ width: cardWidthPercent }}
 							>
 								{/* Image */}
@@ -174,13 +232,13 @@ export default function TourHomeComponent({
 										<div
 											className="absolute bottom-3 right-3 md:bottom-4 md:right-4 px-2.5 py-1.5 md:px-3 md:py-2 rounded-full text-[10px] md:text-xs font-semibold"
 											style={{
-												backgroundColor: type === 'TREK' ? '#FC611E' : '#005246',
+												backgroundColor: tour.type === 'TREK' ? '#FC611E' : '#005246',
 												color: 'white',
 												fontFamily: "var(--font-mona-sans), sans-serif",
 												fontWeight: 600,
 											}}
 										>
-											{type === 'TREK' ? 'Trek' : 'Tour'}
+											{tour.type === 'TREK' ? 'Trek' : 'Tour'}
 										</div>
 									)}
 
@@ -194,7 +252,7 @@ export default function TourHomeComponent({
 											color: "#27261C"
 										}}
 									>
-										{tour.duration}
+										{getDurationLabel(tour)}
 									</div>
 
 									{/* Heart Icon */}
@@ -225,7 +283,7 @@ export default function TourHomeComponent({
 										>
 											{tour.title}
 										</h3>
-										<div className="flex items-center gap-1 flex-shrink-0">
+										<div className="flex items-center gap-1 shrink-0">
 											<Image src={GreenStar} alt="Green Star" className="w-3 h-3 md:w-4 md:h-4" width={16} height={16} />
 											<span
 												className="text-xs md:text-sm font-semibold"
@@ -255,7 +313,7 @@ export default function TourHomeComponent({
 
 									{/* Activity Tags */}
 									<div className="flex flex-wrap gap-1.5 md:gap-2 mb-3 md:mb-4">
-										{tour.features.map((feature, i) => (
+										{tour.features.map((feature: string, i: number) => (
 											<span
 												key={i}
 												className="px-2 py-0.5 md:px-3 md:py-1 rounded-lg text-[10px] md:text-xs font-medium"
@@ -293,27 +351,29 @@ export default function TourHomeComponent({
 										>
 											person
 										</span>
-										<span
-											className="text-xs md:text-base line-through ml-1 md:ml-2"
-											style={{
-												fontFamily: "var(--font-mona-sans), sans-serif",
-												fontWeight: 400,
-												color: "#27261C"
-											}}
-										>
-											₹{tour.originalPrice.toLocaleString("en-IN")}
-										</span>
 										{tour.discount && (
-											<div
-												className="ml-1 md:ml-2 px-1.5 py-0.5 md:px-2 md:py-1 rounded-sm text-xs md:text-sm font-normal text-white"
-												style={{
-													backgroundColor: "#008C4D",
-													fontFamily: "var(--font-mona-sans), sans-serif",
-													fontWeight: 700
-												}}
-											>
-												{tour.discount}
-											</div>
+											<>
+												<span
+													className="text-xs md:text-base line-through ml-1 md:ml-2"
+													style={{
+														fontFamily: "var(--font-mona-sans), sans-serif",
+														fontWeight: 400,
+														color: "#27261C"
+													}}
+												>
+													₹{tour.originalPrice.toLocaleString("en-IN")}
+												</span>
+												<div
+													className="ml-1 md:ml-2 px-1.5 py-0.5 md:px-2 md:py-1 rounded-sm text-xs md:text-sm font-normal text-white"
+													style={{
+														backgroundColor: "#008C4D",
+														fontFamily: "var(--font-mona-sans), sans-serif",
+														fontWeight: 700
+													}}
+												>
+													{tour.discount}
+												</div>
+											</>
 										)}
 									</div>
 								</div>

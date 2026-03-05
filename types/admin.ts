@@ -83,9 +83,24 @@ export interface CancellationPolicyQueryParams {
     productId?: string;
 }
 
-export type AdminAssignableRole = 'HOST' | 'VENDOR' | 'GUIDE';
+export type AdminUserRole = 'ADMIN' | 'USER' | 'HOST' | 'VENDOR' | 'GUIDE';
 
 export interface AssignRoleRequest {
-    role: AdminAssignableRole;
+    role: AdminUserRole;
     providerTypes?: ProviderType[];
+}
+
+export interface AdminUpdateUserRequest {
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    phoneNumber?: string;
+    avatarUrl?: string;
+    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+    isVerified?: boolean;
+    isDisabled?: boolean;
+}
+
+export interface AdminSetUserPasswordRequest {
+    password: string;
 }

@@ -70,7 +70,8 @@ apiClient.interceptors.response.use(
                 return apiClient(originalRequest);
             } catch (err: any) {
                 // If refresh token is missing (404) or invalid, mark as failed to prevent infinite retries
-                if (err.response?.status === 404 || err.response?.status === 401) {
+                // 403 also means the refresh session is expired/invalid in our backend.
+                if (err.response?.status === 404 || err.response?.status === 401 || err.response?.status === 403) {
                     refreshTokenFailed = true;
                 }
                 processQueue(err, null);

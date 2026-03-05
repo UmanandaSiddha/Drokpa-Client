@@ -28,7 +28,8 @@ export function useAuth() {
                 return res.data as User
             } catch (error: any) {
                 // If unauthorized or refresh failed, return null instead of throwing
-                if (error.response?.status === 401 || error.response?.status === 404) {
+                // 403 can happen when refresh-token endpoint reports Session expired.
+                if (error.response?.status === 401 || error.response?.status === 403 || error.response?.status === 404) {
                     return null
                 }
                 throw error

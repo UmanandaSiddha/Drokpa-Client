@@ -168,7 +168,9 @@ export default function ToursPage() {
                                         <div className="grid grid-cols-2 gap-2 text-sm">
                                             <div className="flex items-center gap-1.5 text-gray-600">
                                                 <Clock size={16} />
-                                                <span>{tour.duration} days</span>
+                                                <span>
+                                                    {tour.duration} {tour.duration === 1 ? 'day' : 'days'}
+                                                </span>
                                             </div>
                                             <div className="flex items-center gap-1.5 text-gray-600">
                                                 <Users size={16} />
@@ -179,9 +181,31 @@ export default function ToursPage() {
                                         {/* Price & Status */}
                                         <div className="flex items-center justify-between pt-2 border-t">
                                             <div>
-                                                <p className="text-xl font-bold text-[#005246]">
-                                                    ₹{(tour.price || tour.basePrice)?.toLocaleString('en-IN') || '0'}
-                                                </p>
+                                                {(() => {
+                                                    const basePrice = Number(tour.basePrice ?? tour.price ?? 0)
+                                                    const discount = Number(tour.discount ?? 0)
+                                                    const finalPrice = Number(
+                                                        tour.finalPrice ??
+                                                        (discount > 0 ? Math.round(basePrice * (1 - discount / 100)) : basePrice)
+                                                    )
+                                                    const hasDiscount = discount > 0 && finalPrice > 0 && finalPrice < basePrice
+
+                                                    return (
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-xl font-bold text-[#005246]">
+                                                                ₹{finalPrice.toLocaleString('en-IN')}
+                                                            </p>
+                                                            {hasDiscount && (
+                                                                <div className="flex items-center gap-2">
+                                                                    <p className="text-xs text-gray-500 line-through">
+                                                                        ₹{basePrice.toLocaleString('en-IN')}
+                                                                    </p>
+                                                                    <span className="text-xs font-medium text-[#005246]">{discount}% off</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )
+                                                })()}
                                             </div>
                                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${tour.isActive
                                                 ? 'bg-green-100 text-green-700'

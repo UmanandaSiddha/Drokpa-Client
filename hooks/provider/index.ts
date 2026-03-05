@@ -71,10 +71,11 @@ export function useResendOnboarding() {
     });
 }
 
-export function useAdminProviders(params?: ProviderQueryParams) {
+export function useAdminProviders(params?: ProviderQueryParams, enabled: boolean = true) {
     return useQuery({
         queryKey: PROVIDER_KEYS.allProviders(params),
         queryFn: () => providerService.getProvidersAdmin(params),
+        enabled,
     });
 }
 

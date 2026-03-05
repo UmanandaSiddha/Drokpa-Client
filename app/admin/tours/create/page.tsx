@@ -33,6 +33,7 @@ interface TourFormData {
     highlights: string[]
     imageUrls: string[]
     isActive: boolean
+    brochure?: string
     addressId?: string
     guideId?: string
     tags: string[]
@@ -58,11 +59,8 @@ export default function CreateTourPage() {
         imageUrls: [],
         isActive: true,
         tags: [],
+        brochure: '',
     })
-
-    const [includedText, setIncludedText] = useState('')
-    const [notIncludedText, setNotIncludedText] = useState('')
-    const [highlightsText, setHighlightsText] = useState('')
 
     // Tags, Address, Guide state
     const [tagSearch, setTagSearch] = useState('')
@@ -203,10 +201,9 @@ export default function CreateTourPage() {
             return
         }
 
-        // Parse array fields from text
-        const included = includedText.split('\n').filter(line => line.trim())
-        const notIncluded = notIncludedText.split('\n').filter(line => line.trim())
-        const highlights = highlightsText.split('\n').filter(line => line.trim())
+        const included = (formData.included || []).map((v) => v.trim()).filter(Boolean)
+        const notIncluded = (formData.notIncluded || []).map((v) => v.trim()).filter(Boolean)
+        const highlights = (formData.highlights || []).map((v) => v.trim()).filter(Boolean)
 
         const tourData = {
             title: formData.title,
@@ -220,6 +217,7 @@ export default function CreateTourPage() {
             included: included.length > 0 ? included : undefined,
             notIncluded: notIncluded.length > 0 ? notIncluded : undefined,
             highlights: highlights.length > 0 ? highlights : undefined,
+            brochure: formData.brochure?.trim() ? formData.brochure.trim() : undefined,
             imageUrls: formData.imageUrls,
             isActive: formData.isActive,
             tags: formData.tags.length > 0 ? formData.tags : undefined,
@@ -228,8 +226,8 @@ export default function CreateTourPage() {
         }
 
         createTour.mutate(tourData, {
-            onSuccess: () => {
-                router.push('/admin/tours')
+            onSuccess: (created) => {
+                router.push(`/admin/tours/${created.id}`)
             },
             onError: (error: any) => {
                 console.error('Failed to create tour:', error)
@@ -617,37 +615,114 @@ export default function CreateTourPage() {
 
                                 {/* Included */}
                                 <div className="space-y-2">
-                                    <Label htmlFor="included">Included (one per line)</Label>
-                                    <Textarea
-                                        id="included"
-                                        value={includedText}
-                                        onChange={(e) => setIncludedText(e.target.value)}
-                                        placeholder="Accommodation&#10;Meals (Breakfast, Lunch, Dinner)&#10;Transportation&#10;Professional Guide"
-                                        className="min-h-24 font-mono text-sm"
-                                    />
+                                    <Label>Included</Label>
+                                    <div className="space-y-2">
+                                        {formData.included.map((item, index) => (
+                                            <div key={index} className="flex gap-2">
+                                                <Input
+                                                    value={item}
+                                                    onChange={(e) => {
+                                                        const next = [...formData.included]
+                                                        next[index] = e.target.value
+                                                        handleInputChange('included', next)
+                                                    }}
+                                                    placeholder="Enter included item"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleInputChange('included', formData.included.filter((_, i) => i !== index))}
+                                                    className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button
+                                            type="button"
+                                            onClick={() => handleInputChange('included', [...formData.included, ''])}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                        >
+                                            + Add Included Item
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Not Included */}
                                 <div className="space-y-2">
-                                    <Label htmlFor="notIncluded">Not Included (one per line)</Label>
-                                    <Textarea
-                                        id="notIncluded"
-                                        value={notIncludedText}
-                                        onChange={(e) => setNotIncludedText(e.target.value)}
-                                        placeholder="Personal expenses&#10;Travel insurance&#10;Alcohol and soft drinks"
-                                        className="min-h-24 font-mono text-sm"
-                                    />
+                                    <Label>Not Included</Label>
+                                    <div className="space-y-2">
+                                        {formData.notIncluded.map((item, index) => (
+                                            <div key={index} className="flex gap-2">
+                                                <Input
+                                                    value={item}
+                                                    onChange={(e) => {
+                                                        const next = [...formData.notIncluded]
+                                                        next[index] = e.target.value
+                                                        handleInputChange('notIncluded', next)
+                                                    }}
+                                                    placeholder="Enter not included item"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleInputChange('notIncluded', formData.notIncluded.filter((_, i) => i !== index))}
+                                                    className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button
+                                            type="button"
+                                            onClick={() => handleInputChange('notIncluded', [...formData.notIncluded, ''])}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                        >
+                                            + Add Not Included Item
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Highlights */}
                                 <div className="space-y-2">
-                                    <Label htmlFor="highlights">Highlights (one per line)</Label>
-                                    <Textarea
-                                        id="highlights"
-                                        value={highlightsText}
-                                        onChange={(e) => setHighlightsText(e.target.value)}
-                                        placeholder="Visit famous monasteries&#10;Experience local culture&#10;Scenic mountain views"
-                                        className="min-h-24 font-mono text-sm"
+                                    <Label>Highlights</Label>
+                                    <div className="space-y-2">
+                                        {formData.highlights.map((item, index) => (
+                                            <div key={index} className="flex gap-2">
+                                                <Input
+                                                    value={item}
+                                                    onChange={(e) => {
+                                                        const next = [...formData.highlights]
+                                                        next[index] = e.target.value
+                                                        handleInputChange('highlights', next)
+                                                    }}
+                                                    placeholder="Enter highlight"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleInputChange('highlights', formData.highlights.filter((_, i) => i !== index))}
+                                                    className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button
+                                            type="button"
+                                            onClick={() => handleInputChange('highlights', [...formData.highlights, ''])}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                        >
+                                            + Add Highlight
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Brochure */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="brochure">Brochure URL (Optional)</Label>
+                                    <Input
+                                        id="brochure"
+                                        value={formData.brochure || ''}
+                                        onChange={(e) => handleInputChange('brochure', e.target.value)}
+                                        placeholder="https://..."
                                     />
                                 </div>
                             </div>

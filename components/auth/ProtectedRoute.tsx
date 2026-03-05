@@ -48,7 +48,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
     if (isLoading) {
         return (
-            <LoadingComponent message="Loading..." size="medium" />
+            <LoadingComponent message="" size="medium" />
         )
     }
 

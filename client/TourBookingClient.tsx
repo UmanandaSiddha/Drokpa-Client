@@ -20,10 +20,12 @@ import { useCountryOptions } from "@/hooks/useCountryOptions";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { LoginRequiredModal } from "@/components/auth/LoginRequiredModal";
 import { bookingService } from "@/services/booking.service";
+import { tourService } from "@/services/tour.service";
 import type { RequestTourBookingRequest } from "@/types/booking";
+import type { Tour as ApiTour } from "@/types/tour";
 import Image from "next/image";
 import GalleryLightbox from "@/components/GalleryLightbox";
-import tours from "@/data/tours";
+import { LoadingComponent } from "@/components/LoadingComponent";
 
 export default function TourBookingPage({
     params,
@@ -32,6 +34,9 @@ export default function TourBookingPage({
 }) {
     const { user, isLoading: authLoading } = useAuth();
     const [tourId, setTourId] = useState<string | null>(null);
+    // undefined = not loaded yet, null = failed/not found
+    const [apiTour, setApiTour] = useState<ApiTour | null | undefined>(undefined);
+    const [isTourLoading, setIsTourLoading] = useState(false);
     const [selectedImage, setSelectedImage] = useState(0);
     const [prevImage, setPrevImage] = useState(0);
     const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -52,6 +57,7 @@ export default function TourBookingPage({
         let mounted = true;
         params.then((p) => {
             if (mounted) {
+                setApiTour(undefined);
                 setTourId(p.tourId);
             }
         });
@@ -60,64 +66,90 @@ export default function TourBookingPage({
         };
     }, [params]);
 
-    const tour = tourId ? tours.find((t) => t.id === Number(tourId)) : null;
+    useEffect(() => {
+        if (!tourId) return;
 
-    // Extended tour data with additional details
-    const tourData = tour ? {
-        ...tour,
-        location: "Tawang, Arunachal Pradesh",
-        reviews: 156,
-        groupSize: "10 people",
-        images: [
-            tour.image,
-            "https://images.unsplash.com/photo-1578824381648-52f000bb5f9f?q=80&w=2071&auto=format&fit=crop",
-            "https://images.unsplash.com/photo-1606044466411-207a9a49711f?q=80&w=2070&auto=format&fit=crop",
-        ],
-        brochure: "/tour-brochure.pdf",
-        highlights: tour.features,
-        itinerary: [
-            {
-                day: 1,
-                title: "Arrival & Orientation",
-                description: "Arrive at the starting point, meet your guide, and get briefed about the journey ahead.",
-                activities: ["Welcome briefing", "Equipment check", "Local orientation"],
-                meals: ["Dinner"]
-            },
-            {
-                day: 2,
-                title: "Main Adventure Begins",
-                description: "Start your journey with the first major activity and exploration.",
-                activities: ["Main activity", "Sightseeing", "Cultural experience"],
-                meals: ["Breakfast", "Lunch", "Dinner"]
-            },
-            {
-                day: 3,
-                title: "Full Day Experience",
-                description: "Immerse yourself in the complete experience with guided tours and activities.",
-                activities: ["Guided tours", "Local interactions", "Photography"],
-                meals: ["Breakfast", "Lunch", "Dinner"]
-            },
-            {
-                day: 4,
-                title: "Departure",
-                description: "Final activities and departure from the destination.",
-                activities: ["Final activities", "Farewell"],
-                meals: ["Breakfast"]
-            }
-        ],
-        included: [
-            "Accommodation in best homestays",
-            "Breakfast provided daily",
-            "Comfortable vehicle for all travel",
-            "Entry fees & Inner Line Permit included",
-            "Experienced local guide"
-        ],
-        excluded: [
-            "Lunch & Dinner",
-            "Personal expenses",
-            "Tips and additional activities not mentioned"
-        ]
-    } : null;
+        let mounted = true;
+        setIsTourLoading(true);
+        setApiTour(undefined);
+
+        tourService
+            .getTour(tourId)
+            .then((data) => {
+                if (!mounted) return;
+                setApiTour(data);
+            })
+            .catch((error) => {
+                console.error("[TourBookingPage] Failed to load tour:", error);
+                if (!mounted) return;
+                setApiTour(null);
+            })
+            .finally(() => {
+                if (!mounted) return;
+                setIsTourLoading(false);
+            });
+
+        return () => {
+            mounted = false;
+        };
+    }, [tourId]);
+
+    const tourData = apiTour
+        ? (() => {
+            const days = Number(apiTour.duration) || 0;
+            const nights = Math.max(0, days - 1);
+
+            const durationLabel = days > 1 ? `${days} Days - ${nights} Nights` : `${days} Day`;
+
+            const location = [apiTour.address?.city, apiTour.address?.state]
+                .filter(Boolean)
+                .join(", ");
+
+            const images = (apiTour.imageUrls || []).filter((url) => typeof url === "string" && url.trim().length > 0);
+
+            const itinerary = (apiTour.itinerary || [])
+                .slice()
+                .sort((a, b) => a.dayNumber - b.dayNumber)
+                .map((day) => {
+                    const details = (day.details || {}) as Record<string, unknown>;
+                    const description = typeof details.description === "string" ? details.description : "";
+                    const activities = Array.isArray(details.activities)
+                        ? details.activities.filter((v): v is string => typeof v === "string")
+                        : [];
+                    const meals = Array.isArray(details.meals)
+                        ? details.meals.filter((v): v is string => typeof v === "string")
+                        : [];
+
+                    return {
+                        day: day.dayNumber,
+                        title: day.title,
+                        description,
+                        activities,
+                        meals,
+                    };
+                });
+
+            return {
+                id: apiTour.id,
+                title: apiTour.title,
+                description: apiTour.description,
+                rating: apiTour.rating || 0,
+                reviews: apiTour.totalReviews || 0,
+                location,
+                groupSize: `${apiTour.maxCapacity} people`,
+                duration: durationLabel,
+                images,
+                brochure: apiTour.brochure,
+                highlights: apiTour.highlights || [],
+                itinerary,
+                included: apiTour.included || [],
+                excluded: apiTour.notIncluded || [],
+                price: apiTour.finalPrice || 0,
+                originalPrice: apiTour.basePrice || 0,
+                discount: apiTour.discount ? `${apiTour.discount}% off` : "",
+            };
+        })()
+        : null;
 
     const imagesCount = tourData ? tourData.images.length : 0;
 
@@ -151,25 +183,20 @@ export default function TourBookingPage({
         }
     }, [activeParticipantIndex, formData.participants.length]);
 
-    if (!tourId) {
+    if (!tourId || isTourLoading || apiTour === undefined) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center">
-                <div
-                    style={{
-                        fontFamily: "var(--font-mona-sans), sans-serif",
-                        fontWeight: 500,
-                        color: "#686766",
-                    }}
-                >
-                    Loading...
-                </div>
+                <LoadingComponent message="" size="large" />
             </div>
         );
     }
 
     if (!tourData) return notFound();
 
-    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tourData.location)}`;
+    if (!tourData.images.length) return notFound();
+
+    const mapQuery = tourData.location || tourData.title;
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
 
     const handleParticipantChange = (index: number, field: string, value: string | File | null) => {
         // Check auth for file uploads

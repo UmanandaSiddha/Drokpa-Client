@@ -11,6 +11,9 @@ import type {
     AdminBookingQueryParams,
     AdminUserQueryParams,
     CancellationPolicyQueryParams,
+    AdminUpdateUserRequest,
+    AdminSetUserPasswordRequest,
+    AdminUserRole,
 } from "@/types/admin";
 import type { ProviderType } from "@/types/provider";
 
@@ -79,9 +82,34 @@ class AdminService {
         return 'data' in response.data ? response.data.data : response.data;
     }
 
-    async assignRole(userId: string, data: { role: 'HOST' | 'VENDOR' | 'GUIDE'; providerTypes?: ProviderType[] }): Promise<User> {
+    async assignRole(userId: string, data: { role: AdminUserRole; providerTypes?: ProviderType[] }): Promise<User> {
         const response = await apiClient.patch<User | { data: User }>(`/admin/user/${userId}/assign-role`, data);
         return 'data' in response.data ? response.data.data : response.data;
+    }
+
+    async getUserById(userId: string): Promise<{ data: User }> {
+        const response = await apiClient.get<{ data: User }>(`/admin/user/${userId}`);
+        return response.data;
+    }
+
+    async updateUser(userId: string, data: AdminUpdateUserRequest): Promise<{ message: string; data: User }> {
+        const response = await apiClient.patch<{ message: string; data: User }>(`/admin/user/${userId}`, data);
+        return response.data;
+    }
+
+    async addRole(userId: string, data: { role: AdminUserRole; providerTypes?: ProviderType[] }): Promise<{ message: string; data: User } | User> {
+        const response = await apiClient.patch<{ message: string; data: User } | User>(`/admin/user/${userId}/roles/add`, data);
+        return response.data;
+    }
+
+    async removeRole(userId: string, data: { role: AdminUserRole }): Promise<{ message: string }> {
+        const response = await apiClient.patch<{ message: string }>(`/admin/user/${userId}/roles/remove`, data);
+        return response.data;
+    }
+
+    async setUserPassword(userId: string, data: AdminSetUserPasswordRequest): Promise<{ message: string }> {
+        const response = await apiClient.patch<{ message: string }>(`/admin/user/${userId}/password`, data);
+        return response.data;
     }
 
     async getAllUsers(params?: AdminUserQueryParams): Promise<PaginatedResponse<User>> {

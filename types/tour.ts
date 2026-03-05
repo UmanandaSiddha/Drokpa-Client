@@ -2,6 +2,9 @@
 // Tour Types
 // ──────────────────────────────────────────────
 
+import type { Address } from './address';
+import type { LocalGuide } from './guide';
+
 export enum TourType {
     TOUR = 'TOUR',
     TREK = 'TREK',
@@ -75,6 +78,8 @@ export interface Tour {
     addressId?: string;
     providerId?: string;
     guideId?: string;
+    address?: Address;
+    guide?: LocalGuide;
     itinerary?: TourItinerary[];
     tags?: TourTag[];
     createdAt: string;

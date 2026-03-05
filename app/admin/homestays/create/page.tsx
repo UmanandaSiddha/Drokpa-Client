@@ -26,8 +26,8 @@ interface HomestayFormData {
     description: string
     email: string
     phoneNumber: string
-    houseRules: string
-    safetyNSecurity: string
+    houseRules: string[]
+    safetyNSecurity: string[]
     displayPrice: number
     bookingCriteria: BookingCriteria
     imageUrls: string[]
@@ -42,13 +42,23 @@ export default function CreateHomestayPage() {
     const { mutate: createHomestay, isPending } = useCreateHomestay()
     const { uploadFiles, isUploading, uploadProgress, error: uploadError } = useS3Upload()
 
+    const normalizeStringList = (items: string[]) => items.map((s) => (s ?? '').trim()).filter(Boolean)
+
+    const updateStringListItem = (items: string[], index: number, value: string) => {
+        const next = [...items]
+        next[index] = value
+        return next
+    }
+
+    const removeStringListItem = (items: string[], index: number) => items.filter((_, i) => i !== index)
+
     const [formData, setFormData] = useState<HomestayFormData>({
         name: '',
         description: '',
         email: '',
         phoneNumber: '',
-        houseRules: '',
-        safetyNSecurity: '',
+        houseRules: [],
+        safetyNSecurity: [],
         displayPrice: 0,
         bookingCriteria: BookingCriteria.PER_NIGHT,
         imageUrls: [],
@@ -200,19 +210,19 @@ export default function CreateHomestayPage() {
             return
         }
 
-        const processedData = {
-            ...formData,
-            houseRules: formData.houseRules.split('\n').filter((r) => r.trim()),
-            safetyNSecurity: formData.safetyNSecurity.split('\n').filter((s) => s.trim()),
+        const { onBehalfOf, ...dataWithoutOnBehalfOf } = formData
+
+        const payload = {
+            ...dataWithoutOnBehalfOf,
+            houseRules: normalizeStringList(formData.houseRules),
+            safetyNSecurity: normalizeStringList(formData.safetyNSecurity),
         }
 
-        const { onBehalfOf, ...dataWithoutOnBehalfOf } = processedData
-
         createHomestay(
-            { data: dataWithoutOnBehalfOf, onBehalfOf },
+            { data: payload, onBehalfOf },
             {
-                onSuccess: () => {
-                    router.push('/admin/homestays')
+                onSuccess: (created) => {
+                    router.push(`/admin/homestays/${created.id}`)
                 },
             }
         )
@@ -465,28 +475,82 @@ export default function CreateHomestayPage() {
 
                             {/* House Rules */}
                             <div className="space-y-2">
-                                <Label htmlFor="houseRules">House Rules (one per line)</Label>
-                                <Textarea
-                                    id="houseRules"
-                                    name="houseRules"
-                                    value={formData.houseRules}
-                                    onChange={handleChange}
-                                    placeholder="e.g. No smoking&#10;Quiet hours after 10 PM"
-                                    className="min-h-20"
-                                />
+                                <Label>House Rules</Label>
+                                <div className="space-y-2">
+                                    {formData.houseRules.length > 0 ? (
+                                        formData.houseRules.map((rule, idx) => (
+                                            <div key={idx} className="flex gap-2">
+                                                <Input
+                                                    value={rule}
+                                                    onChange={(e) =>
+                                                        setFormData((p) => ({
+                                                            ...p,
+                                                            houseRules: updateStringListItem(p.houseRules, idx, e.target.value),
+                                                        }))
+                                                    }
+                                                    placeholder="e.g. No smoking"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData((p) => ({ ...p, houseRules: removeStringListItem(p.houseRules, idx) }))}
+                                                    className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-300 hover:bg-gray-50"
+                                                    aria-label="Remove rule"
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-gray-500">No rules added.</p>
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData((p) => ({ ...p, houseRules: [...p.houseRules, ''] }))}
+                                        className="text-sm text-[#005246] hover:underline"
+                                    >
+                                        + Add rule
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Safety & Security */}
                             <div className="space-y-2">
-                                <Label htmlFor="safetyNSecurity">Safety & Security (one per line)</Label>
-                                <Textarea
-                                    id="safetyNSecurity"
-                                    name="safetyNSecurity"
-                                    value={formData.safetyNSecurity}
-                                    onChange={handleChange}
-                                    placeholder="e.g. CCTV cameras in common areas&#10;24/7 security guard"
-                                    className="min-h-20"
-                                />
+                                <Label>Safety & Security</Label>
+                                <div className="space-y-2">
+                                    {formData.safetyNSecurity.length > 0 ? (
+                                        formData.safetyNSecurity.map((item, idx) => (
+                                            <div key={idx} className="flex gap-2">
+                                                <Input
+                                                    value={item}
+                                                    onChange={(e) =>
+                                                        setFormData((p) => ({
+                                                            ...p,
+                                                            safetyNSecurity: updateStringListItem(p.safetyNSecurity, idx, e.target.value),
+                                                        }))
+                                                    }
+                                                    placeholder="e.g. CCTV in common areas"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData((p) => ({ ...p, safetyNSecurity: removeStringListItem(p.safetyNSecurity, idx) }))}
+                                                    className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-300 hover:bg-gray-50"
+                                                    aria-label="Remove item"
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-gray-500">No safety items added.</p>
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData((p) => ({ ...p, safetyNSecurity: [...p.safetyNSecurity, ''] }))}
+                                        className="text-sm text-[#005246] hover:underline"
+                                    >
+                                        + Add safety item
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Image Upload */}

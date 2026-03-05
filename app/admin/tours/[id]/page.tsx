@@ -20,7 +20,13 @@ import {
     useLinkPOIToItinerary,
     useRemovePOIFromItinerary,
     usePOIs,
+    useCreatePOI,
 } from '@/hooks/tours'
+import { useAddresses } from '@/hooks/resources'
+import { useDebounce } from '@/hooks/useDebounce'
+import { useS3Upload } from '@/hooks/s3/useS3Upload'
+import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export default function AdminTourDetailPage() {
     const params = useParams<{ id: string }>()
@@ -31,14 +37,79 @@ export default function AdminTourDetailPage() {
     const deleteItineraryDay = useDeleteItineraryDay()
     const linkPOIToItinerary = useLinkPOIToItinerary()
     const removePOIFromItinerary = useRemovePOIFromItinerary()
+    const createPOI = useCreatePOI()
     const { data: poiResponse } = usePOIs({ page: 1, limit: 200 })
     const availablePOIs = Array.isArray(poiResponse?.data) ? poiResponse.data : []
+    const { uploadFiles, isUploading } = useS3Upload()
+
+    const [poiAddressSearch, setPoiAddressSearch] = useState('')
+    const debouncedPoiAddressSearch = useDebounce(poiAddressSearch, 500)
+    const { data: poiAddresses } = useAddresses({ keyword: debouncedPoiAddressSearch })
+    const poiAddressOptions = Array.isArray((poiAddresses as any)?.data)
+        ? (poiAddresses as any).data
+        : Array.isArray(poiAddresses)
+            ? (poiAddresses as any)
+            : []
 
     const [dayForm, setDayForm] = useState({ dayNumber: 1, title: '', details: '' })
     const [isEditingDay, setIsEditingDay] = useState<number | null>(null)
     const [expandedDays, setExpandedDays] = useState<Set<number>>(new Set([1]))
     const [selectedDayForPOI, setSelectedDayForPOI] = useState<number | null>(null)
     const [showPOIModal, setShowPOIModal] = useState(false)
+    const [poiDialogMode, setPoiDialogMode] = useState<'select' | 'create'>('select')
+    const [poiSpecialtyInput, setPoiSpecialtyInput] = useState('')
+    const [poiForm, setPoiForm] = useState({
+        name: '',
+        description: '',
+        specialty: [] as string[],
+        addressId: '',
+        latitude: '',
+        longitude: '',
+        images: [] as File[],
+    })
+
+    const resetPoiForm = () => {
+        setPoiDialogMode('select')
+        setPoiSpecialtyInput('')
+        setPoiAddressSearch('')
+        setPoiForm({
+            name: '',
+            description: '',
+            specialty: [],
+            addressId: '',
+            latitude: '',
+            longitude: '',
+            images: [],
+        })
+    }
+
+    const handleCreatePOIAndAttach = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!tourId) return
+        if (!poiForm.name.trim()) return
+
+        try {
+            const uploadedUrls = poiForm.images.length
+                ? await uploadFiles(poiForm.images, 'poi', tourId)
+                : []
+
+            const created = await createPOI.mutateAsync({
+                name: poiForm.name.trim(),
+                description: poiForm.description.trim() || undefined,
+                specialty: poiForm.specialty.length ? poiForm.specialty : undefined,
+                imageUrls: uploadedUrls.length ? uploadedUrls : undefined,
+                addressId: poiForm.addressId || undefined,
+                latitude: poiForm.latitude ? Number(poiForm.latitude) : undefined,
+                longitude: poiForm.longitude ? Number(poiForm.longitude) : undefined,
+            })
+
+            if (created?.id) {
+                handleAddPOI(created.id)
+            }
+        } catch (err) {
+            console.error('Failed to create POI', err)
+        }
+    }
 
     const itinerary = Array.isArray(tour?.itinerary) ? [...tour.itinerary].sort((a, b) => a.dayNumber - b.dayNumber) : []
 
@@ -211,6 +282,37 @@ export default function AdminTourDetailPage() {
                                         <p className="text-gray-500">Status</p>
                                         <p className="font-medium">{tour.isActive ? 'Active' : 'Inactive'}</p>
                                     </div>
+                                    <div className="p-3 bg-gray-50 rounded-lg">
+                                        <p className="text-gray-500">Location</p>
+                                        <p className="font-medium">
+                                            {tour.address?.city && tour.address?.state
+                                                ? `${tour.address.city}, ${tour.address.state}`
+                                                : tour.addressId ?? '-'}
+                                        </p>
+                                    </div>
+                                    {tour.type === 'TREK' && (
+                                        <div className="p-3 bg-gray-50 rounded-lg">
+                                            <p className="text-gray-500">Guide</p>
+                                            <p className="font-medium">
+                                                {tour.guide?.provider?.name || tour.guideId || '-'}
+                                            </p>
+                                        </div>
+                                    )}
+                                    <div className="p-3 bg-gray-50 rounded-lg">
+                                        <p className="text-gray-500">Brochure</p>
+                                        {tour.brochure ? (
+                                            <a
+                                                href={tour.brochure}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="font-medium text-[#005246] hover:underline"
+                                            >
+                                                Open
+                                            </a>
+                                        ) : (
+                                            <p className="font-medium">-</p>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {tour.about && (
@@ -274,140 +376,148 @@ export default function AdminTourDetailPage() {
                             </div>
 
                             <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
-                                <h3 className="text-lg font-semibold flex items-center gap-2">
-                                    <Plus size={18} />
-                                    {isEditingDay ? `Edit Day ${isEditingDay}` : 'Add Itinerary Day'}
-                                </h3>
-                                <form onSubmit={handleAddDay} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium">Day Number</label>
-                                        <input
-                                            type="number"
-                                            min={1}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                                            value={dayForm.dayNumber}
-                                            onChange={(e) => setDayForm((p) => ({ ...p, dayNumber: Number(e.target.value) }))}
-                                            required
-                                            disabled={!!isEditingDay}
-                                        />
-                                    </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <label className="text-sm font-medium">Title</label>
-                                        <input className="w-full border border-gray-300 rounded-lg px-3 py-2" value={dayForm.title} onChange={(e) => setDayForm((p) => ({ ...p, title: e.target.value }))} required />
-                                    </div>
-                                    <div className="space-y-2 md:col-span-3">
-                                        <label className="text-sm font-medium">Details</label>
-                                        <textarea
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 min-h-24"
-                                            value={dayForm.details}
-                                            onChange={(e) => setDayForm((p) => ({ ...p, details: e.target.value }))}
-                                            placeholder="Describe what happens on this day"
-                                        />
-                                    </div>
-                                    <div className="md:col-span-3 flex items-center gap-2">
-                                        <button
-                                            type="submit"
-                                            disabled={addItineraryDay.isPending || updateItineraryDay.isPending}
-                                            className="w-fit px-5 py-2.5 bg-[#005246] text-white rounded-lg hover:bg-[#003d34] disabled:opacity-50 flex items-center gap-2"
-                                        >
-                                            {(addItineraryDay.isPending || updateItineraryDay.isPending) && <Loader2 size={16} className="animate-spin" />}
-                                            {isEditingDay ? 'Update Day' : 'Add Day'}
-                                        </button>
-                                        {isEditingDay && (
-                                            <button type="button" onClick={resetDayForm} className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">
-                                                Cancel Edit
-                                            </button>
-                                        )}
-                                    </div>
-                                </form>
-                            </div>
+                                <h3 className="text-lg font-semibold">Itinerary</h3>
+                                <p className="text-sm text-gray-600">Create days and add POIs in the same section.</p>
 
-                            <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
-                                <h3 className="text-lg font-semibold">Itinerary ({itinerary.length})</h3>
-                                {itinerary.length === 0 && (
-                                    <p className="text-gray-600">No itinerary days added yet.</p>
-                                )}
-                                {itinerary.length > 0 && (
-                                    <div className="space-y-3">
-                                        {itinerary.map((day) => (
-                                            <div key={day.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                                                <div className="px-4 py-3 bg-gray-50 flex items-center justify-between gap-3">
-                                                    <div className="flex items-center gap-3">
-                                                        <button onClick={() => toggleDay(day.dayNumber)} className="p-1 rounded hover:bg-gray-100">
-                                                            {expandedDays.has(day.dayNumber) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                                                        </button>
-                                                        <div>
-                                                            <p className="text-sm text-gray-500">Day {day.dayNumber}</p>
-                                                            <p className="font-semibold">{day.title}</p>
-                                                            <p className="text-xs text-gray-500">POIs: {day.pois?.length ?? 0}</p>
+                                <div className="rounded-lg border border-gray-200 p-4 space-y-3">
+                                    <h4 className="text-sm font-semibold flex items-center gap-2">
+                                        <Plus size={16} />
+                                        {isEditingDay ? `Edit Day ${isEditingDay}` : 'Add Itinerary Day'}
+                                    </h4>
+                                    <form onSubmit={handleAddDay} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium">Day Number</label>
+                                            <input
+                                                type="number"
+                                                min={1}
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                                value={dayForm.dayNumber}
+                                                onChange={(e) => setDayForm((p) => ({ ...p, dayNumber: Number(e.target.value) }))}
+                                                required
+                                                disabled={!!isEditingDay}
+                                            />
+                                        </div>
+                                        <div className="space-y-2 md:col-span-2">
+                                            <label className="text-sm font-medium">Title</label>
+                                            <input className="w-full border border-gray-300 rounded-lg px-3 py-2" value={dayForm.title} onChange={(e) => setDayForm((p) => ({ ...p, title: e.target.value }))} required />
+                                        </div>
+                                        <div className="space-y-2 md:col-span-3">
+                                            <label className="text-sm font-medium">Details</label>
+                                            <textarea
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 min-h-24"
+                                                value={dayForm.details}
+                                                onChange={(e) => setDayForm((p) => ({ ...p, details: e.target.value }))}
+                                                placeholder="Describe what happens on this day"
+                                            />
+                                        </div>
+                                        <div className="md:col-span-3 flex items-center gap-2">
+                                            <button
+                                                type="submit"
+                                                disabled={addItineraryDay.isPending || updateItineraryDay.isPending}
+                                                className="w-fit px-5 py-2.5 bg-[#005246] text-white rounded-lg hover:bg-[#003d34] disabled:opacity-50 flex items-center gap-2"
+                                            >
+                                                {(addItineraryDay.isPending || updateItineraryDay.isPending) && <Loader2 size={16} className="animate-spin" />}
+                                                {isEditingDay ? 'Update Day' : 'Add Day'}
+                                            </button>
+                                            {isEditingDay && (
+                                                <button type="button" onClick={resetDayForm} className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">
+                                                    Cancel Edit
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-sm font-semibold">Days ({itinerary.length})</h4>
+                                    </div>
+                                    {itinerary.length === 0 && (
+                                        <p className="text-gray-600">No itinerary days added yet.</p>
+                                    )}
+                                    {itinerary.length > 0 && (
+                                        <div className="space-y-3">
+                                            {itinerary.map((day) => (
+                                                <div key={day.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                                                    <div className="px-4 py-3 bg-gray-50 flex items-center justify-between gap-3">
+                                                        <div className="flex items-center gap-3">
+                                                            <button onClick={() => toggleDay(day.dayNumber)} className="p-1 rounded hover:bg-gray-100">
+                                                                {expandedDays.has(day.dayNumber) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                                            </button>
+                                                            <div>
+                                                                <p className="text-sm text-gray-500">Day {day.dayNumber}</p>
+                                                                <p className="font-semibold">{day.title}</p>
+                                                                <p className="text-xs text-gray-500">POIs: {day.pois?.length ?? 0}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setSelectedDayForPOI(day.dayNumber)
+                                                                    setShowPOIModal(true)
+                                                                    setPoiDialogMode('select')
+                                                                }}
+                                                                className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-md border border-[#005246] text-[#005246] hover:bg-[#005246] hover:text-white transition-colors"
+                                                            >
+                                                                <Plus size={14} />
+                                                                Add POI
+                                                            </button>
+                                                            <button type="button" onClick={() => startEditDay(day)} className="p-2 rounded border border-gray-300 hover:bg-gray-100">
+                                                                <Edit2 size={14} />
+                                                            </button>
+                                                            <button type="button" onClick={() => handleDeleteDay(day.dayNumber)} className="p-2 rounded border border-red-300 text-red-700 hover:bg-red-50">
+                                                                <Trash2 size={14} />
+                                                            </button>
                                                         </div>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setSelectedDayForPOI(day.dayNumber)
-                                                                setShowPOIModal(true)
-                                                            }}
-                                                            className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-md border border-[#005246] text-[#005246] hover:bg-[#005246] hover:text-white transition-colors"
-                                                        >
-                                                            <Plus size={14} />
-                                                            Add POI
-                                                        </button>
-                                                        <button type="button" onClick={() => startEditDay(day)} className="p-2 rounded border border-gray-300 hover:bg-gray-100">
-                                                            <Edit2 size={14} />
-                                                        </button>
-                                                        <button type="button" onClick={() => handleDeleteDay(day.dayNumber)} className="p-2 rounded border border-red-300 text-red-700 hover:bg-red-50">
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    </div>
+
+                                                    {expandedDays.has(day.dayNumber) && (
+                                                        <div className="p-4 space-y-3">
+                                                            {day.details && (
+                                                                <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 whitespace-pre-wrap">
+                                                                    {typeof day.details === 'string' ? day.details : JSON.stringify(day.details, null, 2)}
+                                                                </div>
+                                                            )}
+
+                                                            {day.pois && day.pois.length > 0 ? (
+                                                                <div className="space-y-2">
+                                                                    {day.pois.map((poiItem, idx) => (
+                                                                        <div key={poiItem.id} className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 bg-gray-50">
+                                                                            <div className="w-6 h-6 rounded-full bg-[#005246]/10 text-[#005246] flex items-center justify-center text-xs font-semibold shrink-0">
+                                                                                {idx + 1}
+                                                                            </div>
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <p className="font-medium text-gray-900">{poiItem.poi?.name || 'POI'}</p>
+                                                                                {poiItem.poi?.description && (
+                                                                                    <p className="text-xs text-gray-600 mt-1 line-clamp-2">{poiItem.poi.description}</p>
+                                                                                )}
+                                                                                {poiItem.poi?.latitude && poiItem.poi?.longitude && (
+                                                                                    <p className="text-xs text-gray-500 mt-1 font-mono">
+                                                                                        📍 {poiItem.poi.latitude.toFixed(4)}, {poiItem.poi.longitude.toFixed(4)}
+                                                                                    </p>
+                                                                                )}
+                                                                            </div>
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => handleRemovePOI(day.id, poiItem.poiId)}
+                                                                                className="p-1 rounded border border-red-300 text-red-700 hover:bg-red-50 shrink-0"
+                                                                            >
+                                                                                <X size={14} />
+                                                                            </button>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            ) : (
+                                                                <p className="text-sm text-gray-500">No POIs added yet.</p>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
-
-                                                {expandedDays.has(day.dayNumber) && (
-                                                    <div className="p-4 space-y-3">
-                                                        {day.details && (
-                                                            <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 whitespace-pre-wrap">
-                                                                {typeof day.details === 'string' ? day.details : JSON.stringify(day.details, null, 2)}
-                                                            </div>
-                                                        )}
-
-                                                        {day.pois && day.pois.length > 0 ? (
-                                                            <div className="space-y-2">
-                                                                {day.pois.map((poiItem, idx) => (
-                                                                    <div key={poiItem.id} className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 bg-gray-50">
-                                                                        <div className="w-6 h-6 rounded-full bg-[#005246]/10 text-[#005246] flex items-center justify-center text-xs font-semibold shrink-0">
-                                                                            {idx + 1}
-                                                                        </div>
-                                                                        <div className="flex-1 min-w-0">
-                                                                            <p className="font-medium text-gray-900">{poiItem.poi?.name || 'POI'}</p>
-                                                                            {poiItem.poi?.description && (
-                                                                                <p className="text-xs text-gray-600 mt-1 line-clamp-2">{poiItem.poi.description}</p>
-                                                                            )}
-                                                                            {poiItem.poi?.latitude && poiItem.poi?.longitude && (
-                                                                                <p className="text-xs text-gray-500 mt-1 font-mono">
-                                                                                    📍 {poiItem.poi.latitude.toFixed(4)}, {poiItem.poi.longitude.toFixed(4)}
-                                                                                </p>
-                                                                            )}
-                                                                        </div>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => handleRemovePOI(day.id, poiItem.poiId)}
-                                                                            className="p-1 rounded border border-red-300 text-red-700 hover:bg-red-50 shrink-0"
-                                                                        >
-                                                                            <X size={14} />
-                                                                        </button>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        ) : (
-                                                            <p className="text-sm text-gray-500">No POIs added yet.</p>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <Dialog
@@ -416,6 +526,7 @@ export default function AdminTourDetailPage() {
                                     setShowPOIModal(open)
                                     if (!open) {
                                         setSelectedDayForPOI(null)
+                                        resetPoiForm()
                                     }
                                 }}
                             >
@@ -424,32 +535,195 @@ export default function AdminTourDetailPage() {
                                         <DialogTitle>Select POI for Day {selectedDayForPOI}</DialogTitle>
                                     </DialogHeader>
 
-                                    {availablePOIs.length === 0 ? (
-                                        <div className="text-center py-6">
-                                            <MapPin size={32} className="mx-auto mb-2 text-gray-400" />
-                                            <p className="text-sm text-gray-600">No POIs available. Create some first.</p>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-2">
-                                            {availablePOIs.map((poi) => {
-                                                const selectedDay = itinerary.find((d) => d.dayNumber === selectedDayForPOI)
-                                                const alreadyAdded = selectedDay?.pois?.some((p) => p.poiId === poi.id)
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            type="button"
+                                            variant={poiDialogMode === 'select' ? 'default' : 'outline'}
+                                            onClick={() => setPoiDialogMode('select')}
+                                            className="flex-1"
+                                        >
+                                            Select Existing
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant={poiDialogMode === 'create' ? 'default' : 'outline'}
+                                            onClick={() => setPoiDialogMode('create')}
+                                            className="flex-1"
+                                        >
+                                            Create POI
+                                        </Button>
+                                    </div>
 
-                                                return (
+                                    {poiDialogMode === 'create' && (
+                                        <form onSubmit={handleCreatePOIAndAttach} className="space-y-4 pt-2">
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Name</label>
+                                                <input
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                                    value={poiForm.name}
+                                                    onChange={(e) => setPoiForm((p) => ({ ...p, name: e.target.value }))}
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Description</label>
+                                                <textarea
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 min-h-20"
+                                                    value={poiForm.description}
+                                                    onChange={(e) => setPoiForm((p) => ({ ...p, description: e.target.value }))}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Specialty</label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
+                                                        value={poiSpecialtyInput}
+                                                        onChange={(e) => setPoiSpecialtyInput(e.target.value)}
+                                                        placeholder="e.g. viewpoint, monastery"
+                                                    />
                                                     <button
-                                                        key={poi.id}
                                                         type="button"
-                                                        onClick={() => handleAddPOI(poi.id)}
-                                                        disabled={!!alreadyAdded || linkPOIToItinerary.isPending}
-                                                        className="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-[#005246] hover:bg-[#005246]/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                        onClick={() => {
+                                                            const next = poiSpecialtyInput.trim()
+                                                            if (!next) return
+                                                            setPoiForm((p) => ({ ...p, specialty: Array.from(new Set([...(p.specialty || []), next])) }))
+                                                            setPoiSpecialtyInput('')
+                                                        }}
+                                                        className="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
                                                     >
-                                                        <p className="font-medium text-gray-900">{poi.name}</p>
-                                                        {poi.description && <p className="text-xs text-gray-600 mt-1 line-clamp-1">{poi.description}</p>}
-                                                        {alreadyAdded && <p className="text-xs text-[#005246] font-medium mt-1">✓ Already added</p>}
+                                                        Add
                                                     </button>
-                                                )
-                                            })}
-                                        </div>
+                                                </div>
+                                                {poiForm.specialty.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {poiForm.specialty.map((s) => (
+                                                            <span key={s} className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-gray-100">
+                                                                {s}
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setPoiForm((p) => ({ ...p, specialty: p.specialty.filter((x) => x !== s) }))}
+                                                                    className="text-gray-500 hover:text-gray-700"
+                                                                >
+                                                                    <X size={12} />
+                                                                </button>
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Address (optional)</label>
+                                                <input
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                                    value={poiAddressSearch}
+                                                    onChange={(e) => setPoiAddressSearch(e.target.value)}
+                                                    placeholder="Search city/state"
+                                                />
+                                                <Select
+                                                    value={poiForm.addressId || undefined}
+                                                    onValueChange={(value) => setPoiForm((p) => ({ ...p, addressId: value }))}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select address" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {poiAddressOptions.map((a: any) => (
+                                                            <SelectItem key={a.id} value={a.id}>
+                                                                {(a.city || a.state) ? `${a.city ?? ''}${a.city && a.state ? ', ' : ''}${a.state ?? ''}` : a.id}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Latitude (optional)</label>
+                                                    <input
+                                                        className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                                        value={poiForm.latitude}
+                                                        onChange={(e) => setPoiForm((p) => ({ ...p, latitude: e.target.value }))}
+                                                        inputMode="decimal"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Longitude (optional)</label>
+                                                    <input
+                                                        className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                                        value={poiForm.longitude}
+                                                        onChange={(e) => setPoiForm((p) => ({ ...p, longitude: e.target.value }))}
+                                                        inputMode="decimal"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Images (optional)</label>
+                                                <input
+                                                    type="file"
+                                                    multiple
+                                                    accept="image/*"
+                                                    onChange={(e) => setPoiForm((p) => ({ ...p, images: Array.from(e.target.files || []) }))}
+                                                />
+                                                {poiForm.images.length > 0 && (
+                                                    <p className="text-xs text-gray-600">Selected: {poiForm.images.length} file(s)</p>
+                                                )}
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="submit"
+                                                    disabled={createPOI.isPending || isUploading || linkPOIToItinerary.isPending}
+                                                    className="w-fit px-4 py-2 bg-[#005246] text-white rounded-lg hover:bg-[#003d34] disabled:opacity-50 flex items-center gap-2"
+                                                >
+                                                    {(createPOI.isPending || isUploading) && <Loader2 size={16} className="animate-spin" />}
+                                                    Create & Attach
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setPoiDialogMode('select')}
+                                                    className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
+                                                >
+                                                    Back
+                                                </button>
+                                            </div>
+                                        </form>
+                                    )}
+
+                                    {poiDialogMode === 'select' && (
+                                        <>
+                                            {availablePOIs.length === 0 ? (
+                                                <div className="text-center py-6">
+                                                    <MapPin size={32} className="mx-auto mb-2 text-gray-400" />
+                                                    <p className="text-sm text-gray-600">No POIs available yet. Use “Create POI”.</p>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-2 pt-2">
+                                                    {availablePOIs.map((poi) => {
+                                                        const selectedDay = itinerary.find((d) => d.dayNumber === selectedDayForPOI)
+                                                        const alreadyAdded = selectedDay?.pois?.some((p) => p.poiId === poi.id)
+
+                                                        return (
+                                                            <button
+                                                                key={poi.id}
+                                                                type="button"
+                                                                onClick={() => handleAddPOI(poi.id)}
+                                                                disabled={!!alreadyAdded || linkPOIToItinerary.isPending}
+                                                                className="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-[#005246] hover:bg-[#005246]/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                            >
+                                                                <p className="font-medium text-gray-900">{poi.name}</p>
+                                                                {poi.description && <p className="text-xs text-gray-600 mt-1 line-clamp-1">{poi.description}</p>}
+                                                                {alreadyAdded && <p className="text-xs text-[#005246] font-medium mt-1">✓ Already added</p>}
+                                                            </button>
+                                                        )
+                                                    })}
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </DialogContent>
                             </Dialog>

@@ -3,52 +3,45 @@
 import { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import {
     MapPin,
     Star,
-    Users,
-    Bed,
     Wifi,
+    Car,
     Coffee,
-    Wind,
-    CheckCircle2,
-    AlertCircle,
-    Calendar,
-    PhoneCall,
+    Mountain,
+    Users,
+    Phone,
     Mail,
-    Download,
-    Upload,
-    X,
+    Check,
+    Home,
+    Share2,
+    Heart,
+    Shield,
 } from "lucide-react";
-import { Calendar as CalendarUI } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { LoginRequiredModal } from "@/components/auth/LoginRequiredModal";
-import { bookingService } from "@/services/booking.service";
-import type { RequestHomestayBookingRequest } from "@/types/booking";
-import { useHomestay } from "@/hooks/homestays";
+import { homestayService } from "@/services/homestay.service";
+import RoomCard from "@/components/RoomCard";
+import HomestayImageGrid from "@/components/HomestayImageGrid";
+import BookingCard from "@/components/BookingCard";
+import { LoadingComponent } from "@/components/LoadingComponent";
+import type { Homestay } from "@/types/homestay";
 
-type HomestayBookingPageClientProps = {
+type HomestayBookingClientProps = {
     params: Promise<{
         homestayId: string;
     }>;
 };
 
-export default function HomestayBookingClient({ params }: HomestayBookingPageClientProps) {
-    const { user, isLoading: authLoading } = useAuth();
+export default function HomestayBookingClient({ params }: HomestayBookingClientProps) {
+    const { user } = useAuth();
     const [homestayId, setHomestayId] = useState<string | null>(null);
+    const [homestay, setHomestay] = useState<Homestay | null | undefined>(undefined);
+    const [isLoading, setIsLoading] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
-    const [formSubmitted, setFormSubmitted] = useState(false);
-
-    // Form state
-    const [checkInDate, setCheckInDate] = useState<Date | undefined>(undefined);
-    const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(undefined);
-    const [guests, setGuests] = useState("1");
-    const [selectedRoom, setSelectedRoom] = useState<string>("");
-    const [specialRequests, setSpecialRequests] = useState("");
-    const [identityProof, setIdentityProof] = useState<File | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [similarHomestays, setSimilarHomestays] = useState<any[]>([]);
 
     useEffect(() => {
         const resolveParams = async () => {
@@ -58,201 +51,612 @@ export default function HomestayBookingClient({ params }: HomestayBookingPageCli
         resolveParams();
     }, [params]);
 
-    const { data: apiHomestay, isLoading: homestayLoading } = useHomestay(homestayId || "");
+    useEffect(() => {
+        if (!homestayId) return;
 
-    // Transform API homestay to expected structure
-    const homestayData = apiHomestay ? {
-        id: apiHomestay.id,
-        name: apiHomestay.name,
-        images: apiHomestay.imageUrls?.length ? apiHomestay.imageUrls : ["/placeholder.jpg"],
-        location: "Arunachal Pradesh", // Default location since API doesn't provide it directly
-        description: apiHomestay.description,
-        rating: apiHomestay.rating || 4.5,
-        reviews: apiHomestay.totalReviews || 0,
-        rooms: apiHomestay.rooms || [],
-        host: "Homestay Host", // Default host name
-        contact: {
-            phone: apiHomestay.phoneNumber || "",
-            email: apiHomestay.email || "",
+        let mounted = true;
+        setIsLoading(true);
+        setHomestay(undefined);
+
+        homestayService
+            .getHomestay(homestayId)
+            .then((data) => {
+                if (!mounted) return;
+                setHomestay(data);
+            })
+            .catch((error) => {
+                console.error("[HomestayBookingClient] Failed to load homestay:", error);
+                if (!mounted) return;
+                setHomestay(null);
+            })
+            .finally(() => {
+                if (!mounted) return;
+                setIsLoading(false);
+            });
+
+        return () => {
+            mounted = false;
+        };
+    }, [homestayId]);
+
+    // Fetch similar homestays
+    useEffect(() => {
+        if (!homestay) return;
+
+        homestayService
+            .getHomestays({ limit: 4 })
+            .then((res) => {
+                const similar = (res.data || [])
+                    .filter((h: any) => h.id !== homestay.id)
+                    .slice(0, 3)
+                    .map((h: any) => ({
+                        id: h.id,
+                        slug: h.slug,
+                        name: h.name,
+                        image: h.imageUrls?.[0] || "",
+                        location: [h.address?.city, h.address?.state].filter(Boolean).join(", ") || "Arunachal Pradesh",
+                        description: h.description,
+                        rating: h.rating || 4.5,
+                        reviews: h.totalReviews || 0,
+                        price: h.displayPrice || 2000,
+                        featured: false,
+                    }));
+                setSimilarHomestays(similar);
+            })
+            .catch(() => {
+                setSimilarHomestays([]);
+            });
+    }, [homestay]);
+
+    // Handle Share button
+    const handleShare = () => {
+        if (!user) {
+            setShowLoginModal(true);
+            return;
         }
-    } : null;
+        if (navigator.share) {
+            navigator.share({
+                title: homestay?.name,
+                url: window.location.href,
+            });
+        }
+    };
 
-    if (homestayLoading || !homestayId) {
+    // Handle Save button
+    const handleSave = () => {
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+        console.log("Save homestay");
+    };
+
+    if (isLoading || homestay === undefined) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center">
-                <div
-                    style={{
-                        fontFamily: "var(--font-mona-sans), sans-serif",
-                        fontWeight: 500,
-                        color: "#686766",
-                    }}
-                >
-                    Loading...
-                </div>
+                <LoadingComponent message="" size="large" />
             </div>
         );
     }
 
-    if (!homestayData) {
+    if (!homestay) {
         return notFound();
     }
 
-    const handleIdentityProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!user) {
-            setShowLoginModal(true);
-            return;
-        }
-
-        const file = e.target.files?.[0];
-        if (file) {
-            // Validate file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert("File size must be less than 5MB");
-                return;
-            }
-            // Validate file type
-            const validTypes = ["application/pdf", "image/jpeg", "image/png"];
-            if (!validTypes.includes(file.type)) {
-                alert("Only PDF, JPEG, and PNG files are allowed");
-                return;
-            }
-            setIdentityProof(file);
-        }
+    const getAmenityIcon = (amenity: string) => {
+        const lower = amenity.toLowerCase();
+        if (lower.includes("wifi")) return <Wifi className="w-4 h-4 sm:w-5 sm:h-5" />;
+        if (lower.includes("parking") || lower.includes("car")) return <Car className="w-4 h-4 sm:w-5 sm:h-5" />;
+        if (lower.includes("meal") || lower.includes("food") || lower.includes("kitchen") || lower.includes("breakfast") || lower.includes("dining"))
+            return <Coffee className="w-4 h-4 sm:w-5 sm:h-5" />;
+        if (lower.includes("view") || lower.includes("mountain") || lower.includes("valley"))
+            return <Mountain className="w-4 h-4 sm:w-5 sm:h-5" />;
+        return <Users className="w-4 h-4 sm:w-5 sm:h-5" />;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // Map API rooms to component format
+    const rooms = (homestay.rooms || []).map((room) => ({
+        id: room.id,
+        name: room.name,
+        price: room.finalPrice,
+        likedPercent: 90,
+        recommended: room.discount > 0,
+        capacity: room.capacity,
+        beds: Math.ceil(room.capacity / 2),
+        baths: 1,
+        features: room.amenities?.slice(0, 3) || [],
+        images: room.imageUrls && room.imageUrls.length > 0 ? room.imageUrls : homestay.imageUrls?.slice(0, 3) || [],
+    }));
 
-        if (!user) {
-            setShowLoginModal(true);
-            return;
-        }
+    // Map API reviews
+    const reviews = (homestay.reviews || []).map((r: any) => ({
+        name: `${r.user?.firstName || ""} ${r.user?.lastName || ""}`.trim() || "Anonymous",
+        comment: r.comment || "",
+        rating: r.rating || 5,
+        date: new Date(r.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    })).slice(0, 6);
 
-        if (!checkInDate || !checkOutDate || !selectedRoom) {
-            alert("Please fill in all required fields");
-            return;
-        }
+    // Get facility/amenity names
+    const amenities = [
+        ...(homestay.facilities || []).map((f) => f.facility?.name).filter(Boolean),
+        ...(homestay.tags || []).map((t) => t.tag?.label).filter(Boolean)
+    ].filter((item): item is string => Boolean(item));
 
-        if (checkOutDate <= checkInDate) {
-            alert("Check-out date must be after check-in date");
-            return;
-        }
-
-        try {
-            setIsSubmitting(true);
-
-            const bookingData: RequestHomestayBookingRequest = {
-                homestayId: homestayId,
-                checkIn: checkInDate.toISOString().split("T")[0], // YYYY-MM-DD format
-                checkOut: checkOutDate.toISOString().split("T")[0],
-                guests: parseInt(guests),
-                roomId: selectedRoom,
-                specialRequests: specialRequests,
-            };
-
-            // Call booking service
-            const booking = await bookingService.requestHomestayBooking(bookingData);
-
-            // Redirect to checkout with booking ID
-            if (booking?.id) {
-                window.location.href = `/checkout?bookingId=${booking.id}`;
-            }
-        } catch (error) {
-            console.error("Failed to create booking:", error);
-            setIsSubmitting(false);
-            alert("Failed to create booking. Please try again.");
-        }
-    };
-
-    const nights = checkInDate && checkOutDate ? Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+    const location = [homestay.address?.city, homestay.address?.state].filter(Boolean).join(", ") || "Arunachal Pradesh";
 
     return (
         <div className="min-h-screen bg-white">
             <LoginRequiredModal
                 isOpen={showLoginModal}
                 onClose={() => setShowLoginModal(false)}
-                title="Sign In to Book Your Homestay"
-                message="You need to be logged in to book a homestay. Please sign in to continue with your booking."
+                title="Sign In Required"
+                message="You need to be logged in to perform this action. Please sign in to continue."
             />
 
             <main className="relative min-h-screen bg-white">
-                {/* Hero Section with Images */}
-                <div className="relative py-6 sm:py-8 md:py-10 overflow-hidden">
+                {/* Banner Carousel */}
+                <div className="relative mt-16 bg-white py-6 sm:py-8 md:py-10 overflow-hidden">
                     <div className="absolute inset-0 -z-10">
-                        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#4F87C7]/10 blur-3xl" />
-                        <div className="absolute -bottom-24 left-8 h-72 w-72 rounded-full bg-[#FC611E]/10 blur-3xl" />
+                        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#FC611E]/10 blur-3xl" />
+                        <div className="absolute -bottom-24 left-8 h-72 w-72 rounded-full bg-[#4F87C7]/10 blur-3xl" />
                     </div>
+                    <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
+                        <div className="overflow-x-hidden">
+                            <HomestayImageGrid images={homestay.imageUrls || []} />
+                        </div>
+                    </div>
+                </div>
 
-                    <div className="w-full lg:w-[90%] max-w-400 mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
-                        <div className="grid md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
-                            {/* Images */}
-                            <div className="space-y-4">
-                                <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-lg">
-                                    <Image
-                                        src={homestayData.images[0]}
-                                        alt={homestayData.name}
-                                        fill
-                                        className="object-cover"
-                                        priority
-                                        unoptimized
-                                    />
+                {/* Main Content */}
+                <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
+                    <div className="bg-white pb-8 sm:pb-12 md:pb-16">
+
+                        {/* HEADER */}
+                        <div className="pt-4 sm:pt-6 md:pt-8 pb-4 sm:pb-6 border-b border-[#DDE7E0]/70">
+                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                                <span
+                                    className="px-3 py-1 rounded-full text-xs font-semibold bg-[#FC611E]/10 text-[#FC611E]"
+                                    style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+                                >
+                                    Local Homestay
+                                </span>
+                                <span
+                                    className="px-3 py-1 rounded-full text-xs font-semibold bg-[#005246]/10 text-[#005246]"
+                                    style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+                                >
+                                    Host Verified
+                                </span>
+                            </div>
+                            <h1
+                                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-3 sm:mb-4"
+                                style={{
+                                    fontFamily: "var(--font-subjectivity), sans-serif",
+                                    fontWeight: 700,
+                                    color: "#353030",
+                                    letterSpacing: "-0.07em",
+                                }}
+                            >
+                                {homestay.name}
+                            </h1>
+
+                            <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-3 sm:gap-4">
+                                <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4" style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500, fontSize: "clamp(12px, 3vw, 14px)", color: "#686766" }}>
+                                    <div className="flex items-center gap-1.5">
+                                        <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-emerald-500 text-emerald-500" />
+                                        <span className="font-semibold" style={{ color: "#353030" }}>{homestay.rating || 4.5}</span>
+                                        <span className="underline">({homestay.totalReviews || 0} reviews)</span>
+                                    </div>
+
+                                    <span className="hidden sm:inline">·</span>
+
+                                    <div className="flex items-center gap-1.5">
+                                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+                                        <span className="underline capitalize">
+                                            {location}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-3 gap-3">
-                                    {homestayData.images.slice(1, 4).map((img, idx) => (
-                                        <div key={idx} className="relative aspect-square rounded-lg overflow-hidden shadow-md">
-                                            <Image src={img} alt={`${homestayData.name} ${idx}`} fill className="object-cover" unoptimized />
+
+                                {/* ACTIONS */}
+                                <div className="flex items-center gap-3 sm:gap-4" style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 500, fontSize: "clamp(12px, 3vw, 14px)", color: "#27261C" }}>
+                                    <button onClick={handleShare} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F5F1E6]/70 border border-[#DDE7E0]/70 hover:opacity-80 transition">
+                                        <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                                        <span className="hidden sm:inline">Share</span>
+                                    </button>
+                                    <button onClick={handleSave} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F5F1E6]/70 border border-[#DDE7E0]/70 hover:opacity-80 transition">
+                                        <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
+                                        <span className="hidden sm:inline">Save</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* MAIN GRID */}
+                        <div className="grid lg:grid-cols-3 gap-6 sm:gap-8 md:gap-12 pt-4 sm:pt-6 md:pt-8">
+
+                            {/* LEFT CONTENT */}
+                            <div className="lg:col-span-2 space-y-6 sm:space-y-8 md:space-y-10">
+
+                                {/* HOST INFO & DESCRIPTION */}
+                                <div className="border-b border-[#DDE7E0]/70 pb-4 sm:pb-6 md:pb-8">
+                                    <h2
+                                        className="text-lg sm:text-xl md:text-2xl mb-2 sm:mb-3"
+                                        style={{
+                                            fontFamily: "var(--font-subjectivity), sans-serif",
+                                            fontWeight: 700,
+                                            color: "#353030",
+                                            letterSpacing: "-0.07em",
+                                        }}
+                                    >
+                                        Hosted by {homestay.provider?.name || "Local Host"}
+                                    </h2>
+                                    <p
+                                        className="leading-relaxed max-w-3xl"
+                                        style={{
+                                            fontFamily: "var(--font-mona-sans), sans-serif",
+                                            fontWeight: 500,
+                                            fontSize: "clamp(14px, 3.5vw, 16px)",
+                                            color: "#686766",
+                                            lineHeight: "clamp(20px, 5vw, 24px)",
+                                        }}
+                                    >
+                                        {homestay.description}
+                                    </p>
+                                </div>
+
+                                {/* ROOMS */}
+                                {rooms.length > 0 && (
+                                    <div>
+                                        <h2
+                                            className="text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4 md:mb-6"
+                                            style={{
+                                                fontFamily: "var(--font-subjectivity), sans-serif",
+                                                fontWeight: 700,
+                                                color: "#353030",
+                                                letterSpacing: "-0.07em",
+                                            }}
+                                        >
+                                            Available rooms
+                                        </h2>
+                                        <div className="grid sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
+                                            {rooms.map((room) => (
+                                                <RoomCard key={room.id} room={room as any} />
+                                            ))}
                                         </div>
-                                    ))}
+                                    </div>
+                                )}
+
+                                <div className="border-t border-[#DDE7E0]/70"></div>
+
+                                {/* AMENITIES */}
+                                {amenities.length > 0 && (
+                                    <div>
+                                        <h2
+                                            className="text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4 md:mb-6"
+                                            style={{
+                                                fontFamily: "var(--font-subjectivity), sans-serif",
+                                                fontWeight: 700,
+                                                color: "#353030",
+                                                letterSpacing: "-0.07em",
+                                            }}
+                                        >
+                                            What this place offers
+                                        </h2>
+                                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                                            {amenities.map((amenity, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="group flex items-center gap-3 p-3 sm:p-4 rounded-2xl bg-white border border-[#DDE7E0]/70 shadow-[0_12px_35px_-30px_rgba(0,0,0,0.35)] hover:shadow-[0_16px_45px_-30px_rgba(0,0,0,0.4)] transition-all"
+                                                >
+                                                    <span className="w-10 h-10 rounded-full bg-[#F5F1E6] border border-[#DDE7E0]/70 flex items-center justify-center text-[#005246]">
+                                                        {getAmenityIcon(amenity)}
+                                                    </span>
+                                                    <div>
+                                                        <span
+                                                            className="block"
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                fontWeight: 600,
+                                                                color: "#27261C",
+                                                                fontSize: "clamp(13px, 3.5vw, 15px)",
+                                                            }}
+                                                        >
+                                                            {amenity}
+                                                        </span>
+                                                        <span
+                                                            className="text-xs"
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                fontWeight: 500,
+                                                                color: "#686766",
+                                                            }}
+                                                        >
+                                                            Included in your stay
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="border-t border-[#DDE7E0]/70"></div>
+
+                                {/* REVIEWS */}
+                                {reviews.length > 0 && (
+                                    <div>
+                                        <h2
+                                            className="text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4"
+                                            style={{
+                                                fontFamily: "var(--font-subjectivity), sans-serif",
+                                                fontWeight: 700,
+                                                color: "#353030",
+                                                letterSpacing: "-0.07em",
+                                            }}
+                                        >
+                                            What People have to Say
+                                        </h2>
+                                        <div
+                                            className="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3"
+                                            style={{
+                                                fontFamily: "var(--font-mona-sans), sans-serif",
+                                                fontWeight: 600,
+                                                fontSize: "clamp(16px, 4vw, 18px)",
+                                                color: "#353030",
+                                            }}
+                                        >
+                                            <div className="flex items-center gap-1">
+                                                <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-emerald-500 text-emerald-500" />
+                                                <span>{homestay.rating || 4.5}</span>
+                                            </div>
+                                            <span className="text-[#686766]">·</span>
+                                            <span style={{ fontWeight: 500, color: "#686766", fontSize: "clamp(14px, 3.5vw, 16px)" }}>{homestay.totalReviews || 0} reviews</span>
+                                        </div>
+
+                                        <div className="grid sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
+                                            {reviews.map((r, i) => (
+                                                <div key={i} className="space-y-2 sm:space-y-3 p-4 sm:p-5 bg-white rounded-2xl border border-[#DDE7E0]/70 shadow-[0_14px_40px_-32px_rgba(0,0,0,0.35)]">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex-1">
+                                                            <div
+                                                                className="font-semibold mb-1"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                    fontWeight: 600,
+                                                                    color: "#353030",
+                                                                    fontSize: "clamp(13px, 3.5vw, 15px)",
+                                                                }}
+                                                            >
+                                                                {r.name}
+                                                            </div>
+                                                            <div
+                                                                className="text-xs"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                    fontWeight: 400,
+                                                                    color: "#686766",
+                                                                }}
+                                                            >
+                                                                {r.date}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-0.5 sm:gap-1 flex-shrink-0">
+                                                            {Array.from({ length: r.rating }).map((_, s) => (
+                                                                <Star
+                                                                    key={s}
+                                                                    className="w-3 h-3 sm:w-4 sm:h-4 fill-emerald-500 text-emerald-500"
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <p
+                                                        style={{
+                                                            fontFamily: "var(--font-mona-sans), sans-serif",
+                                                            fontWeight: 500,
+                                                            color: "#686766",
+                                                            fontSize: "clamp(13px, 3.5vw, 14px)",
+                                                            lineHeight: "clamp(18px, 4.5vw, 20px)",
+                                                        }}
+                                                    >
+                                                        {r.comment}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="border-t border-[#DDE7E0]/70"></div>
+
+                                {/* THINGS TO KNOW */}
+                                <div>
+                                    <h2
+                                        className="text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4 md:mb-6"
+                                        style={{
+                                            fontFamily: "var(--font-subjectivity), sans-serif",
+                                            fontWeight: 700,
+                                            color: "#353030",
+                                            letterSpacing: "-0.07em",
+                                        }}
+                                    >
+                                        Things to know
+                                    </h2>
+                                    <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+                                        {/* House Rules */}
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                                                <Home className="w-4 h-4 sm:w-5 sm:h-5 text-[#686766]" />
+                                                <h3
+                                                    className="text-base sm:text-lg"
+                                                    style={{
+                                                        fontFamily: "var(--font-subjectivity), sans-serif",
+                                                        fontWeight: 700,
+                                                        color: "#353030",
+                                                    }}
+                                                >
+                                                    House rules
+                                                </h3>
+                                            </div>
+                                            <ul className="space-y-2 sm:space-y-3">
+                                                {[
+                                                    "Check-in: 2:00 PM - 10:00 PM",
+                                                    "Check-out: 11:00 AM",
+                                                    "No smoking inside",
+                                                    "No parties or events",
+                                                    "Pets allowed with prior notice",
+                                                    "Quiet hours: 10 PM - 7 AM"
+                                                ].map((rule, i) => (
+                                                    <li key={i} className="flex items-start gap-2">
+                                                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                                                        <span
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                fontWeight: 500,
+                                                                color: "#686766",
+                                                                fontSize: "clamp(13px, 3.5vw, 14px)",
+                                                            }}
+                                                        >
+                                                            {rule}
+                                                        </span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+
+                                        {/* Safety & Security */}
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                                                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#686766]" />
+                                                <h3
+                                                    className="text-base sm:text-lg"
+                                                    style={{
+                                                        fontFamily: "var(--font-subjectivity), sans-serif",
+                                                        fontWeight: 700,
+                                                        color: "#353030",
+                                                    }}
+                                                >
+                                                    Safety & Security
+                                                </h3>
+                                            </div>
+                                            <ul className="space-y-2 sm:space-y-3">
+                                                {[
+                                                    "Security cameras on premises",
+                                                    "Smoke alarm installed",
+                                                    "First aid kit available",
+                                                    "Safe for families",
+                                                    "24/7 host support",
+                                                    "Emergency contact provided"
+                                                ].map((item, i) => (
+                                                    <li key={i} className="flex items-start gap-2">
+                                                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                                                        <span
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                fontWeight: 500,
+                                                                color: "#686766",
+                                                                fontSize: "clamp(13px, 3.5vw, 14px)",
+                                                            }}
+                                                        >
+                                                            {item}
+                                                        </span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-[#DDE7E0]/70"></div>
+
+                                {/* CONTACT INFORMATION */}
+                                <div>
+                                    <h2
+                                        className="text-lg sm:text-xl md:text-2xl mb-3 sm:mb-4 md:mb-6"
+                                        style={{
+                                            fontFamily: "var(--font-subjectivity), sans-serif",
+                                            fontWeight: 700,
+                                            color: "#353030",
+                                            letterSpacing: "-0.07em",
+                                        }}
+                                    >
+                                        Contact Information
+                                    </h2>
+                                    <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                                        {homestay.phoneNumber && (
+                                            <a
+                                                href={`tel:${homestay.phoneNumber}`}
+                                                className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-[#F5F1E6]/60 rounded-2xl border border-[#DDE7E0]/70 hover:bg-[#F5F1E6] transition-colors"
+                                            >
+                                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0 border border-[#DDE7E0]/70">
+                                                    <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-[#005246]" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <div
+                                                        className="text-xs mb-1"
+                                                        style={{
+                                                            fontFamily: "var(--font-mona-sans), sans-serif",
+                                                            fontWeight: 500,
+                                                            color: "#686766",
+                                                        }}
+                                                    >
+                                                        Phone
+                                                    </div>
+                                                    <div
+                                                        className="truncate"
+                                                        style={{
+                                                            fontFamily: "var(--font-mona-sans), sans-serif",
+                                                            fontWeight: 600,
+                                                            color: "#353030",
+                                                            fontSize: "clamp(13px, 3.5vw, 15px)",
+                                                        }}
+                                                    >
+                                                        {homestay.phoneNumber}
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        )}
+                                        {homestay.email && (
+                                            <a
+                                                href={`mailto:${homestay.email}`}
+                                                className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-[#F5F1E6]/60 rounded-2xl border border-[#DDE7E0]/70 hover:bg-[#F5F1E6] transition-colors"
+                                            >
+                                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0 border border-[#DDE7E0]/70">
+                                                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-[#005246]" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <div
+                                                        className="text-xs mb-1"
+                                                        style={{
+                                                            fontFamily: "var(--font-mona-sans), sans-serif",
+                                                            fontWeight: 500,
+                                                            color: "#686766",
+                                                        }}
+                                                    >
+                                                        Email
+                                                    </div>
+                                                    <div
+                                                        className="truncate"
+                                                        style={{
+                                                            fontFamily: "var(--font-mona-sans), sans-serif",
+                                                            fontWeight: 600,
+                                                            color: "#353030",
+                                                            fontSize: "clamp(13px, 3.5vw, 15px)",
+                                                        }}
+                                                    >
+                                                        {homestay.email}
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Details */}
-                            <div className="flex flex-col justify-start">
-                                <div className="mb-6">
-                                    <div className="flex items-start justify-between gap-4 mb-4">
-                                        <div>
-                                            <h1 className="text-3xl sm:text-4xl font-bold text-[#27261C] mb-2">{homestayData.name}</h1>
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex items-center gap-1">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <Star
-                                                            key={i}
-                                                            className={`w-4 h-4 ${i < 4 ? "fill-[#FC611E] text-[#FC611E]" : "text-gray-300"
-                                                                }`}
-                                                        />
-                                                    ))}
-                                                </div>
-                                                <span className="text-sm text-[#686766]">4.0 (42 reviews)</span>
-                                            </div>
-                                        </div>
-                                        <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-[#4F87C7] text-white">
-                                            Homestay
-                                        </span>
-                                    </div>
-
-                                    <div className="flex items-center gap-2 text-[#686766] mb-4">
-                                        <MapPin className="w-4 h-4" />
-                                        <span>{homestayData.location}</span>
-                                    </div>
-                                </div>
-
-                                <p className="text-[#686766] text-base leading-relaxed mb-6">{homestayData.description}</p>
-
-                                {/* Amenities */}
-                                <div className="mb-8">
-                                    <h3 className="font-semibold text-[#27261C] mb-4">Amenities</h3>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {[
-                                            { icon: Wifi, label: "Free WiFi" },
-                                            { icon: Coffee, label: "Breakfast" },
-                                            { icon: Wind, label: "AC Rooms" },
-                                            { icon: Bed, label: "Comfortable Beds" },
-                                        ].map((amenity, idx) => (
-                                            <div key={idx} className="flex items-center gap-2">
-                                                <amenity.icon className="w-5 h-5 text-[#005246]" />
-                                                <span className="text-sm text-[#686766]">{amenity.label}</span>
-                                            </div>
-                                        ))}
+                            {/* RIGHT – BOOKING CARD */}
+                            <div className="lg:col-span-1 mt-6 lg:mt-0">
+                                <div className="sticky top-20 sm:top-24">
+                                    <div className="rounded-3xl bg-[#F5F1E6]/60 border border-[#DDE7E0]/70 p-3">
+                                        {rooms.length > 0 && <BookingCard rooms={rooms} />}
                                     </div>
                                 </div>
                             </div>
@@ -260,211 +664,132 @@ export default function HomestayBookingClient({ params }: HomestayBookingPageCli
                     </div>
                 </div>
 
-                {/* Booking Form Section */}
-                <section className="py-12 sm:py-16 bg-linear-to-br from-[#F5F1E6] via-white to-[#F0EBDF]">
-                    <div className="w-full lg:w-[90%] max-w-400 mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
-                        <div className="grid md:grid-cols-3 gap-8">
-                            {/* Booking Form */}
-                            <div className="md:col-span-2">
-                                <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 shadow-lg border border-[#DDE7E0]/60">
-                                    <h2 className="text-2xl font-bold text-[#27261C] mb-6">Book Your Stay</h2>
-
-                                    {/* Check-in Date */}
-                                    <div className="mb-6">
-                                        <label className="block text-sm font-semibold text-[#27261C] mb-3">
-                                            Check-in Date<span className="text-red-500">*</span>
-                                        </label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <button className="w-full px-4 py-3 rounded-xl border-2 border-[#DDE7E0] flex items-center justify-between hover:border-[#005246] transition">
-                                                    <span className={checkInDate ? "text-[#27261C]" : "text-[#686766]"}>
-                                                        {checkInDate ? checkInDate.toLocaleDateString() : "Select date"}
-                                                    </span>
-                                                    <Calendar className="w-5 h-5 text-[#686766]" />
-                                                </button>
-                                            </PopoverTrigger>
-                                            <PopoverContent align="start">
-                                                <CalendarUI mode="single" selected={checkInDate} onSelect={setCheckInDate} disabled={(date) => date < new Date()} />
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
-
-                                    {/* Check-out Date */}
-                                    <div className="mb-6">
-                                        <label className="block text-sm font-semibold text-[#27261C] mb-3">
-                                            Check-out Date<span className="text-red-500">*</span>
-                                        </label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <button className="w-full px-4 py-3 rounded-xl border-2 border-[#DDE7E0] flex items-center justify-between hover:border-[#005246] transition">
-                                                    <span className={checkOutDate ? "text-[#27261C]" : "text-[#686766]"}>
-                                                        {checkOutDate ? checkOutDate.toLocaleDateString() : "Select date"}
-                                                    </span>
-                                                    <Calendar className="w-5 h-5 text-[#686766]" />
-                                                </button>
-                                            </PopoverTrigger>
-                                            <PopoverContent align="start">
-                                                <CalendarUI
-                                                    mode="single"
-                                                    selected={checkOutDate}
-                                                    onSelect={setCheckOutDate}
-                                                    disabled={(date) => (checkInDate ? date <= checkInDate : date < new Date())}
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
-
-                                    {/* Guests */}
-                                    <div className="mb-6">
-                                        <label className="block text-sm font-semibold text-[#27261C] mb-3">
-                                            Number of Guests<span className="text-red-500">*</span>
-                                        </label>
-                                        <Select value={guests} onValueChange={setGuests}>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {[1, 2, 3, 4, 5, 6].map((num) => (
-                                                    <SelectItem key={num} value={num.toString()}>
-                                                        {num} {num === 1 ? "Guest" : "Guests"}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    {/* Room Selection */}
-                                    <div className="mb-6">
-                                        <label className="block text-sm font-semibold text-[#27261C] mb-3">
-                                            Select Room<span className="text-red-500">*</span>
-                                        </label>
-                                        <Select value={selectedRoom} onValueChange={setSelectedRoom}>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Choose a room" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {homestayData.rooms?.map((room) => (
-                                                    <SelectItem key={room.id} value={room.id}>
-                                                        {room.name} - ₹{room.finalPrice}/night
-                                                    </SelectItem>
-                                                )) || (
-                                                        <SelectItem value="standard">Standard Room - ₹2,999/night</SelectItem>
-                                                    )}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    {/* Special Requests */}
-                                    <div className="mb-6">
-                                        <label className="block text-sm font-semibold text-[#27261C] mb-3">Special Requests</label>
-                                        <textarea
-                                            value={specialRequests}
-                                            onChange={(e) => setSpecialRequests(e.target.value)}
-                                            placeholder="Let us know if you have any special requests (optional)"
-                                            className="w-full px-4 py-3 rounded-xl border-2 border-[#DDE7E0] resize-none focus:outline-none focus:border-[#005246] transition text-sm"
-                                            rows={4}
-                                        />
-                                    </div>
-
-                                    {/* Identity Proof Upload */}
-                                    <div className="mb-8">
-                                        <label className="block text-sm font-semibold text-[#27261C] mb-3">Identity Proof (Optional)</label>
-                                        <div className="relative">
-                                            <input
-                                                type="file"
-                                                onChange={handleIdentityProofChange}
-                                                accept=".pdf,.jpg,.jpeg,.png"
-                                                className="hidden"
-                                                id="identity-proof"
-                                            />
-                                            <label
-                                                htmlFor="identity-proof"
-                                                className="block px-4 py-3 rounded-xl border-2 border-dashed border-[#DDE7E0] text-center cursor-pointer hover:border-[#005246] hover:bg-[#F5F1E6] transition"
-                                            >
-                                                {identityProof ? (
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <CheckCircle2 className="w-5 h-5 text-[#005246]" />
-                                                        <span className="text-sm text-[#27261C] font-medium">{identityProof.name}</span>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col items-center justify-center">
-                                                        <Upload className="w-5 h-5 text-[#686766] mb-2" />
-                                                        <span className="text-sm text-[#686766]">Upload PDF, JPG, or PNG (Max 5MB)</span>
-                                                    </div>
-                                                )}
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    {/* Submit Button */}
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting || !checkInDate || !checkOutDate || !selectedRoom}
-                                        className="w-full px-6 py-3 bg-[#005246] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition flex items-center justify-center gap-2"
+                {/* SIMILAR HOMESTAYS */}
+                {similarHomestays.length > 0 && (
+                    <div className="bg-white py-8 sm:py-12 md:py-16">
+                        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
+                            <h2
+                                className="text-xl sm:text-2xl md:text-3xl mb-4 sm:mb-6 md:mb-8"
+                                style={{
+                                    fontFamily: "var(--font-subjectivity), sans-serif",
+                                    fontWeight: 700,
+                                    color: "#353030",
+                                    letterSpacing: "-0.07em",
+                                }}
+                            >
+                                Similar Homestays
+                            </h2>
+                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+                                {similarHomestays.map((similar) => (
+                                    <Link
+                                        key={similar.id}
+                                        href={`/homestays/${similar.slug}`}
+                                        className="group bg-white rounded-2xl overflow-hidden border border-[#DDE7E0]/70 shadow-[0_18px_45px_-35px_rgba(0,0,0,0.35)] hover:shadow-[0_22px_55px_-35px_rgba(0,0,0,0.4)] transition-all duration-300"
                                     >
-                                        {isSubmitting ? (
-                                            <>
-                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                Processing...
-                                            </>
-                                        ) : (
-                                            "Proceed to Payment"
-                                        )}
-                                    </button>
-
-                                    {formSubmitted && (
-                                        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl flex items-start gap-3">
-                                            <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
-                                            <span className="text-sm text-green-700">Booking created successfully! Redirecting to payment...</span>
-                                        </div>
-                                    )}
-                                </form>
-                            </div>
-
-                            {/* Price Summary */}
-                            <div className="md:col-span-1">
-                                <div className="bg-white rounded-2xl p-6 border border-[#DDE7E0]/60 sticky top-24">
-                                    <h3 className="text-lg font-bold text-[#27261C] mb-4">Price Details</h3>
-
-                                    {nights > 0 && selectedRoom ? (
-                                        <>
-                                            <div className="space-y-3 mb-6 pb-6 border-b border-[#DDE7E0]/60">
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="text-[#686766]">₹2,999 × {nights} nights</span>
-                                                    <span className="font-semibold text-[#27261C]">₹{2999 * nights}</span>
+                                        <div className="relative h-40 sm:h-48 md:h-56 overflow-hidden">
+                                            <Image
+                                                src={similar.image}
+                                                alt={similar.name}
+                                                fill
+                                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                            />
+                                            {similar.featured && (
+                                                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-emerald-500 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold">
+                                                    Featured
                                                 </div>
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="text-[#686766]">Taxes & Charges</span>
-                                                    <span className="font-semibold text-[#27261C]">₹{Math.round((2999 * nights * 0.18) / 100)}</span>
+                                            )}
+                                        </div>
+                                        <div className="p-4 sm:p-5">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3
+                                                    className="text-base sm:text-lg font-bold flex-1 pr-2"
+                                                    style={{
+                                                        fontFamily: "var(--font-subjectivity), sans-serif",
+                                                        fontWeight: 700,
+                                                        color: "#353030",
+                                                    }}
+                                                >
+                                                    {similar.name}
+                                                </h3>
+                                                <div className="flex items-center gap-1 flex-shrink-0">
+                                                    <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-emerald-500 text-emerald-500" />
+                                                    <span
+                                                        style={{
+                                                            fontFamily: "var(--font-mona-sans), sans-serif",
+                                                            fontWeight: 600,
+                                                            color: "#353030",
+                                                            fontSize: "clamp(12px, 3vw, 14px)",
+                                                        }}
+                                                    >
+                                                        {similar.rating}
+                                                    </span>
                                                 </div>
                                             </div>
-
-                                            <div className="p-4 rounded-xl bg-[#005246]/5 border border-[#005246]/20 mb-6">
-                                                <p className="text-xs text-[#686766] uppercase font-semibold mb-1">Total Price</p>
-                                                <p className="text-2xl font-bold text-[#005246]">
-                                                    ₹{2999 * nights + Math.round((2999 * nights * 0.18) / 100)}
-                                                </p>
+                                            <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                                                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[#686766] flex-shrink-0" />
+                                                <span
+                                                    className="truncate"
+                                                    style={{
+                                                        fontFamily: "var(--font-mona-sans), sans-serif",
+                                                        fontWeight: 500,
+                                                        color: "#686766",
+                                                        fontSize: "clamp(12px, 3vw, 14px)",
+                                                    }}
+                                                >
+                                                    {similar.location}
+                                                </span>
                                             </div>
-                                        </>
-                                    ) : (
-                                        <p className="text-sm text-[#686766] text-center py-6">Select dates and room to see price</p>
-                                    )}
-
-                                    <div className="space-y-2 text-xs text-[#686766]">
-                                        <div className="flex items-start gap-2">
-                                            <CheckCircle2 className="w-4 h-4 text-[#005246] shrink-0 mt-0.5" />
-                                            <span>Free cancellation until 48 hours before check-in</span>
+                                            <p
+                                                className="mb-3 sm:mb-4 line-clamp-2"
+                                                style={{
+                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                    fontWeight: 500,
+                                                    color: "#686766",
+                                                    fontSize: "clamp(12px, 3vw, 14px)",
+                                                    lineHeight: "clamp(18px, 4.5vw, 20px)",
+                                                }}
+                                            >
+                                                {similar.description}
+                                            </p>
+                                            <div className="flex items-center justify-between gap-2">
+                                                <span
+                                                    className="text-base sm:text-lg font-bold"
+                                                    style={{
+                                                        fontFamily: "var(--font-mona-sans), sans-serif",
+                                                        fontWeight: 700,
+                                                        color: "#353030",
+                                                    }}
+                                                >
+                                                    ₹{similar.price}
+                                                    <span
+                                                        className="text-xs sm:text-sm font-normal ml-1"
+                                                        style={{
+                                                            fontFamily: "var(--font-mona-sans), sans-serif",
+                                                            fontWeight: 500,
+                                                            color: "#686766",
+                                                        }}
+                                                    >
+                                                        /night
+                                                    </span>
+                                                </span>
+                                                <span
+                                                    className="text-xs sm:text-sm flex-shrink-0"
+                                                    style={{
+                                                        fontFamily: "var(--font-mona-sans), sans-serif",
+                                                        fontWeight: 500,
+                                                        color: "#686766",
+                                                    }}
+                                                >
+                                                    {similar.reviews} reviews
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div className="flex items-start gap-2">
-                                            <CheckCircle2 className="w-4 h-4 text-[#005246] shrink-0 mt-0.5" />
-                                            <span>Secure payment with Razorpay</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                    </Link>
+                                ))}
                             </div>
                         </div>
                     </div>
-                </section>
+                )}
             </main>
         </div>
     );

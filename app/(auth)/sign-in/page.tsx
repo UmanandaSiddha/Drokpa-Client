@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import AuthForm from "@/components/auth/AuthForm";
+import { LoadingComponent } from "@/components/LoadingComponent";
 
 export const metadata: Metadata = {
     title: "Sign In | Drokpa",
@@ -28,7 +29,13 @@ export const metadata: Metadata = {
 
 export default function SignInPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+        <Suspense
+            fallback={
+                <div className="min-h-screen flex items-center justify-center">
+                    <LoadingComponent message="" size="large" />
+                </div>
+            }
+        >
             <AuthForm defaultMode="sign-in" />
         </Suspense>
     );

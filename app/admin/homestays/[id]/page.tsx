@@ -338,6 +338,22 @@ export default function AdminHomestayDetailPage() {
                                     </Link>
                                 </div>
 
+                                {homestay.imageUrls && homestay.imageUrls.length > 0 && (
+                                    <div className="pt-2">
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Homestay Images</p>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                            {homestay.imageUrls.slice(0, 8).map((url: string, index: number) => (
+                                                <div key={`${url}-${index}`} className="relative aspect-4/3 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                                                    <Image src={url} alt={`Homestay image ${index + 1}`} fill className="object-cover" unoptimized />
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {homestay.imageUrls.length > 8 && (
+                                            <p className="text-xs text-gray-500 mt-2">+{homestay.imageUrls.length - 8} more</p>
+                                        )}
+                                    </div>
+                                )}
+
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
                                     <div className="p-3 bg-gray-50 rounded-lg">
                                         <p className="text-gray-500">Contact</p>
@@ -387,7 +403,9 @@ export default function AdminHomestayDetailPage() {
                                                     <p>{homestayAddress.country} {homestayAddress.postalCode ? `- ${homestayAddress.postalCode}` : ''}</p>
                                                 </div>
                                             ) : (
-                                                <p className="text-sm text-gray-500">Address not linked</p>
+                                                <p className="text-sm text-gray-500">
+                                                    {homestay.addressId ? `Address ID: ${homestay.addressId}` : 'Address not linked'}
+                                                </p>
                                             )}
                                         </div>
 

@@ -10,6 +10,9 @@ import type {
     UpdateCancellationPolicyRequest,
     CancellationPolicyQueryParams,
     AssignRoleRequest,
+    AdminUpdateUserRequest,
+    AdminSetUserPasswordRequest,
+    AdminUserRole,
 } from '@/types/admin';
 import type {
     CreateCouponRequest,
@@ -24,6 +27,7 @@ export const ADMIN_KEYS = {
     dashboard: ['admin', 'dashboard'] as const,
     bookings: (params?: AdminBookingQueryParams) => ['admin', 'bookings', params] as const,
     users: (params?: AdminUserQueryParams) => ['admin', 'users', params] as const,
+    user: (id: string) => ['admin', 'user', id] as const,
     paymentStats: ['admin', 'payments'] as const,
     policies: (params?: CancellationPolicyQueryParams) => ['admin', 'policies', params] as const,
     coupons: (params?: CouponQueryParams) => ['admin', 'coupons', params] as const,
@@ -95,6 +99,57 @@ export function useAdminAssignRole() {
         mutationFn: ({ userId, data }: { userId: string; data: AssignRoleRequest }) =>
             adminService.assignRole(userId, data),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
+    });
+}
+
+export function useAdminUser(id: string | undefined) {
+    return useQuery({
+        queryKey: ADMIN_KEYS.user(id!),
+        queryFn: () => adminService.getUserById(id!),
+        enabled: !!id,
+    });
+}
+
+export function useAdminUpdateUser() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ userId, data }: { userId: string; data: AdminUpdateUserRequest }) =>
+            adminService.updateUser(userId, data),
+        onSuccess: (_, { userId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+            qc.invalidateQueries({ queryKey: ADMIN_KEYS.user(userId) });
+        },
+    });
+}
+
+export function useAdminAddRole() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ userId, data }: { userId: string; data: { role: AdminUserRole; providerTypes?: any[] } }) =>
+            adminService.addRole(userId, data),
+        onSuccess: (_, { userId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+            qc.invalidateQueries({ queryKey: ADMIN_KEYS.user(userId) });
+        },
+    });
+}
+
+export function useAdminRemoveRole() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ userId, role }: { userId: string; role: AdminUserRole }) =>
+            adminService.removeRole(userId, { role }),
+        onSuccess: (_, { userId }) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+            qc.invalidateQueries({ queryKey: ADMIN_KEYS.user(userId) });
+        },
+    });
+}
+
+export function useAdminSetUserPassword() {
+    return useMutation({
+        mutationFn: ({ userId, data }: { userId: string; data: AdminSetUserPasswordRequest }) =>
+            adminService.setUserPassword(userId, data),
     });
 }
 

@@ -15,7 +15,9 @@ import {
     Phone,
     Mail,
 } from "lucide-react";
-import treks from "@/data/treks";
+import { tourService } from "@/services/tour.service";
+import type { Tour as ApiTour } from "@/types/tour";
+import { LoadingComponent } from "@/components/LoadingComponent";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -26,23 +28,23 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useCountryOptions } from "@/hooks/useCountryOptions";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { LoginRequiredModal } from "@/components/auth/LoginRequiredModal";
 
-const fallbackImages = [
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&h=900&fit=crop",
-    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=900&fit=crop",
-    "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1200&h=900&fit=crop",
-];
-
-const meetingPoint = "Tawang, Arunachal Pradesh";
-const groupSizeLabel = "8-12 people";
+type TrekDifficulty = "Easy" | "Moderate" | "Difficult" | "Challenging";
 
 export default function TrekBookingClient({
     params,
 }: {
     params: Promise<{ trekId: string }>;
 }) {
+    const { user } = useAuth();
     const [trekId, setTrekId] = useState<string | null>(null);
+    // undefined = not loaded yet, null = failed/not found
+    const [apiTrek, setApiTrek] = useState<ApiTour | null | undefined>(undefined);
+    const [isTrekLoading, setIsTrekLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
     const countryOptions = useCountryOptions();
     const [formData, setFormData] = useState({
         name: "",
@@ -61,6 +63,7 @@ export default function TrekBookingClient({
         let mounted = true;
         params.then((p) => {
             if (mounted) {
+                setApiTrek(undefined);
                 setTrekId(p.trekId);
             }
         });
@@ -69,27 +72,156 @@ export default function TrekBookingClient({
         };
     }, [params]);
 
-    const trek = trekId ? treks.find((t) => t.id === Number(trekId)) : null;
+    useEffect(() => {
+        if (!trekId) return;
 
-    if (!trekId) {
+        let mounted = true;
+        setIsTrekLoading(true);
+        setApiTrek(undefined);
+
+        tourService
+            .getTour(trekId)
+            .then((data) => {
+                if (!mounted) return;
+                setApiTrek(data);
+            })
+            .catch((error) => {
+                console.error("[TrekBookingClient] Failed to load trek:", error);
+                if (!mounted) return;
+                setApiTrek(null);
+            })
+            .finally(() => {
+                if (!mounted) return;
+                setIsTrekLoading(false);
+            });
+
+        return () => {
+            mounted = false;
+        };
+    }, [trekId]);
+
+    const trek = apiTrek
+        ? (() => {
+            const imagesFromApi = (apiTrek.imageUrls || []).filter(
+                (url) => typeof url === "string" && url.trim().length > 0
+            );
+            const images = imagesFromApi.length
+                ? [
+                    imagesFromApi[0],
+                    imagesFromApi[1] ?? imagesFromApi[0],
+                    imagesFromApi[2] ?? imagesFromApi[0],
+                ]
+                : [];
+
+            const locationLabel = [apiTrek.address?.city, apiTrek.address?.state]
+                .filter(Boolean)
+                .join(", ");
+
+            const days = Number(apiTrek.duration) || 0;
+            const nights = Math.max(0, days - 1);
+            const durationLabel = days > 1 ? `${days} Days - ${nights} Nights` : `${days} Day`;
+
+            const textCandidates = [
+                ...(apiTrek.tags || []).map((t) => t.tag?.label).filter(Boolean),
+                ...(apiTrek.highlights || []),
+                apiTrek.about,
+                apiTrek.description,
+            ].filter((v): v is string => typeof v === "string" && v.trim().length > 0);
+
+            const pickDifficulty = (): TrekDifficulty => {
+                for (const text of textCandidates) {
+                    const value = text.toLowerCase();
+                    if (value.includes("challenging")) return "Challenging";
+                    if (value.includes("difficult")) return "Difficult";
+                    if (value.includes("moderate")) return "Moderate";
+                    if (value.includes("easy")) return "Easy";
+                }
+                return "Moderate";
+            };
+
+            const maxAltitudeMatch = textCandidates
+                .map((t) => t.match(/(\d{1,2}(?:,\d{3})|\d{3,5})\s?m\b/i))
+                .find(Boolean);
+            const maxAltitude = maxAltitudeMatch
+                ? maxAltitudeMatch[0].replace(/\s+/g, "")
+                : "";
+
+            const distanceMatch = textCandidates
+                .map((t) => t.match(/(\d+(?:\.\d+)?)\s?km\b/i))
+                .find(Boolean);
+            const distance = distanceMatch ? `${distanceMatch[1]} km` : "";
+
+            const seasonCandidate = textCandidates.find((t) =>
+                /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\b/i.test(t) || /season/i.test(t)
+            );
+            const bestSeason = seasonCandidate
+                ? seasonCandidate.replace(/best\s*season\s*:?\s*/i, "").trim()
+                : "";
+
+            const guideYears = apiTrek.guide?.createdAt
+                ? Math.max(
+                    1,
+                    Math.floor(
+                        (Date.now() - new Date(apiTrek.guide.createdAt).getTime()) /
+                        (1000 * 60 * 60 * 24 * 365)
+                    )
+                )
+                : null;
+
+            const guideName = apiTrek.guide?.provider?.name || "Local Guide";
+            const guideImage =
+                apiTrek.guide?.imageUrls?.[0] || imagesFromApi[0] || "";
+            const guideSpecialization = apiTrek.guide?.specialties?.length
+                ? apiTrek.guide.specialties.join(", ")
+                : "";
+
+            return {
+                id: apiTrek.id,
+                title: apiTrek.title,
+                duration: durationLabel,
+                image: images[0] || "",
+                images,
+                rating: apiTrek.rating || 0,
+                description: apiTrek.description,
+                difficulty: pickDifficulty(),
+                maxAltitude: maxAltitude || "Not specified",
+                distance: distance || "Not specified",
+                bestSeason: bestSeason || "Not specified",
+                features: Array.from(new Set(apiTrek.highlights || [])).filter(Boolean),
+                price: apiTrek.finalPrice || 0,
+                originalPrice: apiTrek.basePrice || 0,
+                discount: apiTrek.discount ? `${apiTrek.discount}% off` : "",
+                meetingPoint: locationLabel,
+                groupSizeLabel: `${apiTrek.maxCapacity} people`,
+                guide: {
+                    id: apiTrek.guide?.id || "0",
+                    name: guideName,
+                    image: guideImage,
+                    experience: guideYears ? `${guideYears} Years` : "—",
+                    specialization: guideSpecialization,
+                    rating: apiTrek.guide?.rating || 0,
+                    languages: apiTrek.guide?.languages || [],
+                    bio: apiTrek.guide?.bio || "",
+                },
+            };
+        })()
+        : null;
+
+    if (!trekId || isTrekLoading || apiTrek === undefined) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center">
-                <div
-                    style={{
-                        fontFamily: "var(--font-mona-sans), sans-serif",
-                        fontWeight: 500,
-                        color: "#686766",
-                    }}
-                >
-                    Loading...
-                </div>
+                <LoadingComponent message="" size="large" />
             </div>
         );
     }
 
     if (!trek) return notFound();
 
-    const images = [trek.image, ...fallbackImages].slice(0, 3);
+    if (!trek.images.length) return notFound();
+
+    const images = trek.images;
+    const meetingPoint = trek.meetingPoint;
+    const groupSizeLabel = trek.groupSizeLabel;
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -174,6 +306,12 @@ export default function TrekBookingClient({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+
         if (validateForm()) {
             setSubmitted(true);
             setTimeout(() => setSubmitted(false), 3000);
@@ -182,6 +320,13 @@ export default function TrekBookingClient({
 
     return (
         <div className="min-h-screen bg-white">
+            <LoginRequiredModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+                title="Sign In to Book Trek"
+                message="You need to be logged in to book a trek. Please sign in to continue with your booking."
+            />
+
             <main className="relative min-h-screen bg-white">
                 {/* Hero */}
                 <section className="relative mt-16 py-6 sm:py-8 md:py-10 overflow-hidden">

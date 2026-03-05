@@ -2,6 +2,9 @@
 // Homestay Types
 // ──────────────────────────────────────────────
 
+import type { Address } from './address';
+import type { Review } from './review';
+
 export enum BookingCriteria {
     PER_PERSON = 'PER_PERSON',
     PER_NIGHT = 'PER_NIGHT',
@@ -82,9 +85,12 @@ export interface Homestay {
     isActive: boolean;
     providerId: string;
     addressId?: string;
+    provider?: { id: string; name: string };
+    address?: Address;
     rooms?: HomestayRoom[];
     facilities?: HomestayFacility[];
     tags?: HomestayTag[];
+    reviews?: Review[];
     createdAt: string;
     updatedAt: string;
 }
@@ -105,7 +111,9 @@ export interface CreateHomestayRequest {
     isActive?: boolean;
 }
 
-export interface UpdateHomestayRequest extends Partial<CreateHomestayRequest> { }
+export interface UpdateHomestayRequest extends Partial<CreateHomestayRequest> {
+    providerId?: string;
+}
 
 export interface CreateRoomRequest {
     name: string;

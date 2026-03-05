@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import HomePageClient from "@/client/HomePageClient";
-import tours from "@/data/tours";
-import homestays from "@/data/homestays";
 
 export const metadata: Metadata = {
 	title: "Drokpa - Discover Authentic Travel in Arunachal Pradesh",
@@ -17,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function App() {
-	return <HomePageClient tours={tours} homestays={homestays} />;
+	return <HomePageClient />;
 }

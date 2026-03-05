@@ -30,6 +30,7 @@ export default function HomestaysPage() {
 
     const homestays = homestaysData?.data || []
     const total = homestaysData?.meta?.total || 0
+    const totalPages = homestaysData?.meta?.totalPages || 1
 
     return (
         <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.HOST]}>
@@ -84,15 +85,19 @@ export default function HomestaysPage() {
                 {!isLoading && homestays.length > 0 && (
                     <div className="space-y-3">
                         {homestays.map((homestay: any) => (
-                            <div key={homestay.id} className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow">
+                            <div key={homestay.id} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-lg transition-shadow">
                                 <div className="flex flex-col md:flex-row md:items-start gap-4">
                                     {/* Image */}
-                                    {homestay.imageUrls?.[0] && (
+                                    {homestay.imageUrls?.[0] ? (
                                         <img
                                             src={homestay.imageUrls[0]}
                                             alt={homestay.name}
                                             className="w-full md:w-32 h-32 object-cover rounded-lg"
                                         />
+                                    ) : (
+                                        <div className="w-full md:w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                                            <Building2 size={32} className="text-gray-300" />
+                                        </div>
                                     )}
 
                                     {/* Info */}
@@ -189,10 +194,10 @@ export default function HomestaysPage() {
                             >
                                 Previous
                             </button>
-                            <span className="px-3 py-1">Page {pagination.page}</span>
+                            <span className="px-3 py-1 text-sm text-gray-600">Page {pagination.page} of {totalPages}</span>
                             <button
                                 onClick={() => setPagination((p) => ({ ...p, page: p.page + 1 }))}
-                                disabled={homestays.length < pagination.limit}
+                                disabled={pagination.page >= totalPages}
                                 className="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Next

@@ -53,10 +53,8 @@ export async function generateMetadata({ params }: TourSlugPageProps): Promise<M
 export default async function TourSlugPage({ params }: TourSlugPageProps) {
     try {
         const { slug } = await params;
-        console.log(`[TourSlugPage] Loading tour with slug: ${slug}`);
-        
+
         const tour = await tourService.getTourBySlug(slug);
-        console.log(`[TourSlugPage] Tour data received:`, { id: tour?.id, title: tour?.title });
 
         if (!tour) {
             console.error(`[TourSlugPage] No tour found for slug: ${slug}`);
@@ -68,9 +66,6 @@ export default async function TourSlugPage({ params }: TourSlugPageProps) {
             notFound();
         }
 
-        console.log(`[TourSlugPage] Rendering TourBookingPageClient with tourId: ${tour.id}`);
-        
-        // Pass tour ID to client component since we got it via slug
         return <TourBookingPageClient params={Promise.resolve({ tourId: tour.id })} />;
     } catch (error) {
         console.error('[TourSlugPage] Error loading tour:', error);

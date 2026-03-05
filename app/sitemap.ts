@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
-import tours from "@/data/tours";
+import { tourService } from "@/services/tour.service";
+import { homestayService } from "@/services/homestay.service";
 import { articles } from "@/data/articles";
-import homestays from "@/data/homestays";
 
 const baseUrl = "https://www.drokpa.in";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const now = new Date();
 
     const staticRoutes = [
@@ -27,20 +27,38 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: path === "" ? 1 : 0.7,
     }));
 
-    const tourRoutes = tours.map((tour) => ({
-        url: `${baseUrl}/tours/${tour.id}`,
-        lastModified: now,
-    }));
+    // Note: generate slug-based URLs for both Tours and Treks
+    // (keeps sitemap consistent with /tours/[slug] and /treks/[slug]).
+    let tourRoutes: MetadataRoute.Sitemap = [];
+    try {
+        const res = await tourService.getTours({ limit: 1000 });
+        tourRoutes = (res.data || [])
+            .filter((t) => Boolean(t.slug))
+            .map((t) => ({
+                url: `${baseUrl}/${t.type === "TREK" ? "treks" : "tours"}/${t.slug}`,
+                lastModified: now,
+            }));
+    } catch {
+        tourRoutes = [];
+    }
 
     const articleRoutes = articles.map((article) => ({
         url: `${baseUrl}/articles/${article.id}`,
         lastModified: now,
     }));
 
-    const homestayRoutes = homestays.map((homestay) => ({
-        url: `${baseUrl}/homestays/${homestay.id}`,
-        lastModified: now,
-    }));
+    let homestayRoutes: MetadataRoute.Sitemap = [];
+    try {
+        const res = await homestayService.getHomestays({ limit: 1000 });
+        homestayRoutes = (res.data || [])
+            .filter((h) => Boolean(h.slug))
+            .map((h) => ({
+                url: `${baseUrl}/homestays/${h.slug}`,
+                lastModified: now,
+            }));
+    } catch {
+        homestayRoutes = [];
+    }
 
     return [...staticRoutes, ...tourRoutes, ...articleRoutes, ...homestayRoutes];
 }

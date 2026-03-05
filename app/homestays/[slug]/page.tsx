@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { homestayService } from "@/services/homestay.service";
 import HomestayBookingClient from "@/client/HomestayBookingClient";
-import type { Metadata as NextMetadata } from "next";
 
 type HomestaySlugPageProps = {
     params: Promise<{
@@ -10,7 +9,7 @@ type HomestaySlugPageProps = {
     }>;
 };
 
-export async function generateMetadata({ params }: HomestaySlugPageProps): Promise<NextMetadata> {
+export async function generateMetadata({ params }: HomestaySlugPageProps): Promise<Metadata> {
     try {
         const { slug } = await params;
         const homestay = await homestayService.getHomestayBySlug(slug);
@@ -55,6 +54,10 @@ export default async function HomestaySlugPage({ params }: HomestaySlugPageProps
         const homestay = await homestayService.getHomestayBySlug(slug);
 
         if (!homestay) {
+            notFound();
+        }
+
+        if (!homestay.id) {
             notFound();
         }
 
