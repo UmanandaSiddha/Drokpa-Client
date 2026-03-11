@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { Loader2, ArrowLeft } from 'lucide-react'
+import { AxiosError } from 'axios'
 
 import { RoleGuard } from '@/components/admin/RoleGuard'
 import { Input } from '@/components/ui/input'
@@ -17,6 +18,10 @@ import type { AdminUserRole } from '@/types/admin'
 import { useAdminAddRole, useAdminRemoveRole, useAdminSetUserPassword, useAdminUpdateUser, useAdminUser } from '@/hooks/admin'
 import { useAdminDeleteUser, useAdminToggleUserStatus, useAdminVerifyUser } from '@/hooks/user'
 import { useAuth } from '@/hooks/auth/useAuth'
+
+type ApiErrorPayload = {
+    message?: string | string[]
+}
 
 export default function AdminUserDetailsPage() {
     const { user: currentUser } = useAuth()
@@ -100,6 +105,16 @@ export default function AdminUserDetailsPage() {
         setPasswordValue('')
         setPasswordConfirm('')
         alert('Password updated')
+    }
+
+    const getApiErrorMessage = (error: unknown, fallback: string) => {
+        if (error instanceof AxiosError) {
+            const payload = error.response?.data as ApiErrorPayload | undefined
+            const msg = payload?.message
+            if (Array.isArray(msg)) return msg[0] ?? fallback
+            if (typeof msg === 'string' && msg.trim()) return msg
+        }
+        return fallback
     }
 
     return (
@@ -192,7 +207,13 @@ export default function AdminUserDetailsPage() {
                                         <button
                                             type="button"
                                             disabled={verifyUser.isPending}
-                                            onClick={() => verifyUser.mutate(user.id)}
+                                            onClick={async () => {
+                                                try {
+                                                    await verifyUser.mutateAsync(user.id)
+                                                } catch (error) {
+                                                    alert(getApiErrorMessage(error, 'Failed to verify user'))
+                                                }
+                                            }}
                                             className="h-10 px-3 rounded-md border border-green-300 text-green-700 hover:bg-green-50 disabled:opacity-40 disabled:hover:bg-transparent text-sm"
                                         >
                                             Verify
@@ -208,7 +229,13 @@ export default function AdminUserDetailsPage() {
                                     <Switch
                                         checked={user.isDisabled}
                                         disabled={toggleStatus.isPending}
-                                        onCheckedChange={() => toggleStatus.mutate(user.id)}
+                                        onCheckedChange={async () => {
+                                            try {
+                                                await toggleStatus.mutateAsync(user.id)
+                                            } catch (error) {
+                                                alert(getApiErrorMessage(error, 'Failed to update user status'))
+                                            }
+                                        }}
                                     />
                                     <span className="text-sm text-gray-600">{user.isDisabled ? 'Disabled' : 'Active'}</span>
                                 </div>
@@ -281,8 +308,12 @@ export default function AdminUserDetailsPage() {
                                 type="button"
                                 onClick={() => {
                                     if (confirm('Permanently delete this user?')) {
-                                        deleteUser.mutate(user.id)
-                                        router.push('/admin/users')
+                                        deleteUser.mutate(user.id, {
+                                            onSuccess: () => router.push('/admin/users'),
+                                            onError: (error) => {
+                                                alert(getApiErrorMessage(error, 'Failed to delete user'))
+                                            },
+                                        })
                                     }
                                 }}
                                 disabled={deleteUser.isPending}

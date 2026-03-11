@@ -75,8 +75,8 @@ class UserService {
         return response.data;
     }
 
-    async updateUserStatus(id: string): Promise<{ id: string; isActive: boolean }> {
-        const response = await apiClient.put<{ id: string; isActive: boolean }>(`/user/admin/${id}/status`);
+    async updateUserStatus(id: string): Promise<{ message: string; data: User }> {
+        const response = await apiClient.put<{ message: string; data: User }>(`/user/admin/${id}/status`);
         return response.data;
     }
 

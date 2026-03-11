@@ -96,7 +96,11 @@ export function useAdminDeleteUser() {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (id: string) => userService.deleteUserAdmin(id),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
+        onSuccess: (_, id) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+            qc.invalidateQueries({ queryKey: ['admin', 'user', id] });
+            qc.invalidateQueries({ queryKey: USER_KEYS.oneAdmin(id) });
+        },
     });
 }
 
@@ -104,7 +108,11 @@ export function useAdminToggleUserStatus() {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (id: string) => userService.updateUserStatus(id),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
+        onSuccess: (_, id) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+            qc.invalidateQueries({ queryKey: ['admin', 'user', id] });
+            qc.invalidateQueries({ queryKey: USER_KEYS.oneAdmin(id) });
+        },
     });
 }
 
@@ -112,6 +120,10 @@ export function useAdminVerifyUser() {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (id: string) => userService.verifyUserEmail(id),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
+        onSuccess: (_, id) => {
+            qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+            qc.invalidateQueries({ queryKey: ['admin', 'user', id] });
+            qc.invalidateQueries({ queryKey: USER_KEYS.oneAdmin(id) });
+        },
     });
 }
