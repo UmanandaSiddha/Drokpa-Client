@@ -68,95 +68,97 @@ const pdfStyles = StyleSheet.create({
         paddingBottom: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#EFEAE0',
+        alignItems: 'flex-start',
     },
     brandName: {
-        fontSize: 24,
+        fontSize: 26,
         fontFamily: 'Helvetica-Bold',
         color: '#005246',
-        marginBottom: 4,
+        marginBottom: 5,
     },
     brandSubtitle: {
         fontSize: 10,
+        fontFamily: 'Helvetica',
         color: '#686766',
     },
     invoiceTitle: {
-        fontSize: 10,
+        fontSize: 11,
+        fontFamily: 'Helvetica',
         color: '#686766',
         marginBottom: 4,
     },
     invoiceNumber: {
-        fontSize: 16,
+        fontSize: 18,
         fontFamily: 'Helvetica-Bold',
         color: '#353030',
     },
     detailsGrid: {
         flexDirection: 'row',
-        marginBottom: 20,
+        marginBottom: 25,
+        gap: 15,
     },
     detailItem: {
         flex: 1,
     },
     detailLabel: {
         fontSize: 9,
-        color: '#686766',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        marginBottom: 4,
         fontFamily: 'Helvetica-Bold',
+        color: '#686766',
+        marginBottom: 6,
     },
     detailValue: {
         fontSize: 11,
-        color: '#353030',
         fontFamily: 'Helvetica-Bold',
+        color: '#353030',
     },
     statusBadge: {
         backgroundColor: '#D1FAE5',
         color: '#047857',
-        paddingHorizontal: 12,
-        paddingVertical: 4,
-        borderRadius: 12,
-        fontSize: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 4,
+        fontSize: 9,
         fontFamily: 'Helvetica-Bold',
         alignSelf: 'flex-start',
     },
     billSection: {
         flexDirection: 'row',
-        marginBottom: 20,
+        marginBottom: 25,
         paddingBottom: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#EFEAE0',
+        gap: 40,
     },
     billColumn: {
         flex: 1,
     },
     sectionTitle: {
         fontSize: 9,
-        color: '#686766',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        marginBottom: 8,
         fontFamily: 'Helvetica-Bold',
+        color: '#686766',
+        marginBottom: 8,
     },
     billName: {
         fontSize: 14,
         fontFamily: 'Helvetica-Bold',
         color: '#353030',
-        marginBottom: 4,
+        marginBottom: 6,
     },
     billInfo: {
         fontSize: 10,
+        fontFamily: 'Helvetica',
         color: '#686766',
-        marginBottom: 2,
+        marginBottom: 3,
     },
     table: {
-        marginBottom: 20,
+        marginBottom: 25,
     },
     tableHeader: {
         flexDirection: 'row',
         borderBottomWidth: 2,
         borderBottomColor: '#EFEAE0',
-        paddingBottom: 8,
-        marginBottom: 8,
+        paddingBottom: 10,
+        marginBottom: 10,
     },
     tableRow: {
         flexDirection: 'row',
@@ -165,39 +167,39 @@ const pdfStyles = StyleSheet.create({
         paddingVertical: 12,
     },
     colDescription: {
-        flex: 3,
+        flex: 3.5,
     },
     colQty: {
-        flex: 1,
+        flex: 0.8,
         textAlign: 'center',
     },
     colRate: {
-        flex: 1,
+        flex: 1.2,
         textAlign: 'right',
     },
     colAmount: {
-        flex: 1,
+        flex: 1.2,
         textAlign: 'right',
     },
     tableHeaderText: {
         fontSize: 9,
-        color: '#686766',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
         fontFamily: 'Helvetica-Bold',
+        color: '#686766',
     },
     itemName: {
         fontSize: 11,
         fontFamily: 'Helvetica-Bold',
         color: '#353030',
-        marginBottom: 3,
+        marginBottom: 4,
     },
     itemDescription: {
         fontSize: 9,
+        fontFamily: 'Helvetica',
         color: '#686766',
     },
     itemText: {
         fontSize: 10,
+        fontFamily: 'Helvetica',
         color: '#353030',
     },
     itemAmount: {
@@ -212,12 +214,13 @@ const pdfStyles = StyleSheet.create({
     summaryRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingVertical: 8,
+        paddingVertical: 10,
         borderBottomWidth: 1,
         borderBottomColor: '#EFEAE0',
     },
     summaryLabel: {
         fontSize: 10,
+        fontFamily: 'Helvetica',
         color: '#686766',
     },
     summaryValue: {
@@ -228,10 +231,10 @@ const pdfStyles = StyleSheet.create({
     totalRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        backgroundColor: 'rgba(0, 82, 70, 0.08)',
+        backgroundColor: '#D1FAE5',
         padding: 12,
-        borderRadius: 12,
-        marginTop: 8,
+        borderRadius: 4,
+        marginTop: 10,
     },
     totalLabel: {
         fontSize: 12,
@@ -244,18 +247,20 @@ const pdfStyles = StyleSheet.create({
         color: '#005246',
     },
     footer: {
-        marginTop: 30,
+        marginTop: 25,
         paddingTop: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 15,
         borderTopWidth: 1,
         borderTopColor: '#EFEAE0',
         backgroundColor: '#FDFBF6',
-        padding: 20,
     },
     footerText: {
         fontSize: 9,
+        fontFamily: 'Helvetica',
         color: '#686766',
         textAlign: 'center',
-        lineHeight: 1.4,
+        lineHeight: 1.5,
     },
 });
 
@@ -269,7 +274,7 @@ const InvoicePDF = ({ data }: { data: InvoiceData }) => (
                     <Text style={pdfStyles.brandName}>Drokpa</Text>
                     <Text style={pdfStyles.brandSubtitle}>Adventure Booking Platform</Text>
                 </View>
-                <View>
+                <View style={{ textAlign: 'right' }}>
                     <Text style={pdfStyles.invoiceTitle}>Invoice</Text>
                     <Text style={pdfStyles.invoiceNumber}>{data.invoiceNumber}</Text>
                 </View>
@@ -326,9 +331,9 @@ const InvoicePDF = ({ data }: { data: InvoiceData }) => (
                             <Text style={pdfStyles.itemDescription}>{item.description}</Text>
                         </View>
                         <Text style={[pdfStyles.itemText, pdfStyles.colQty]}>{item.quantity}</Text>
-                        <Text style={[pdfStyles.itemText, pdfStyles.colRate]}>₹{item.rate.toLocaleString()}</Text>
+                        <Text style={[pdfStyles.itemText, pdfStyles.colRate]}>₹{item.rate.toLocaleString('en-IN')}</Text>
                         <Text style={[pdfStyles.itemAmount, pdfStyles.colAmount]}>
-                            ₹{(item.rate * item.quantity).toLocaleString()}
+                            ₹{(item.rate * item.quantity).toLocaleString('en-IN')}
                         </Text>
                     </View>
                 ))}
@@ -338,15 +343,15 @@ const InvoicePDF = ({ data }: { data: InvoiceData }) => (
             <View style={pdfStyles.summary}>
                 <View style={pdfStyles.summaryRow}>
                     <Text style={pdfStyles.summaryLabel}>Subtotal</Text>
-                    <Text style={pdfStyles.summaryValue}>₹{data.subtotal.toLocaleString()}</Text>
+                    <Text style={pdfStyles.summaryValue}>₹{data.subtotal.toLocaleString('en-IN')}</Text>
                 </View>
                 <View style={pdfStyles.summaryRow}>
                     <Text style={pdfStyles.summaryLabel}>Tax (GST 18%)</Text>
-                    <Text style={pdfStyles.summaryValue}>₹{data.tax.toLocaleString()}</Text>
+                    <Text style={pdfStyles.summaryValue}>₹{data.tax.toLocaleString('en-IN')}</Text>
                 </View>
                 <View style={pdfStyles.totalRow}>
                     <Text style={pdfStyles.totalLabel}>Total Amount</Text>
-                    <Text style={pdfStyles.totalValue}>₹{data.total.toLocaleString()}</Text>
+                    <Text style={pdfStyles.totalValue}>₹{data.total.toLocaleString('en-IN')}</Text>
                 </View>
             </View>
 
@@ -751,7 +756,7 @@ export default function InvoiceClient() {
                                                     className="text-right py-4 px-2"
                                                     style={{ fontFamily: "var(--font-mona-sans)", color: "#353030" }}
                                                 >
-                                                    ₹{item.rate.toLocaleString()}
+                                                    ₹{item.rate.toLocaleString('en-IN')}
                                                 </td>
                                                 <td
                                                     className="text-right py-4 px-2"
@@ -761,7 +766,7 @@ export default function InvoiceClient() {
                                                         color: "#353030",
                                                     }}
                                                 >
-                                                    ₹{(item.rate * item.quantity).toLocaleString()}
+                                                    ₹{(item.rate * item.quantity).toLocaleString('en-IN')}
                                                 </td>
                                             </tr>
                                         ))}
@@ -789,7 +794,7 @@ export default function InvoiceClient() {
                                                     color: "#353030",
                                                 }}
                                             >
-                                                ₹{DEMO_INVOICE.subtotal.toLocaleString()}
+                                                ₹{DEMO_INVOICE.subtotal.toLocaleString('en-IN')}
                                             </p>
                                         </div>
 
@@ -809,7 +814,7 @@ export default function InvoiceClient() {
                                                     color: "#353030",
                                                 }}
                                             >
-                                                ₹{DEMO_INVOICE.tax.toLocaleString()}
+                                                ₹{DEMO_INVOICE.tax.toLocaleString('en-IN')}
                                             </p>
                                         </div>
 
@@ -834,7 +839,7 @@ export default function InvoiceClient() {
                                                     letterSpacing: "-0.04em",
                                                 }}
                                             >
-                                                ₹{DEMO_INVOICE.total.toLocaleString()}
+                                                ₹{DEMO_INVOICE.total.toLocaleString('en-IN')}
                                             </p>
                                         </div>
                                     </div>
