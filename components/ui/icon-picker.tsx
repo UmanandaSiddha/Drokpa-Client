@@ -1,11 +1,13 @@
 "use client";
 
-import { icons, LucideIcon } from "lucide-react";
+import { icons, Search, X } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useMemo, useState, ComponentType } from "react";
-import { Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState, ComponentType, UIEvent } from "react";
 
 const ICON_NAMES = Object.keys(icons);
+const INITIAL_ICON_BATCH = 100;
+const ICON_BATCH_SIZE = 100;
+const SCROLL_THRESHOLD = 120;
 
 interface IconPickerProps {
     value: string;
@@ -16,21 +18,59 @@ interface IconPickerProps {
 export function IconPicker({ value, onChange, className = "" }: IconPickerProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState("");
+    const [visibleCount, setVisibleCount] = useState(INITIAL_ICON_BATCH);
+    const iconComponentCache = useRef(
+        new Map<string, ComponentType<{ size?: number; className?: string }>>()
+    );
+
+    const getDynamicIcon = useCallback((iconName: string) => {
+        const cachedIcon = iconComponentCache.current.get(iconName);
+        if (cachedIcon) return cachedIcon;
+
+        const DynamicIcon = dynamic(async () => {
+            const mod = await import("lucide-react");
+            return (mod as any)[iconName] ?? mod.Tag;
+        }, { ssr: false }) as ComponentType<{ size?: number; className?: string }>;
+
+        iconComponentCache.current.set(iconName, DynamicIcon);
+        return DynamicIcon;
+    }, []);
 
     const filteredIcons = useMemo(() => {
         const q = search.trim().toLowerCase();
-        if (!q) return ICON_NAMES.slice(0, 100); // Show first 100 by default
+        if (!q) return ICON_NAMES;
 
-        return ICON_NAMES.filter((name) => name.toLowerCase().includes(q)).slice(0, 100);
+        return ICON_NAMES.filter((name) => name.toLowerCase().includes(q));
     }, [search]);
 
-    // Dynamic import for the selected icon component
+    const displayedIcons = useMemo(() => {
+        return filteredIcons.slice(0, visibleCount);
+    }, [filteredIcons, visibleCount]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        setVisibleCount(INITIAL_ICON_BATCH);
+    }, [search, isOpen]);
+
+    const loadMoreIcons = useCallback(() => {
+        setVisibleCount((prev) => {
+            if (prev >= filteredIcons.length) return prev;
+            return Math.min(prev + ICON_BATCH_SIZE, filteredIcons.length);
+        });
+    }, [filteredIcons.length]);
+
+    const handleScroll = useCallback((event: UIEvent<HTMLDivElement>) => {
+        const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+        const nearBottom = scrollHeight - scrollTop - clientHeight <= SCROLL_THRESHOLD;
+
+        if (nearBottom) {
+            loadMoreIcons();
+        }
+    }, [loadMoreIcons]);
+
     const SelectedIcon = useMemo(() => {
-        return dynamic(async () => {
-            const mod = await import("lucide-react");
-            return (mod as any)[value] ?? mod.Tag;
-        }, { ssr: false }) as ComponentType<{ size?: number; className?: string }>;
-    }, [value]);
+        return getDynamicIcon(value);
+    }, [getDynamicIcon, value]);
 
     return (
         <div className={`relative ${className}`}>
@@ -68,18 +108,15 @@ export function IconPicker({ value, onChange, className = "" }: IconPickerProps)
                                 />
                             </div>
                             <p className="text-xs text-gray-500 mt-2">
-                                Showing {filteredIcons.length} icons {search && `for "${search}"`}
+                                Showing {displayedIcons.length} of {filteredIcons.length} icons {search && `for "${search}"`}
                             </p>
                         </div>
 
                         {/* Icon Grid */}
-                        <div className="flex-1 overflow-y-auto p-3">
+                        <div className="flex-1 overflow-y-auto p-3" onScroll={handleScroll}>
                             <div className="grid grid-cols-6 gap-2">
-                                {filteredIcons.map((name) => {
-                                    const Icon = dynamic(async () => {
-                                        const mod = await import("lucide-react");
-                                        return (mod as any)[name];
-                                    }, { ssr: false }) as ComponentType<{ size?: number }>;
+                                {displayedIcons.map((name) => {
+                                    const Icon = getDynamicIcon(name);
 
                                     const isSelected = name === value;
 
