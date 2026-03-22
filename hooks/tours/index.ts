@@ -8,7 +8,9 @@ import type { CreateTourRequest, UpdateTourRequest, AddItineraryDayRequest, Tour
 
 export const TOUR_KEYS = {
     all: (params?: TourQueryParams) => ['tours', params] as const,
+    adminAll: (params?: TourQueryParams) => ['tours', 'admin', params] as const,
     one: (id: string) => ['tours', id] as const,
+    mine: (params?: TourQueryParams) => ['tours', 'mine', params] as const,
     pois: (params?: object) => ['pois', params] as const,
     onePoi: (id: string) => ['pois', id] as const,
 };
@@ -19,6 +21,22 @@ export function useTours(params?: TourQueryParams) {
     return useQuery({
         queryKey: TOUR_KEYS.all(params),
         queryFn: () => tourService.getTours(params),
+    });
+}
+
+export function useAdminTours(params?: TourQueryParams, enabled: boolean = true) {
+    return useQuery({
+        queryKey: TOUR_KEYS.adminAll(params),
+        queryFn: () => tourService.getAdminTours(params),
+        enabled,
+    });
+}
+
+export function useMyTours(params?: TourQueryParams, enabled: boolean = true) {
+    return useQuery({
+        queryKey: TOUR_KEYS.mine(params),
+        queryFn: () => tourService.getMyTours(params),
+        enabled,
     });
 }
 

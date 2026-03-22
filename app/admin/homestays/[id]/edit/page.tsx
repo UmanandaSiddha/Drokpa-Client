@@ -50,15 +50,39 @@ export default function EditHomestayPage() {
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
 
     const [providerSearch, setProviderSearch] = useState('')
+
+    const normalizeProviderId = (value: unknown) => {
+        if (value === null || value === undefined) return ''
+        return String(value).trim()
+    }
+
     const { data: providersData, isLoading: providersLoading } = useAdminProviders(
         { page: 1, limit: 200 },
         isAdmin,
     )
-    const allProviders = (providersData as any)?.data || []
-    const homestayHostProviders = allProviders.filter((p: any) => Array.isArray(p.type) && p.type.includes(ProviderType.HOMESTAY_HOST))
+    const rawProviders = (providersData as any)?.data
+    const providersList = Array.isArray(rawProviders)
+        ? rawProviders
+        : Array.isArray(rawProviders?.data)
+            ? rawProviders.data
+            : []
+    const allProviders = providersList
+        .map((p: any) => ({
+            ...p,
+            id: normalizeProviderId(p?.id),
+            type: Array.isArray(p?.type)
+                ? p.type
+                : typeof p?.type === 'string'
+                    ? [p.type]
+                    : [],
+        }))
+        .filter((p: any) => !!p.id)
+    const homestayHostProviders = allProviders.filter((p: any) => p.type.includes(ProviderType.HOMESTAY_HOST))
 
     const homestayProvider = (homestay as any)?.provider as { id?: string; name?: string; type?: any } | undefined
-    const currentProviderId = formData.providerId
+    const currentProviderId = normalizeProviderId(
+        formData.providerId || (homestay as any)?.providerId || homestayProvider?.id,
+    )
     const providerOptions = (() => {
         if (!currentProviderId) return homestayHostProviders
         const alreadyIncluded = homestayHostProviders.some((p: any) => p?.id === currentProviderId)
@@ -79,6 +103,8 @@ export default function EditHomestayPage() {
             `${p?.name ?? ''} ${p?.id ?? ''}`.toLowerCase().includes(providerSearch.toLowerCase())
         )
         : providerOptions
+
+    const selectedProviderLabel = providerOptions.find((p: any) => p?.id === currentProviderId)?.name
 
     const normalizeStringList = (items: string[]) => items.map((s) => (s ?? '').trim()).filter(Boolean)
 
@@ -122,7 +148,7 @@ export default function EditHomestayPage() {
             isActive: homestay.isActive,
             imageUrls: homestay.imageUrls || [],
             addressId: homestay.addressId || '',
-            providerId: (homestay as any)?.providerId || '',
+            providerId: normalizeProviderId((homestay as any)?.providerId || (homestay as any)?.provider?.id),
         })
 
         const addr = (homestay as any)?.address as Address | undefined
@@ -281,15 +307,19 @@ export default function EditHomestayPage() {
                                                 disabled={providersLoading}
                                             />
                                             <Select
-                                                value={formData.providerId}
-                                                onValueChange={(value) => setFormData((p) => ({ ...p, providerId: value }))}
+                                                value={currentProviderId || undefined}
+                                                onValueChange={(value) => setFormData((p) => ({ ...p, providerId: normalizeProviderId(value) }))}
                                             >
                                                 <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder={providersLoading ? 'Loading providers...' : 'Select provider'} />
+                                                    <SelectValue placeholder={providersLoading ? 'Loading providers...' : 'Select provider'}>
+                                                        {selectedProviderLabel
+                                                            ? `${selectedProviderLabel} (${currentProviderId})`
+                                                            : undefined}
+                                                    </SelectValue>
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {filteredProviders.map((p: any) => (
-                                                        <SelectItem key={p.id} value={p.id}>
+                                                        <SelectItem key={p.id} value={normalizeProviderId(p.id)}>
                                                             {p.__missingFromAdminList ? `${p.name} (${p.id}) — not in provider list` : `${p.name} (${p.id})`}
                                                         </SelectItem>
                                                     ))}

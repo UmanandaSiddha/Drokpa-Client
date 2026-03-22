@@ -2,14 +2,14 @@
 
 import { RoleGuard } from '@/components/admin/RoleGuard'
 import { UserRole } from '@/types/auth'
-import { useGuides } from '@/hooks/guide'
-import { useCreateGuide } from '@/hooks/guide'
+import { useAdminGuides, useCreateGuide, useDeleteGuide, useMyGuides, useUpdateGuide } from '@/hooks/guide'
+import { useAuth } from '@/hooks/auth/useAuth'
 import type { User } from '@/types/auth'
 import type { Address } from '@/types/address'
 import { useAddresses, useSearchAddresses } from '@/hooks/resources'
 import { useS3Upload } from '@/hooks/s3/useS3Upload'
 import React, { useState } from 'react'
-import { Loader2, PersonStanding, Search, MapPin, Star, ExternalLink, Upload, X, AlertCircle, Plus } from 'lucide-react'
+import { Loader2, PersonStanding, Search, MapPin, Star, ExternalLink, Upload, X, AlertCircle, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useDebounce } from '@/hooks/useDebounce'
 import { UserSearchSelect } from '@/components/admin/UserSearchSelect'
@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 
 function GuidesContent() {
+    const { isAdmin, isGuide } = useAuth()
     // Form visibility state
     const [isFormOpen, setIsFormOpen] = useState(false);
     // Form state
@@ -51,12 +52,41 @@ function GuidesContent() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const debouncedSearch = useDebounce(search, 500);
-    const { data, isLoading, refetch } = useGuides({
+    const adminGuidesQuery = useAdminGuides({
         page,
         limit: 20,
         keyword: debouncedSearch || undefined,
-    });
+    }, isAdmin);
+    const myGuidesQuery = useMyGuides(isGuide);
     const createGuide = useCreateGuide();
+    const updateGuide = useUpdateGuide();
+    const deleteGuide = useDeleteGuide();
+
+    const adminRows = adminGuidesQuery.data?.data || [];
+    const myRows = myGuidesQuery.data || [];
+    const myFiltered = debouncedSearch
+        ? myRows.filter((guide: any) =>
+            `${guide?.provider?.name ?? ''} ${guide?.bio ?? ''} ${(guide?.languages || []).join(' ')} ${(guide?.specialties || []).join(' ')}`
+                .toLowerCase()
+                .includes(debouncedSearch.toLowerCase())
+        )
+        : myRows;
+    const myTotal = myFiltered.length;
+    const myTotalPages = Math.max(1, Math.ceil(myTotal / 20));
+    const myStart = (page - 1) * 20;
+    const myPageRows = myFiltered.slice(myStart, myStart + 20);
+
+    const guidesRows = isAdmin ? adminRows : myPageRows;
+    const totalGuides = isAdmin ? (adminGuidesQuery.data?.meta?.total || 0) : myTotal;
+    const totalPages = isAdmin ? (adminGuidesQuery.data?.meta?.totalPages || 1) : myTotalPages;
+    const isLoading = isAdmin ? adminGuidesQuery.isLoading : myGuidesQuery.isLoading;
+    const refetchGuides = isAdmin ? adminGuidesQuery.refetch : myGuidesQuery.refetch;
+
+    React.useEffect(() => {
+        if (page > totalPages) {
+            setPage(totalPages);
+        }
+    }, [page, totalPages]);
 
     // Address search hooks
     const { data: addressesData } = useAddresses({
@@ -190,7 +220,7 @@ function GuidesContent() {
             {
                 onSuccess: () => {
                     resetForm();
-                    refetch();
+                    refetchGuides();
                 },
                 onError: (err) => {
                     alert(err?.message || 'Failed to create guide');
@@ -199,19 +229,40 @@ function GuidesContent() {
         );
     };
 
+    const handleToggleStatus = (guide: any) => {
+        updateGuide.mutate(
+            {
+                id: guide.id,
+                data: { isActive: !guide.isActive },
+            },
+            {
+                onSuccess: () => refetchGuides(),
+                onError: (err: any) => alert(err?.message || 'Failed to update guide status'),
+            },
+        );
+    };
+
+    const handleDeleteGuide = (guideId: string) => {
+        if (!confirm('Delete this guide profile?')) return;
+        deleteGuide.mutate(guideId, {
+            onSuccess: () => refetchGuides(),
+            onError: (err: any) => alert(err?.message || 'Failed to delete guide'),
+        });
+    };
+
     return (
         <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 lg:px-0 space-y-6">
             {/* Header */}
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <h1 style={{ fontFamily: 'var(--font-subjectivity), sans-serif', color: '#353030' }} className="text-3xl md:text-4xl font-bold">
-                        Local Guides
+                        {isAdmin ? 'Local Guides' : 'My Guide Profiles'}
                     </h1>
                     <p style={{ fontFamily: 'var(--font-mona-sans), sans-serif' }} className="text-gray-600 mt-2">
-                        All local guide listings on the platform
+                        {isAdmin ? 'All local guide listings on the platform' : 'Manage your guide profiles'}
                     </p>
                 </div>
-                {!isFormOpen && (
+                {isAdmin && !isFormOpen && (
                     <button
                         onClick={() => setIsFormOpen(true)}
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#005246] text-white hover:bg-[#003d34] transition-colors"
@@ -236,7 +287,7 @@ function GuidesContent() {
             </div>
 
             {/* Create Guide Form */}
-            {isFormOpen && (
+            {isAdmin && isFormOpen && (
                 <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold">Make User a Guide</h2>
@@ -554,12 +605,12 @@ function GuidesContent() {
             )}
 
             {/* Empty State */}
-            {!isLoading && data?.data?.length === 0 && (
+            {!isLoading && guidesRows.length === 0 && (
                 <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
                     <PersonStanding size={48} className="mx-auto mb-4 text-gray-400" />
                     <h3 className="text-lg font-semibold mb-2">No guides found</h3>
                     <p className="text-gray-600 mb-4">No guide listings match your search.</p>
-                    {!isFormOpen && (
+                    {isAdmin && !isFormOpen && (
                         <button
                             onClick={() => setIsFormOpen(true)}
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#005246] text-white hover:bg-[#003d34]"
@@ -572,7 +623,7 @@ function GuidesContent() {
             )}
 
             {/* Guides Table */}
-            {!isLoading && data && data.data?.length > 0 && (
+            {!isLoading && guidesRows.length > 0 && (
                 <>
                     <div className="admin-table-wrapper">
                         <table className="admin-table">
@@ -589,7 +640,7 @@ function GuidesContent() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.data.map((guide) => (
+                                {guidesRows.map((guide) => (
                                     <tr key={guide.id}>
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -646,6 +697,23 @@ function GuidesContent() {
                                         </td>
                                         <td>
                                             <div className="admin-table__actions">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleToggleStatus(guide)}
+                                                    className="admin-icon-btn admin-icon-btn--secondary"
+                                                    title={guide.isActive ? 'Deactivate guide' : 'Activate guide'}
+                                                >
+                                                    {guide.isActive ? 'Off' : 'On'}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDeleteGuide(guide.id)}
+                                                    className="admin-icon-btn"
+                                                    style={{ borderColor: '#fecaca', color: '#dc2626' }}
+                                                    title="Delete guide"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
                                                 <Link
                                                     href={`/guides/${guide.id}`}
                                                     target="_blank"
@@ -662,7 +730,7 @@ function GuidesContent() {
                         </table>
                     </div>
 
-                    {data.meta && (
+                    {totalGuides > 0 && (
                         <div className="admin-pagination">
                             <button
                                 disabled={page <= 1}
@@ -672,10 +740,10 @@ function GuidesContent() {
                                 ← Previous
                             </button>
                             <span className="admin-pagination__info">
-                                Page {page} of {data.meta.totalPages} · {data.meta.total} guides
+                                Page {page} of {totalPages} · {totalGuides} guides
                             </span>
                             <button
-                                disabled={page >= data.meta.totalPages}
+                                disabled={page >= totalPages}
                                 onClick={() => setPage(p => p + 1)}
                                 className="admin-pagination__btn"
                             >
@@ -692,7 +760,7 @@ function GuidesContent() {
 
 export default function GuidesPage() {
     return (
-        <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+        <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.GUIDE]}>
             <GuidesContent />
         </RoleGuard>
     )

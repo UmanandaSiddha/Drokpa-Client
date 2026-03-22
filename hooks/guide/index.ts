@@ -6,6 +6,7 @@ import type { CreateGuideRequest, UpdateGuideRequest, GuideQueryParams } from '@
 
 export const GUIDE_KEYS = {
     all: (params?: GuideQueryParams) => ['guides', params] as const,
+    adminAll: (params?: GuideQueryParams) => ['guides', 'admin', params] as const,
     one: (id: string) => ['guides', id] as const,
     mine: ['guides', 'mine'] as const,
     nearby: (params?: object) => ['guides', 'nearby', params] as const,
@@ -13,6 +14,10 @@ export const GUIDE_KEYS = {
 
 export function useGuides(params?: GuideQueryParams) {
     return useQuery({ queryKey: GUIDE_KEYS.all(params), queryFn: () => guideService.getGuides(params) });
+}
+
+export function useAdminGuides(params?: GuideQueryParams, enabled: boolean = true) {
+    return useQuery({ queryKey: GUIDE_KEYS.adminAll(params), queryFn: () => guideService.getAdminGuides(params), enabled });
 }
 
 export function useGuide(id: string) {
@@ -27,8 +32,8 @@ export function useNearbyGuides(params?: { latitude: number; longitude: number; 
     });
 }
 
-export function useMyGuides() {
-    return useQuery({ queryKey: GUIDE_KEYS.mine, queryFn: () => guideService.getMyGuides() });
+export function useMyGuides(enabled: boolean = true) {
+    return useQuery({ queryKey: GUIDE_KEYS.mine, queryFn: () => guideService.getMyGuides(), enabled });
 }
 
 export function useCreateGuide() {

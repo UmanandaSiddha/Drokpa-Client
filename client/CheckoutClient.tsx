@@ -47,6 +47,12 @@ export default function CheckoutClient() {
         // Check auth
         if (!authLoading && !user) {
             setShowLoginModal(true);
+            setIsLoading(false);
+            return;
+        }
+
+        if (!authLoading && user && !bookingId) {
+            setIsLoading(false);
             return;
         }
 

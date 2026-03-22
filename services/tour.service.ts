@@ -24,6 +24,16 @@ class TourService {
         return response.data;
     }
 
+    async getAdminTours(params?: TourQueryParams): Promise<PaginatedResponse<Tour>> {
+        const response = await apiClient.get<PaginatedResponse<Tour>>("/tours/admin/all", { params });
+        return response.data;
+    }
+
+    async getMyTours(params?: TourQueryParams): Promise<PaginatedResponse<Tour>> {
+        const response = await apiClient.get<PaginatedResponse<Tour>>("/tours/provider/my-tours", { params });
+        return response.data;
+    }
+
     async getTour(id: string): Promise<Tour> {
         const response = await apiClient.get<Tour | { data: Tour }>(`/tours/${id}`);
 

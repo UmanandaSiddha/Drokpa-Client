@@ -23,6 +23,13 @@ export enum BookingSource {
     OFFLINE = 'OFFLINE',
 }
 
+export enum BookingDateRequestStatus {
+    PENDING = 'PENDING',
+    APPROVED = 'APPROVED',
+    REJECTED = 'REJECTED',
+    BOOKING_CREATED = 'BOOKING_CREATED',
+}
+
 // ─── Entities ────────────────────────────────
 
 export interface BookingGuest {
@@ -76,23 +83,89 @@ export interface Booking {
     updatedAt: string;
 }
 
+export interface SuggestedTrek {
+    id: string;
+    tourId: string;
+    trekId: string;
+    rules?: string[];
+    conditions?: string[];
+    displayOrder: number;
+    isActive: boolean;
+    lineTotal?: number | null;
+    trek?: {
+        id: string;
+        title: string;
+        slug?: string;
+        basePrice: number;
+        finalPrice: number;
+        duration?: number;
+        imageUrls?: string[];
+        maxAltitude?: string;
+        distance?: string;
+        bestSeason?: string;
+    };
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface TourQuote {
+    tourId: string;
+    pricePerPerson: number;
+    totalPrice: number;
+    basePrice: number;
+    discountPercentage: number;
+    finalPrice: number;
+    currency: string;
+    startDate: string;
+    endDate: string;
+    numberOfPeople: number;
+    suggestedTreks?: SuggestedTrek[];
+}
+
+export interface BookingDateRequest {
+    id: string;
+    tourId: string;
+    userId: string;
+    status: BookingDateRequestStatus;
+    startDate: string;
+    endDate: string;
+    numberOfParticipants: number;
+    specialRequests?: string;
+    approvedAt?: string;
+    rejectionReason?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 // ─── Request Types ────────────────────────────
 
 export interface RequestTourBookingRequest {
     tourId: string;
     startDate: string;
-    endDate: string;
-    participants: number;
+    endDate?: string;
+    participants?: number;
+    guests?: {
+        fullName: string;
+        contactNumber: string;
+        email?: string;
+        age: number;
+        gender: "MALE" | "FEMALE" | "OTHER";
+        passportPhotoId?: string;
+        identityProofId?: string;
+        dateOfArrival?: string;
+    }[];
     specialRequests?: string;
+    couponCode?: string;
+    addOnTrekIds?: string[];
 }
 
 export interface RequestHomestayBookingRequest {
-    homestayId: string;
     roomId: string;
     checkIn: string;
     checkOut: string;
     guests: number;
     specialRequests?: string;
+    couponCode?: string;
 }
 
 export interface RequestVehicleBookingRequest {
@@ -119,6 +192,32 @@ export interface RejectBookingRequest {
 
 export interface ApplyCouponRequest {
     couponCode: string;
+}
+
+export interface CreateTourQuoteRequest {
+    tourId: string;
+    startDate: string;
+    endDate: string;
+    numberOfPeople: number;
+}
+
+export interface CreateTourCustomDateRequestDto {
+    tourId: string;
+    startDate: string;
+    endDate: string;
+    numberOfParticipants: number;
+    specialRequests?: string;
+}
+
+export interface CreateIlpBookingDto {
+    ilpId: string;
+    startDate: string;
+    endDate: string;
+}
+
+export interface CreateBookingFromCustomDateRequestDto {
+    dateRequestId: string;
+    suggestedTrekIds?: string[];
 }
 
 // ─── Query Params ─────────────────────────────

@@ -11,8 +11,8 @@ export const VEHICLE_KEYS = {
     nearby: (params?: object) => ['vehicles', 'nearby', params] as const,
 };
 
-export function useVehicles(params?: VehicleQueryParams) {
-    return useQuery({ queryKey: VEHICLE_KEYS.all(params), queryFn: () => vehicleService.getVehicles(params) });
+export function useVehicles(params?: VehicleQueryParams, enabled: boolean = true) {
+    return useQuery({ queryKey: VEHICLE_KEYS.all(params), queryFn: () => vehicleService.getVehicles(params), enabled });
 }
 
 export function useVehicle(id: string) {
@@ -27,7 +27,7 @@ export function useNearbyVehicles(params?: { latitude: number; longitude: number
     });
 }
 
-export function useMyVehicles() {
+export function useMyVehicles(enabled: boolean = true) {
     return useQuery({
         queryKey: VEHICLE_KEYS.mine,
         queryFn: async () => {
@@ -41,6 +41,7 @@ export function useMyVehicles() {
                 },
             };
         },
+        enabled,
     });
 }
 

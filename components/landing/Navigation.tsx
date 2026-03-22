@@ -60,7 +60,7 @@ const Navigation = () => {
             }}
         >
             <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <Link href="/" className="flex items-center gap-2">
                     <Image
                         src={MainLogo}
                         alt="Drokpa Logo"
@@ -81,7 +81,7 @@ const Navigation = () => {
                     >
                         Drokpa.
                     </p>
-                </div>
+                </Link>
 
                 {/* Desktop Navigation */}
                 <div className="hidden xl:flex justify-center">

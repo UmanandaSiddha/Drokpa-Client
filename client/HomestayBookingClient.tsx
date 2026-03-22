@@ -155,18 +155,23 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
     };
 
     // Map API rooms to component format
-    const rooms = (homestay.rooms || []).map((room) => ({
-        id: room.id,
-        name: room.name,
-        price: room.finalPrice,
-        likedPercent: 90,
-        recommended: room.discount > 0,
-        capacity: room.capacity,
-        beds: Math.ceil(room.capacity / 2),
-        baths: 1,
-        features: room.amenities?.slice(0, 3) || [],
-        images: room.imageUrls && room.imageUrls.length > 0 ? room.imageUrls : homestay.imageUrls?.slice(0, 3) || [],
-    }));
+    const rooms = (homestay.rooms || [])
+        .filter((room) => room.isActive && room.totalRooms > 0)
+        .map((room) => ({
+            id: room.id,
+            name: room.name,
+            price: room.finalPrice,
+            likedPercent: 90,
+            recommended: room.discount > 0,
+            capacity: room.capacity,
+            totalRooms: room.totalRooms,
+            bookingCriteria: room.bookingCriteria,
+            beds: Math.ceil(room.capacity / 2),
+            baths: 1,
+            features: room.amenities?.slice(0, 3) || [],
+            images: room.imageUrls && room.imageUrls.length > 0 ? room.imageUrls : homestay.imageUrls?.slice(0, 3) || [],
+            availability: room.availability || [],
+        }));
 
     // Map API reviews
     const reviews = (homestay.reviews || []).map((r: any) => ({
@@ -183,6 +188,18 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
     ].filter((item): item is string => Boolean(item));
 
     const location = [homestay.address?.city, homestay.address?.state].filter(Boolean).join(", ") || "Arunachal Pradesh";
+    const houseRules = (Array.isArray(homestay.houseRules) ? homestay.houseRules : []).filter(
+        (rule): rule is string => typeof rule === "string" && rule.trim().length > 0
+    );
+    const legacySafetyAndSecurity = (homestay as Homestay & { safetyAndSecurity?: string[] }).safetyAndSecurity;
+    const safetyAndSecuritySource = Array.isArray(homestay.safetyNSecurity)
+        ? homestay.safetyNSecurity
+        : Array.isArray(legacySafetyAndSecurity)
+            ? legacySafetyAndSecurity
+            : [];
+    const safetyAndSecurity = safetyAndSecuritySource.filter(
+        (item): item is string => typeof item === "string" && item.trim().length > 0
+    );
 
     return (
         <div className="min-h-screen bg-white">
@@ -200,7 +217,7 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                         <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#FC611E]/10 blur-3xl" />
                         <div className="absolute -bottom-24 left-8 h-72 w-72 rounded-full bg-[#4F87C7]/10 blur-3xl" />
                     </div>
-                    <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
+                    <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-400 mx-auto">
                         <div className="overflow-x-hidden">
                             <HomestayImageGrid images={homestay.imageUrls || []} />
                         </div>
@@ -208,7 +225,7 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                 </div>
 
                 {/* Main Content */}
-                <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
+                <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-400 mx-auto">
                     <div className="bg-white pb-8 sm:pb-12 md:pb-16">
 
                         {/* HEADER */}
@@ -440,7 +457,7 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                                                                 {r.date}
                                                             </div>
                                                         </div>
-                                                        <div className="flex gap-0.5 sm:gap-1 flex-shrink-0">
+                                                        <div className="flex gap-0.5 sm:gap-1 shrink-0">
                                                             {Array.from({ length: r.rating }).map((_, s) => (
                                                                 <Star
                                                                     key={s}
@@ -498,16 +515,9 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                                                 </h3>
                                             </div>
                                             <ul className="space-y-2 sm:space-y-3">
-                                                {[
-                                                    "Check-in: 2:00 PM - 10:00 PM",
-                                                    "Check-out: 11:00 AM",
-                                                    "No smoking inside",
-                                                    "No parties or events",
-                                                    "Pets allowed with prior notice",
-                                                    "Quiet hours: 10 PM - 7 AM"
-                                                ].map((rule, i) => (
+                                                {houseRules.length > 0 ? houseRules.map((rule, i) => (
                                                     <li key={i} className="flex items-start gap-2">
-                                                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                                                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 shrink-0 mt-0.5" />
                                                         <span
                                                             style={{
                                                                 fontFamily: "var(--font-mona-sans), sans-serif",
@@ -519,7 +529,21 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                                                             {rule}
                                                         </span>
                                                     </li>
-                                                ))}
+                                                )) : (
+                                                    <li className="flex items-start gap-2">
+                                                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 shrink-0 mt-0.5" />
+                                                        <span
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                fontWeight: 500,
+                                                                color: "#686766",
+                                                                fontSize: "clamp(13px, 3.5vw, 14px)",
+                                                            }}
+                                                        >
+                                                            No house rules provided by the host.
+                                                        </span>
+                                                    </li>
+                                                )}
                                             </ul>
                                         </div>
 
@@ -539,16 +563,9 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                                                 </h3>
                                             </div>
                                             <ul className="space-y-2 sm:space-y-3">
-                                                {[
-                                                    "Security cameras on premises",
-                                                    "Smoke alarm installed",
-                                                    "First aid kit available",
-                                                    "Safe for families",
-                                                    "24/7 host support",
-                                                    "Emergency contact provided"
-                                                ].map((item, i) => (
+                                                {safetyAndSecurity.length > 0 ? safetyAndSecurity.map((item, i) => (
                                                     <li key={i} className="flex items-start gap-2">
-                                                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                                                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 shrink-0 mt-0.5" />
                                                         <span
                                                             style={{
                                                                 fontFamily: "var(--font-mona-sans), sans-serif",
@@ -560,7 +577,21 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                                                             {item}
                                                         </span>
                                                     </li>
-                                                ))}
+                                                )) : (
+                                                    <li className="flex items-start gap-2">
+                                                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 shrink-0 mt-0.5" />
+                                                        <span
+                                                            style={{
+                                                                fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                fontWeight: 500,
+                                                                color: "#686766",
+                                                                fontSize: "clamp(13px, 3.5vw, 14px)",
+                                                            }}
+                                                        >
+                                                            No safety and security information provided by the host.
+                                                        </span>
+                                                    </li>
+                                                )}
                                             </ul>
                                         </div>
                                     </div>
@@ -587,7 +618,7 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                                                 href={`tel:${homestay.phoneNumber}`}
                                                 className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-[#F5F1E6]/60 rounded-2xl border border-[#DDE7E0]/70 hover:bg-[#F5F1E6] transition-colors"
                                             >
-                                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0 border border-[#DDE7E0]/70">
+                                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center shrink-0 border border-[#DDE7E0]/70">
                                                     <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-[#005246]" />
                                                 </div>
                                                 <div className="min-w-0">
@@ -620,7 +651,7 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                                                 href={`mailto:${homestay.email}`}
                                                 className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-[#F5F1E6]/60 rounded-2xl border border-[#DDE7E0]/70 hover:bg-[#F5F1E6] transition-colors"
                                             >
-                                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0 border border-[#DDE7E0]/70">
+                                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center shrink-0 border border-[#DDE7E0]/70">
                                                     <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-[#005246]" />
                                                 </div>
                                                 <div className="min-w-0">
@@ -656,7 +687,12 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                             <div className="lg:col-span-1 mt-6 lg:mt-0">
                                 <div className="sticky top-20 sm:top-24">
                                     <div className="rounded-3xl bg-[#F5F1E6]/60 border border-[#DDE7E0]/70 p-3">
-                                        {rooms.length > 0 && <BookingCard rooms={rooms} />}
+                                        {rooms.length > 0 && (
+                                            <BookingCard
+                                                rooms={rooms}
+                                                onLoginRequired={() => setShowLoginModal(true)}
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -667,7 +703,7 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                 {/* SIMILAR HOMESTAYS */}
                 {similarHomestays.length > 0 && (
                     <div className="bg-white py-8 sm:py-12 md:py-16">
-                        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
+                        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-400 mx-auto">
                             <h2
                                 className="text-xl sm:text-2xl md:text-3xl mb-4 sm:mb-6 md:mb-8"
                                 style={{
@@ -711,7 +747,7 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                                                 >
                                                     {similar.name}
                                                 </h3>
-                                                <div className="flex items-center gap-1 flex-shrink-0">
+                                                <div className="flex items-center gap-1 shrink-0">
                                                     <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-emerald-500 text-emerald-500" />
                                                     <span
                                                         style={{
@@ -726,7 +762,7 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2 mb-2 sm:mb-3">
-                                                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[#686766] flex-shrink-0" />
+                                                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[#686766] shrink-0" />
                                                 <span
                                                     className="truncate"
                                                     style={{
@@ -773,7 +809,7 @@ export default function HomestayBookingClient({ params }: HomestayBookingClientP
                                                     </span>
                                                 </span>
                                                 <span
-                                                    className="text-xs sm:text-sm flex-shrink-0"
+                                                    className="text-xs sm:text-sm shrink-0"
                                                     style={{
                                                         fontFamily: "var(--font-mona-sans), sans-serif",
                                                         fontWeight: 500,

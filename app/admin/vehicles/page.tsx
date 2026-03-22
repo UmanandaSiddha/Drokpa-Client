@@ -2,10 +2,10 @@
 
 import { RoleGuard } from '@/components/admin/RoleGuard'
 import { UserRole } from '@/types/auth'
-import { useVehicles, useMyVehicles } from '@/hooks/vehicle'
+import { useVehicles, useMyVehicles, useUpdateVehicle, useDeleteVehicle } from '@/hooks/vehicle'
 import { useAuth } from '@/hooks/auth/useAuth'
 import { useState } from 'react'
-import { Loader2, Car, Search, MapPin, Star, ExternalLink } from 'lucide-react'
+import { Loader2, Car, Search, MapPin, Star, ExternalLink, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { VehicleType, Vehicle } from '@/types/vehicle'
 // Local fallback for paginated response type
@@ -20,7 +20,7 @@ type PaginatedResponse<T> = {
 import { useDebounce } from '@/hooks/useDebounce'
 
 function VehiclesContent() {
-    const { user, isAdmin } = useAuth()
+    const { isAdmin, isVendor } = useAuth()
     const [page, setPage] = useState(1)
     const [search, setSearch] = useState('')
     const debouncedSearch = useDebounce(search, 500)
@@ -32,8 +32,10 @@ function VehiclesContent() {
         limit: 20,
         keyword: debouncedSearch || undefined,
         type,
-    });
-    const vendorQuery = useMyVehicles();
+    }, isAdmin);
+    const vendorQuery = useMyVehicles(isVendor);
+    const updateVehicle = useUpdateVehicle();
+    const deleteVehicle = useDeleteVehicle();
 
     let data: PaginatedResponse<Vehicle>;
     let isLoading: boolean;
@@ -46,6 +48,28 @@ function VehiclesContent() {
     }
 
     const vehicles: Vehicle[] = data.data;
+    const refetchVehicles = isAdmin ? adminQuery.refetch : vendorQuery.refetch;
+
+    const handleToggleStatus = (vehicle: Vehicle) => {
+        updateVehicle.mutate(
+            {
+                id: vehicle.id,
+                data: { isActive: !vehicle.isActive },
+            },
+            {
+                onSuccess: () => refetchVehicles(),
+                onError: (err: any) => alert(err?.message || 'Failed to update vehicle status'),
+            },
+        );
+    };
+
+    const handleDeleteVehicle = (vehicleId: string) => {
+        if (!confirm('Delete this vehicle?')) return;
+        deleteVehicle.mutate(vehicleId, {
+            onSuccess: () => refetchVehicles(),
+            onError: (err: any) => alert(err?.message || 'Failed to delete vehicle'),
+        });
+    };
 
     const TYPE_FILTERS = [
         { label: 'All', value: undefined },
@@ -177,6 +201,23 @@ function VehiclesContent() {
                                                 </td>
                                                 <td>
                                                     <div className="admin-table__actions">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleToggleStatus(vehicle)}
+                                                            className="admin-icon-btn admin-icon-btn--secondary"
+                                                            title={vehicle.isActive ? 'Deactivate vehicle' : 'Activate vehicle'}
+                                                        >
+                                                            {vehicle.isActive ? 'Off' : 'On'}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDeleteVehicle(vehicle.id)}
+                                                            className="admin-icon-btn"
+                                                            style={{ borderColor: '#fecaca', color: '#dc2626' }}
+                                                            title="Delete vehicle"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
                                                         <Link
                                                             href={`/vehicles/${vehicle.id}`}
                                                             target="_blank"
@@ -219,7 +260,6 @@ function VehiclesContent() {
             </div>
         </div>
     );
-    // ...existing code...
 }
 
 export default function VehiclesPage() {

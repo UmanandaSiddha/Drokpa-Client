@@ -64,6 +64,9 @@ export interface Tour {
     discount: number;
     finalPrice: number;
     duration: number;
+    maxAltitude?: string;
+    distance?: string;
+    bestSeason?: string;
     imageUrls: string[];
     maxCapacity: number;
     availableSpots?: number;
@@ -94,6 +97,9 @@ export interface CreateTourRequest {
     type?: TourType;
     price: number;
     duration: number;
+    maxAltitude?: string;
+    distance?: string;
+    bestSeason?: string;
     imageUrls?: string[];
     maxCapacity?: number;
     about?: string;

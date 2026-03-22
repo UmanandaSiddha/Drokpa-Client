@@ -17,6 +17,11 @@ class GuideService {
         return response.data;
     }
 
+    async getAdminGuides(params?: GuideQueryParams): Promise<PaginatedResponse<LocalGuide>> {
+        const response = await apiClient.get<PaginatedResponse<LocalGuide>>("/local-guide/admin/all", { params });
+        return response.data;
+    }
+
     async getNearbyGuides(params: { latitude: number; longitude: number; radius?: number }): Promise<LocalGuide[]> {
         const response = await apiClient.get<{ data: LocalGuide[] }>("/local-guide/nearby", { params });
         return response.data.data;

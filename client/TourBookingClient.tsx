@@ -22,17 +22,20 @@ import { LoginRequiredModal } from "@/components/auth/LoginRequiredModal";
 import { bookingService } from "@/services/booking.service";
 import { tourService } from "@/services/tour.service";
 import type { RequestTourBookingRequest } from "@/types/booking";
+import type { SuggestedTrek } from "@/types/booking";
 import type { Tour as ApiTour } from "@/types/tour";
+import { Gender } from "@/types/auth";
 import Image from "next/image";
 import GalleryLightbox from "@/components/GalleryLightbox";
 import { LoadingComponent } from "@/components/LoadingComponent";
+import { useS3Upload } from "@/hooks/s3/useS3Upload";
 
 export default function TourBookingPage({
     params,
 }: {
     params: Promise<{ tourId: string }>;
 }) {
-    const { user, isLoading: authLoading } = useAuth();
+    const { user } = useAuth();
     const [tourId, setTourId] = useState<string | null>(null);
     // undefined = not loaded yet, null = failed/not found
     const [apiTour, setApiTour] = useState<ApiTour | null | undefined>(undefined);
@@ -44,13 +47,34 @@ export default function TourBookingPage({
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const countryOptions = useCountryOptions();
+    const { uploadFile, isUploading, uploadProgress, error: uploadError } = useS3Upload();
     const [formData, setFormData] = useState({
         numberOfPeople: 1,
-        participants: [{ name: "", email: "", age: "", countryIso: "IN", countryCode: "+91", phone: "", passportPhoto: null as File | null, identityProof: null as File | null }],
+        participants: [{
+            name: "",
+            email: "",
+            age: "",
+            countryIso: "IN",
+            countryCode: "+91",
+            phone: "",
+            passportPhoto: null as File | null,
+            identityProof: null as File | null,
+            passportPhotoUrl: "",
+            identityProofUrl: "",
+        }],
         specialRequests: ""
     });
     const [formSubmitted, setFormSubmitted] = useState(false);
+    const [formError, setFormError] = useState("");
     const [activeParticipantIndex, setActiveParticipantIndex] = useState(0);
+    const [suggestedTreks, setSuggestedTreks] = useState<SuggestedTrek[]>([]);
+    const [isSuggestedTreksLoading, setIsSuggestedTreksLoading] = useState(false);
+    const [selectedAddOnTrekIds, setSelectedAddOnTrekIds] = useState<string[]>([]);
+    const [customDateStart, setCustomDateStart] = useState("");
+    const [customDateEnd, setCustomDateEnd] = useState("");
+    const [customDateError, setCustomDateError] = useState("");
+    const [customDateSuccess, setCustomDateSuccess] = useState("");
+    const [isSubmittingCustomDate, setIsSubmittingCustomDate] = useState(false);
 
     // Get tour data
     useEffect(() => {
@@ -183,6 +207,39 @@ export default function TourBookingPage({
         }
     }, [activeParticipantIndex, formData.participants.length]);
 
+    useEffect(() => {
+        if (uploadError) {
+            setFormError(uploadError);
+        }
+    }, [uploadError]);
+
+    useEffect(() => {
+        if (!tourId) return;
+
+        let mounted = true;
+        setIsSuggestedTreksLoading(true);
+
+        bookingService
+            .getSuggestedTreksForTour(tourId)
+            .then((data) => {
+                if (!mounted) return;
+                setSuggestedTreks(Array.isArray(data) ? data : []);
+            })
+            .catch((error) => {
+                console.error("[TourBookingPage] Failed to load suggested treks:", error);
+                if (!mounted) return;
+                setSuggestedTreks([]);
+            })
+            .finally(() => {
+                if (!mounted) return;
+                setIsSuggestedTreksLoading(false);
+            });
+
+        return () => {
+            mounted = false;
+        };
+    }, [tourId]);
+
     if (!tourId || isTourLoading || apiTour === undefined) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center">
@@ -197,6 +254,23 @@ export default function TourBookingPage({
 
     const mapQuery = tourData.location || tourData.title;
     const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+    const todayIso = new Date().toISOString().split("T")[0];
+
+    const customDateRequestEnabled = Boolean((apiTour as { customDateRequestEnabled?: boolean } | null)?.customDateRequestEnabled);
+    const customDateMinParticipants = Number(
+        (apiTour as { customDateMinParticipants?: number | null } | null)?.customDateMinParticipants || 0
+    );
+    const participantsCount = formData.participants.length;
+    const suggestCustomDate =
+        customDateRequestEnabled &&
+        customDateMinParticipants > 0 &&
+        participantsCount >= customDateMinParticipants;
+
+    const selectedAddOnTreks = suggestedTreks.filter((trek) => selectedAddOnTrekIds.includes(trek.trekId));
+    const addOnTotalPerTraveler = selectedAddOnTreks.reduce((sum, trek) => {
+        return sum + Number(trek.trek?.finalPrice || 0);
+    }, 0);
+    const totalPrice = (tourData.price + addOnTotalPerTraveler) * formData.participants.length;
 
     const handleParticipantChange = (index: number, field: string, value: string | File | null) => {
         // Check auth for file uploads
@@ -207,16 +281,22 @@ export default function TourBookingPage({
         const newParticipants = [...formData.participants];
         newParticipants[index] = { ...newParticipants[index], [field]: value };
         setFormData({ ...formData, participants: newParticipants });
+        setFormError("");
     };
 
     const isParticipantComplete = (participant: typeof formData.participants[number]) => {
+        const age = Number(participant.age);
         return Boolean(
             participant.name.trim() &&
-            participant.email.trim() &&
-            participant.phone.trim() &&
-            participant.age.trim() &&
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(participant.email) &&
+            /^\d{10}$/.test(participant.phone) &&
+            Number.isFinite(age) &&
+            age >= 1 &&
+            age <= 120 &&
             participant.passportPhoto &&
-            participant.identityProof
+            participant.identityProof &&
+            participant.passportPhotoUrl &&
+            participant.identityProofUrl
         );
     };
 
@@ -232,15 +312,28 @@ export default function TourBookingPage({
             countryCode: selected.callingCode,
         };
         setFormData({ ...formData, participants: newParticipants });
+        setFormError("");
     };
 
     const handleAddParticipant = () => {
         const participants = [
             ...formData.participants,
-            { name: "", email: "", age: "", countryIso: "IN", countryCode: "+91", phone: "", passportPhoto: null, identityProof: null }
+            {
+                name: "",
+                email: "",
+                age: "",
+                countryIso: "IN",
+                countryCode: "+91",
+                phone: "",
+                passportPhoto: null,
+                identityProof: null,
+                passportPhotoUrl: "",
+                identityProofUrl: "",
+            }
         ];
         setFormData({ ...formData, numberOfPeople: participants.length, participants });
         setActiveParticipantIndex(participants.length - 1);
+        setFormError("");
     };
 
     const handleRemoveParticipant = (index: number) => {
@@ -254,6 +347,112 @@ export default function TourBookingPage({
         });
     };
 
+    const getFileUploadProgress = (file: File | null): number | null => {
+        if (!file) return null;
+        const record = uploadProgress.find((item) => item.fileName === file.name);
+        return record ? record.progress : null;
+    };
+
+    const handleParticipantFileUpload = async (
+        index: number,
+        field: "passportPhoto" | "identityProof",
+        file: File | null
+    ) => {
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+
+        handleParticipantChange(index, field, file);
+        const urlField = field === "passportPhoto" ? "passportPhotoUrl" : "identityProofUrl";
+
+        if (!file) {
+            handleParticipantChange(index, urlField, "");
+            return;
+        }
+
+        const uploadType = field === "passportPhoto" ? "passport-photos" : "identity-proofs";
+        const contextId = `${user.id}-${tourId ?? "tour"}`;
+
+        const uploadedUrl = await uploadFile(file, uploadType, contextId);
+        if (!uploadedUrl) {
+            setFormError(`Failed to upload ${field === "passportPhoto" ? "passport photo" : "identity proof"}. Please try again.`);
+            handleParticipantChange(index, field, null);
+            handleParticipantChange(index, urlField, "");
+            return;
+        }
+
+        handleParticipantChange(index, urlField, uploadedUrl);
+    };
+
+    const handleToggleAddOnTrek = (trekId: string) => {
+        setSelectedAddOnTrekIds((prev) =>
+            prev.includes(trekId)
+                ? prev.filter((id) => id !== trekId)
+                : [...prev, trekId]
+        );
+    };
+
+    const getApiErrorMessage = (error: unknown, fallback: string) => {
+        const apiMessage =
+            (error as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message;
+
+        if (Array.isArray(apiMessage) && apiMessage.length > 0) {
+            return apiMessage.join(", ");
+        }
+
+        if (typeof apiMessage === "string" && apiMessage.trim()) {
+            return apiMessage;
+        }
+
+        return fallback;
+    };
+
+    const handleCustomDateRequestSubmit = async () => {
+
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+
+        if (!tourId) {
+            setCustomDateError("Tour not found. Please reload and try again.");
+            return;
+        }
+
+        if (!customDateStart || !customDateEnd) {
+            setCustomDateError("Please select both preferred start and end dates.");
+            return;
+        }
+
+        if (customDateEnd < customDateStart) {
+            setCustomDateError("Preferred end date cannot be before start date.");
+            return;
+        }
+
+        try {
+            setIsSubmittingCustomDate(true);
+            setCustomDateError("");
+            setCustomDateSuccess("");
+
+            await bookingService.createTourCustomDateRequest({
+                tourId,
+                startDate: customDateStart,
+                endDate: customDateEnd,
+                numberOfParticipants: participantsCount,
+                specialRequests: formData.specialRequests.trim() || undefined,
+            });
+
+            setCustomDateSuccess("Custom date request submitted successfully. Our team will review and respond soon.");
+        } catch (error) {
+            setCustomDateError(
+                getApiErrorMessage(error, "Could not submit custom date request. Please try again.")
+            );
+        } finally {
+            setIsSubmittingCustomDate(false);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -263,20 +462,41 @@ export default function TourBookingPage({
             return;
         }
 
+        const incompleteIndex = formData.participants.findIndex((participant) => !isParticipantComplete(participant));
+        if (incompleteIndex !== -1) {
+            setActiveParticipantIndex(incompleteIndex);
+            setFormError("Please complete all traveler details before submitting.");
+            return;
+        }
+
         try {
+            setFormError("");
             setFormSubmitted(true);
 
             const startDate = new Date();
             const endDate = new Date(startDate);
-            endDate.setDate(endDate.getDate() + 1);
+            endDate.setDate(endDate.getDate() + (Number(apiTour?.duration) || 3));
+
+            const guests = formData.participants.map((participant) => ({
+                fullName: participant.name.trim(),
+                email: participant.email.trim(),
+                age: Number(participant.age),
+                contactNumber: `${participant.countryCode}${participant.phone}`,
+                gender: Gender.OTHER,
+                passportPhotoId: participant.passportPhotoUrl,
+                identityProofId: participant.identityProofUrl,
+                dateOfArrival: startDate.toISOString().split("T")[0],
+            }));
 
             // Create booking request with form data
             const bookingData: RequestTourBookingRequest = {
-                tourId: tourId,
+                tourId: tourId!,
                 startDate: startDate.toISOString().split("T")[0],
                 endDate: endDate.toISOString().split("T")[0],
                 participants: formData.participants.length,
+                guests,
                 specialRequests: formData.specialRequests,
+                addOnTrekIds: selectedAddOnTrekIds.length ? selectedAddOnTrekIds : undefined,
             };
 
             // Call booking service
@@ -285,11 +505,15 @@ export default function TourBookingPage({
             // Redirect to checkout with booking ID
             if (booking?.id) {
                 window.location.href = `/checkout?bookingId=${booking.id}`;
+                return;
             }
+
+            setFormError("Could not start checkout. Please try again.");
+            setFormSubmitted(false);
         } catch (error) {
             console.error("Failed to create booking:", error);
             setFormSubmitted(false);
-            // Show error message to user
+            setFormError("Something went wrong while creating your booking.");
         }
     };
 
@@ -896,9 +1120,8 @@ export default function TourBookingPage({
                                                                 </label>
                                                                 <input
                                                                     type="file"
-                                                                    required
                                                                     accept="image/*"
-                                                                    onChange={(e) => handleParticipantChange(activeParticipantIndex, "passportPhoto", e.target.files?.[0] || null)}
+                                                                    onChange={(e) => handleParticipantFileUpload(activeParticipantIndex, "passportPhoto", e.target.files?.[0] || null)}
                                                                     className="hidden"
                                                                     id={`passportPhoto-${activeParticipantIndex}`}
                                                                 />
@@ -915,7 +1138,13 @@ export default function TourBookingPage({
                                                                             ? formData.participants[activeParticipantIndex].passportPhoto?.name
                                                                             : "Upload Passport Photo"}
                                                                     </span>
-                                                                    <span className="text-[11px] text-[#686766]">JPG or PNG (max 5MB)</span>
+                                                                    {getFileUploadProgress(formData.participants[activeParticipantIndex].passportPhoto) !== null ? (
+                                                                        <span className="text-[11px] text-[#005246]">
+                                                                            Uploading... {getFileUploadProgress(formData.participants[activeParticipantIndex].passportPhoto)}%
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="text-[11px] text-[#686766]">JPG or PNG (max 5MB)</span>
+                                                                    )}
                                                                 </label>
                                                             </div>
                                                             <div>
@@ -931,9 +1160,8 @@ export default function TourBookingPage({
                                                                 </label>
                                                                 <input
                                                                     type="file"
-                                                                    required
                                                                     accept="image/*,.pdf"
-                                                                    onChange={(e) => handleParticipantChange(activeParticipantIndex, "identityProof", e.target.files?.[0] || null)}
+                                                                    onChange={(e) => handleParticipantFileUpload(activeParticipantIndex, "identityProof", e.target.files?.[0] || null)}
                                                                     className="hidden"
                                                                     id={`identityProof-${activeParticipantIndex}`}
                                                                 />
@@ -950,7 +1178,13 @@ export default function TourBookingPage({
                                                                             ? formData.participants[activeParticipantIndex].identityProof?.name
                                                                             : "Upload Identity Proof"}
                                                                     </span>
-                                                                    <span className="text-[11px] text-[#686766]">JPG, PNG or PDF (max 5MB)</span>
+                                                                    {getFileUploadProgress(formData.participants[activeParticipantIndex].identityProof) !== null ? (
+                                                                        <span className="text-[11px] text-[#005246]">
+                                                                            Uploading... {getFileUploadProgress(formData.participants[activeParticipantIndex].identityProof)}%
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="text-[11px] text-[#686766]">JPG, PNG or PDF (max 5MB)</span>
+                                                                    )}
                                                                 </label>
                                                             </div>
                                                         </div>
@@ -958,6 +1192,251 @@ export default function TourBookingPage({
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div>
+                                            <label
+                                                className="block text-xs sm:text-sm font-semibold mb-2"
+                                                style={{
+                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                    fontWeight: 500,
+                                                    color: "#686766",
+                                                }}
+                                            >
+                                                Special Requests (Optional)
+                                            </label>
+                                            <textarea
+                                                value={formData.specialRequests}
+                                                onChange={(e) => setFormData((prev) => ({ ...prev, specialRequests: e.target.value }))}
+                                                placeholder="Share dietary needs, accessibility support, or anything else we should know"
+                                                rows={3}
+                                                className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#005246] text-sm sm:text-base bg-white resize-y"
+                                                style={{
+                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                    fontWeight: 500,
+                                                }}
+                                            />
+                                        </div>
+
+                                        {suggestedTreks.length > 0 && (
+                                            <div className="p-4 sm:p-5 rounded-xl border-2 border-[#DDE7E0]/80 bg-[#F5F1E6]/50 space-y-3">
+                                                <h4
+                                                    className="text-sm sm:text-base font-semibold"
+                                                    style={{
+                                                        fontFamily: "var(--font-subjectivity), sans-serif",
+                                                        fontWeight: 700,
+                                                        color: "#353030",
+                                                    }}
+                                                >
+                                                    Recommended Add-on Treks
+                                                </h4>
+                                                <p
+                                                    className="text-xs sm:text-sm"
+                                                    style={{
+                                                        fontFamily: "var(--font-mona-sans), sans-serif",
+                                                        fontWeight: 500,
+                                                        color: "#686766",
+                                                    }}
+                                                >
+                                                    Enhance your tour by adding optional treks for each traveler.
+                                                </p>
+                                                <div className="space-y-2">
+                                                    {suggestedTreks.map((suggested) => {
+                                                        const trek = suggested.trek;
+                                                        if (!trek) return null;
+
+                                                        const checked = selectedAddOnTrekIds.includes(suggested.trekId);
+                                                        return (
+                                                            <label
+                                                                key={suggested.id}
+                                                                className="flex items-start justify-between gap-3 p-3 bg-white border border-[#DDE7E0]/80 rounded-xl cursor-pointer"
+                                                            >
+                                                                <div className="flex items-start gap-3">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={checked}
+                                                                        onChange={() => handleToggleAddOnTrek(suggested.trekId)}
+                                                                        className="mt-1 accent-[#005246]"
+                                                                    />
+                                                                    <div>
+                                                                        <p
+                                                                            className="text-sm sm:text-base"
+                                                                            style={{
+                                                                                fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                                fontWeight: 600,
+                                                                                color: "#353030",
+                                                                            }}
+                                                                        >
+                                                                            {trek.title}
+                                                                        </p>
+                                                                        <p
+                                                                            className="text-xs sm:text-sm"
+                                                                            style={{
+                                                                                fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                                fontWeight: 500,
+                                                                                color: "#686766",
+                                                                            }}
+                                                                        >
+                                                                            ₹{Number(trek.finalPrice || 0).toLocaleString()} per traveler
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </label>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {isSuggestedTreksLoading && (
+                                            <p
+                                                className="text-xs sm:text-sm"
+                                                style={{
+                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                    fontWeight: 500,
+                                                    color: "#686766",
+                                                }}
+                                            >
+                                                Loading recommended treks...
+                                            </p>
+                                        )}
+
+                                        {customDateRequestEnabled && (
+                                            <div className="p-4 sm:p-5 rounded-xl border-2 border-[#DDE7E0]/80 bg-white space-y-3">
+                                                <h4
+                                                    className="text-sm sm:text-base font-semibold"
+                                                    style={{
+                                                        fontFamily: "var(--font-subjectivity), sans-serif",
+                                                        fontWeight: 700,
+                                                        color: "#353030",
+                                                    }}
+                                                >
+                                                    Request Different Dates
+                                                </h4>
+                                                <p
+                                                    className="text-xs sm:text-sm"
+                                                    style={{
+                                                        fontFamily: "var(--font-mona-sans), sans-serif",
+                                                        fontWeight: 500,
+                                                        color: "#686766",
+                                                    }}
+                                                >
+                                                    Need alternate travel dates? Submit a custom request and we will confirm availability.
+                                                </p>
+                                                {customDateMinParticipants > 0 && (
+                                                    <p
+                                                        className="text-xs sm:text-sm"
+                                                        style={{
+                                                            fontFamily: "var(--font-mona-sans), sans-serif",
+                                                            fontWeight: 500,
+                                                            color: suggestCustomDate ? "#b45309" : "#686766",
+                                                        }}
+                                                    >
+                                                        Custom date requests are recommended for groups of {customDateMinParticipants}+ travelers.
+                                                    </p>
+                                                )}
+
+                                                <div className="grid gap-3">
+                                                    <div className="grid sm:grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label
+                                                                className="block text-xs sm:text-sm font-semibold mb-2"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                    fontWeight: 500,
+                                                                    color: "#686766",
+                                                                }}
+                                                            >
+                                                                Preferred Start Date
+                                                            </label>
+                                                            <input
+                                                                type="date"
+                                                                min={todayIso}
+                                                                value={customDateStart}
+                                                                onChange={(e) => {
+                                                                    setCustomDateStart(e.target.value);
+                                                                    setCustomDateError("");
+                                                                    setCustomDateSuccess("");
+                                                                }}
+                                                                className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#005246] text-sm sm:text-base bg-white"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label
+                                                                className="block text-xs sm:text-sm font-semibold mb-2"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                    fontWeight: 500,
+                                                                    color: "#686766",
+                                                                }}
+                                                            >
+                                                                Preferred End Date
+                                                            </label>
+                                                            <input
+                                                                type="date"
+                                                                min={customDateStart || todayIso}
+                                                                value={customDateEnd}
+                                                                onChange={(e) => {
+                                                                    setCustomDateEnd(e.target.value);
+                                                                    setCustomDateError("");
+                                                                    setCustomDateSuccess("");
+                                                                }}
+                                                                className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#005246] text-sm sm:text-base bg-white"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {customDateError && (
+                                                        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                            <AlertCircle className="w-4 h-4 text-red-500" />
+                                                            <span
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                    fontWeight: 500,
+                                                                    color: "#b91c1c",
+                                                                    fontSize: "0.875rem",
+                                                                }}
+                                                            >
+                                                                {customDateError}
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    {customDateSuccess && (
+                                                        <div className="flex items-center gap-2 p-3 bg-[rgba(0,82,70,0.08)] border border-[#005246]/30 rounded-lg">
+                                                            <CheckCircle className="w-4 h-4 text-[#005246]" />
+                                                            <span
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans), sans-serif",
+                                                                    fontWeight: 500,
+                                                                    color: "#005246",
+                                                                    fontSize: "0.875rem",
+                                                                }}
+                                                            >
+                                                                {customDateSuccess}
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleCustomDateRequestSubmit}
+                                                        disabled={isSubmittingCustomDate}
+                                                        className="w-full sm:w-fit px-4 py-2.5 rounded-lg font-semibold text-sm border border-[#005246] text-[#005246] hover:bg-[rgba(0,82,70,0.06)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                        style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+                                                    >
+                                                        {isSubmittingCustomDate ? "Submitting request..." : "Submit Custom Date Request"}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
 
                                         {/* Total Price */}
                                         <div className="p-4 sm:p-5 rounded-xl border-2 border-[#005246] bg-[rgba(0,82,70,0.05)]">
@@ -980,7 +1459,7 @@ export default function TourBookingPage({
                                                         fontWeight: 700
                                                     }}
                                                 >
-                                                    ₹ {(tourData.price * formData.numberOfPeople).toLocaleString()}
+                                                    ₹ {totalPrice.toLocaleString()}
                                                 </span>
                                             </div>
                                             <p
@@ -991,13 +1470,41 @@ export default function TourBookingPage({
                                                     color: "#686766",
                                                 }}
                                             >
-                                                {formData.participants.length} traveler{formData.participants.length > 1 ? "s" : ""} × ₹{tourData.price.toLocaleString()}
+                                                {formData.participants.length} traveler{formData.participants.length > 1 ? "s" : ""} × ₹{(tourData.price + addOnTotalPerTraveler).toLocaleString()}
                                             </p>
+                                            {selectedAddOnTrekIds.length > 0 && (
+                                                <p
+                                                    className="text-xs sm:text-sm mt-1"
+                                                    style={{
+                                                        fontFamily: "var(--font-mona-sans), sans-serif",
+                                                        fontWeight: 500,
+                                                        color: "#686766",
+                                                    }}
+                                                >
+                                                    Includes ₹{addOnTotalPerTraveler.toLocaleString()} add-on treks per traveler
+                                                </p>
+                                            )}
                                         </div>
+
+                                        {formError && (
+                                            <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                                <AlertCircle className="w-5 h-5 text-red-500" />
+                                                <span
+                                                    style={{
+                                                        fontFamily: "var(--font-mona-sans), sans-serif",
+                                                        fontWeight: 500,
+                                                        color: "#b91c1c",
+                                                    }}
+                                                >
+                                                    {formError}
+                                                </span>
+                                            </div>
+                                        )}
 
                                         {/* Submit Button */}
                                         <button
                                             type="submit"
+                                            disabled={isUploading}
                                             className="w-full py-3.5 sm:py-4 text-white rounded-full font-semibold text-base sm:text-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
                                             style={{
                                                 backgroundColor: "#005246",
@@ -1007,7 +1514,7 @@ export default function TourBookingPage({
                                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#004536"}
                                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#005246"}
                                         >
-                                            Confirm Booking
+                                            {isUploading ? "Uploading documents..." : "Confirm Booking"}
                                         </button>
 
                                         {formSubmitted && (

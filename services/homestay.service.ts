@@ -55,6 +55,11 @@ class HomestayService {
         return response.data;
     }
 
+    async getAdminHomestays(params?: HomestayQueryParams): Promise<PaginatedResponse<Homestay>> {
+        const response = await apiClient.get<PaginatedResponse<Homestay>>("/homestay/admin/all", { params });
+        return response.data;
+    }
+
     async getNearbyHomestays(params: { latitude: number; longitude: number; radius?: number }): Promise<Homestay[]> {
         const response = await apiClient.get("/homestay/nearby", { params });
         return this.extractHomestayList(response.data);

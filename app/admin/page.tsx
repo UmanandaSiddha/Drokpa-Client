@@ -6,7 +6,7 @@ import { UserRole } from '@/types/auth'
 import { useAdminDashboard, useAdminPaymentStats } from '@/hooks/admin'
 import {
     Users, Building2, BookOpen, ArrowRight,
-    TrendingUp, DollarSign, Loader2, ClipboardList, Wallet
+    TrendingUp, DollarSign, Loader2, ClipboardList, Wallet, Car, Map, PersonStanding
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -37,6 +37,16 @@ function StatCard({
 function AdminOverview() {
     const { data: stats, isLoading } = useAdminDashboard()
     const { data: payStats } = useAdminPaymentStats()
+    const adminRoutes = [
+        { href: '/admin/homestays', label: 'Homestays' },
+        { href: '/admin/tours', label: 'Tours' },
+        { href: '/admin/vehicles', label: 'Vehicles' },
+        { href: '/admin/guides', label: 'Guides' },
+        { href: '/admin/bookings', label: 'Bookings' },
+        { href: '/admin/payouts', label: 'Payouts' },
+        { href: '/admin/providers', label: 'Providers' },
+        { href: '/admin/users', label: 'Users' },
+    ]
 
     if (isLoading) {
         return (
@@ -127,6 +137,17 @@ function AdminOverview() {
                         </Link>
                     </div>
                 </div>
+
+                <div className="admin-card">
+                    <p className="admin-card__title">Available Routes</p>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        {adminRoutes.map((route) => (
+                            <Link key={route.href} href={route.href} className="admin-btn admin-btn--outline">
+                                {route.label}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     )
@@ -157,9 +178,10 @@ function ProviderOverview() {
     const { isHost, isVendor, isGuide, user } = useAuth()
 
     const links: { label: string; href: string; desc: string; color: string; icon: React.ReactNode }[] = [
-        ...(isHost ? [{ label: 'My Homestays', href: '/admin/my-listings/homestays', desc: 'View and manage your homestay listings and rooms.', color: 'green', icon: <Building2 size={20} /> }] : []),
-        ...(isVendor ? [{ label: 'My Vehicles', href: '/admin/my-listings/vehicles', desc: 'Manage your vehicle fleet and availability.', color: 'blue', icon: <Building2 size={20} /> }] : []),
-        ...(isGuide ? [{ label: 'My Guide Profile', href: '/admin/my-listings/guide', desc: 'Update your guide profile and languages.', color: 'purple', icon: <Users size={20} /> }] : []),
+        ...(isHost ? [{ label: 'My Homestays', href: '/admin/homestays', desc: 'View and manage your homestay listings and rooms.', color: 'green', icon: <Building2 size={20} /> }] : []),
+        ...(isVendor ? [{ label: 'My Tours', href: '/admin/tours', desc: 'Manage your tour and trek listings.', color: 'purple', icon: <Map size={20} /> }] : []),
+        ...(isVendor ? [{ label: 'My Vehicles', href: '/admin/vehicles', desc: 'Manage your vehicle fleet and availability.', color: 'blue', icon: <Car size={20} /> }] : []),
+        ...(isGuide ? [{ label: 'My Guide Profiles', href: '/admin/guides', desc: 'Update your guide profiles and languages.', color: 'teal', icon: <PersonStanding size={20} /> }] : []),
         { label: 'My Bookings', href: '/admin/bookings', desc: 'See all bookings for your services.', color: 'amber', icon: <ClipboardList size={20} /> },
         { label: 'Payouts', href: '/admin/payouts', desc: 'Track your earnings and payout history.', color: 'teal', icon: <Wallet size={20} /> },
     ]
@@ -185,6 +207,17 @@ function ProviderOverview() {
                             href={l.href}
                         />
                     ))}
+                </div>
+
+                <div className="admin-card" style={{ marginTop: '1.5rem' }}>
+                    <p className="admin-card__title">Available Routes</p>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        {links.map((l) => (
+                            <Link key={`route-${l.href}`} href={l.href} className="admin-btn admin-btn--outline">
+                                {l.label}
+                            </Link>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

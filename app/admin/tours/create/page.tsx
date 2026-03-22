@@ -27,6 +27,9 @@ interface TourFormData {
     discount: number
     duration: number
     maxCapacity: number
+    maxAltitude: string
+    distance: string
+    bestSeason: string
     about: string
     included: string[]
     notIncluded: string[]
@@ -52,6 +55,9 @@ export default function CreateTourPage() {
         discount: 0,
         duration: 1,
         maxCapacity: 15,
+        maxAltitude: '',
+        distance: '',
+        bestSeason: '',
         about: '',
         included: [],
         notIncluded: [],
@@ -92,7 +98,13 @@ export default function CreateTourPage() {
         setFormData(prev => ({ ...prev, [field]: value }))
         // Clear guide when type changes from TREK to TOUR
         if (field === 'type' && value === TourType.TOUR) {
-            setFormData(prev => ({ ...prev, guideId: undefined }))
+            setFormData(prev => ({
+                ...prev,
+                guideId: undefined,
+                maxAltitude: '',
+                distance: '',
+                bestSeason: '',
+            }))
             setSelectedGuide(null)
             setGuideSearch('')
         }
@@ -201,6 +213,20 @@ export default function CreateTourPage() {
             return
         }
 
+        if (formData.type === TourType.TREK) {
+            const missing: string[] = []
+            if (!formData.maxAltitude.trim()) missing.push('Max Altitude')
+            if (!formData.distance.trim()) missing.push('Distance')
+            if (!formData.bestSeason.trim()) missing.push('Best Season')
+            if (!formData.addressId) missing.push('Location')
+            if (!formData.guideId) missing.push('Guide')
+
+            if (missing.length > 0) {
+                alert(`For TREK, please fill: ${missing.join(', ')}`)
+                return
+            }
+        }
+
         const included = (formData.included || []).map((v) => v.trim()).filter(Boolean)
         const notIncluded = (formData.notIncluded || []).map((v) => v.trim()).filter(Boolean)
         const highlights = (formData.highlights || []).map((v) => v.trim()).filter(Boolean)
@@ -213,6 +239,9 @@ export default function CreateTourPage() {
             discount: formData.discount,
             duration: formData.duration,
             maxCapacity: formData.maxCapacity,
+            maxAltitude: formData.type === TourType.TREK ? formData.maxAltitude.trim() : undefined,
+            distance: formData.type === TourType.TREK ? formData.distance.trim() : undefined,
+            bestSeason: formData.type === TourType.TREK ? formData.bestSeason.trim() : undefined,
             about: formData.about || undefined,
             included: included.length > 0 ? included : undefined,
             notIncluded: notIncluded.length > 0 ? notIncluded : undefined,
@@ -237,7 +266,7 @@ export default function CreateTourPage() {
     }
 
     return (
-        <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+        <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.VENDOR]}>
             <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
                 <div className="space-y-6">
                     {/* Header */}
@@ -425,7 +454,7 @@ export default function CreateTourPage() {
 
                                 {/* Address */}
                                 <div className="space-y-2">
-                                    <Label>Location (Optional)</Label>
+                                    <Label>{formData.type === TourType.TREK ? 'Location *' : 'Location (Optional)'}</Label>
                                     <div className="space-y-3">
                                         {/* Text Search */}
                                         <div className="relative">
@@ -592,6 +621,44 @@ export default function CreateTourPage() {
                                                     </button>
                                                 </div>
                                             )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {formData.type === TourType.TREK && (
+                                    <div className="space-y-2">
+                                        <Label>Trek Specific Details</Label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="maxAltitude">Max Altitude *</Label>
+                                                <Input
+                                                    id="maxAltitude"
+                                                    value={formData.maxAltitude}
+                                                    onChange={(e) => handleInputChange('maxAltitude', e.target.value)}
+                                                    placeholder="e.g., 12500 ft"
+                                                    required={formData.type === TourType.TREK}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="distance">Distance *</Label>
+                                                <Input
+                                                    id="distance"
+                                                    value={formData.distance}
+                                                    onChange={(e) => handleInputChange('distance', e.target.value)}
+                                                    placeholder="e.g., 48 km"
+                                                    required={formData.type === TourType.TREK}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="bestSeason">Best Season *</Label>
+                                                <Input
+                                                    id="bestSeason"
+                                                    value={formData.bestSeason}
+                                                    onChange={(e) => handleInputChange('bestSeason', e.target.value)}
+                                                    placeholder="e.g., Mar-Jun, Sep-Nov"
+                                                    required={formData.type === TourType.TREK}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 )}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useTours, useDeleteTour } from '@/hooks/tours'
+import { useAdminTours, useDeleteTour, useMyTours } from '@/hooks/tours'
 import { RoleGuard } from '@/components/admin/RoleGuard'
 import { UserRole } from '@/types/auth'
 import { TourType } from '@/types/tour'
@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { Loader2, MapPin, Clock, Plus, Edit2, Trash2, Eye, Users, Search } from 'lucide-react'
 import Link from 'next/link'
 import { useDebounce } from '@/hooks/useDebounce'
+import { useAuth } from '@/hooks/auth/useAuth'
 
 interface PaginationState {
     page: number
@@ -17,12 +18,17 @@ interface PaginationState {
 }
 
 export default function ToursPage() {
+    const { isAdmin, isVendor } = useAuth()
     const [pagination, setPagination] = useState<PaginationState>({ page: 1, limit: 12 })
     const [search, setSearch] = useState('')
     const debouncedSearch = useDebounce(search, 500)
     const [typeFilter, setTypeFilter] = useState<TourType | 'ALL'>('ALL')
-    const { data: toursData, isLoading } = useTours({ ...pagination, keyword: debouncedSearch || undefined })
+    const adminQuery = useAdminTours({ ...pagination, keyword: debouncedSearch || undefined }, isAdmin)
+    const vendorQuery = useMyTours({ ...pagination, keyword: debouncedSearch || undefined }, isVendor)
     const deleteTour = useDeleteTour()
+
+    const toursData = isAdmin ? adminQuery.data : vendorQuery.data
+    const isLoading = isAdmin ? adminQuery.isLoading : vendorQuery.isLoading
 
     // Remove handleSearch function - debounce handles it automatically
 
@@ -46,13 +52,17 @@ export default function ToursPage() {
     const totalPages = toursData?.meta?.totalPages || 1
 
     return (
-        <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+        <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.VENDOR]}>
             <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 lg:px-0 space-y-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: 'var(--font-subjectivity), sans-serif', color: '#353030' }}>Tours & Treks</h1>
-                        <p className="text-gray-600 mt-2" style={{ fontFamily: 'var(--font-mona-sans), sans-serif' }}>Manage package tours and trekking experiences</p>
+                        <h1 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: 'var(--font-subjectivity), sans-serif', color: '#353030' }}>
+                            {isAdmin ? 'Tours & Treks' : 'My Tours & Treks'}
+                        </h1>
+                        <p className="text-gray-600 mt-2" style={{ fontFamily: 'var(--font-mona-sans), sans-serif' }}>
+                            {isAdmin ? 'Manage all package tours and trekking experiences' : 'Manage your tour and trek listings'}
+                        </p>
                     </div>
                     <Link href="/admin/tours/create">
                         <button className="flex items-center gap-2 px-4 py-2 bg-[#005246] text-white rounded-lg hover:bg-[#003d34] transition-colors font-medium">

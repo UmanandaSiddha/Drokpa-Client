@@ -301,6 +301,7 @@ export default function AdminHomestayDetailPage() {
 
     const homestayAddress = (homestay as any)?.address
     const providerName = (homestay as any)?.provider?.name
+    const providerId = (homestay as any)?.providerId || (homestay as any)?.provider?.id
     const roomTypesCount = homestay?.rooms?.length || 0
     const totalRoomInventory = homestay?.rooms?.reduce((sum: number, room: any) => sum + (room.totalRooms || 0), 0) || 0
 
@@ -333,7 +334,7 @@ export default function AdminHomestayDetailPage() {
                                     </div>
                                     <Link href={`/admin/homestays/${homestay.id}/edit`}>
                                         <button className="px-4 py-2 border border-[#005246] text-[#005246] rounded-lg hover:bg-[#005246] hover:text-white transition-colors">
-                                            Edit Homestay
+                                            Edit
                                         </button>
                                     </Link>
                                 </div>
@@ -380,7 +381,10 @@ export default function AdminHomestayDetailPage() {
                                     </div>
                                     <div className="p-3 bg-gray-50 rounded-lg">
                                         <p className="text-gray-500">Provider</p>
-                                        <p className="font-medium">{providerName || 'Not assigned'}</p>
+                                        <p className="font-medium">{providerName || providerId || 'Not assigned'}</p>
+                                        {providerName && providerId && (
+                                            <p className="text-xs text-gray-500 mt-0.5">ID: {providerId}</p>
+                                        )}
                                     </div>
                                     <div className="p-3 bg-gray-50 rounded-lg">
                                         <p className="text-gray-500">Room Types</p>

@@ -216,7 +216,7 @@ export default function AdminTourDetailPage() {
     }
 
     return (
-        <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+        <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.VENDOR]}>
             <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
                 <div className="space-y-6">
                     <div className="flex items-center gap-3">
@@ -291,12 +291,26 @@ export default function AdminTourDetailPage() {
                                         </p>
                                     </div>
                                     {tour.type === 'TREK' && (
-                                        <div className="p-3 bg-gray-50 rounded-lg">
-                                            <p className="text-gray-500">Guide</p>
-                                            <p className="font-medium">
-                                                {tour.guide?.provider?.name || tour.guideId || '-'}
-                                            </p>
-                                        </div>
+                                        <>
+                                            <div className="p-3 bg-gray-50 rounded-lg">
+                                                <p className="text-gray-500">Guide</p>
+                                                <p className="font-medium">
+                                                    {tour.guide?.provider?.name || tour.guideId || '-'}
+                                                </p>
+                                            </div>
+                                            <div className="p-3 bg-gray-50 rounded-lg">
+                                                <p className="text-gray-500">Max Altitude</p>
+                                                <p className="font-medium">{tour.maxAltitude || '-'}</p>
+                                            </div>
+                                            <div className="p-3 bg-gray-50 rounded-lg">
+                                                <p className="text-gray-500">Distance</p>
+                                                <p className="font-medium">{tour.distance || '-'}</p>
+                                            </div>
+                                            <div className="p-3 bg-gray-50 rounded-lg">
+                                                <p className="text-gray-500">Best Season</p>
+                                                <p className="font-medium">{tour.bestSeason || '-'}</p>
+                                            </div>
+                                        </>
                                     )}
                                     <div className="p-3 bg-gray-50 rounded-lg">
                                         <p className="text-gray-500">Brochure</p>

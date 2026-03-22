@@ -1,12 +1,13 @@
 'use client'
 
-import { useHomestays, useDeleteHomestay } from '@/hooks/homestays'
+import { useAdminHomestays, useDeleteHomestay, useMyHomestays } from '@/hooks/homestays'
 import { RoleGuard } from '@/components/admin/RoleGuard'
 import { UserRole } from '@/types/auth'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Loader2, Building2, Search, MapPin, Star, Plus, Edit2, Trash2, DoorOpen, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { useDebounce } from '@/hooks/useDebounce'
+import { useAuth } from '@/hooks/auth/useAuth'
 
 interface PaginationState {
     page: number
@@ -16,21 +17,42 @@ interface PaginationState {
 }
 
 export default function HomestaysPage() {
+    const { isAdmin, isHost } = useAuth()
     const [pagination, setPagination] = useState<PaginationState>({ page: 1, limit: 10 })
     const [search, setSearch] = useState('')
     const debouncedSearch = useDebounce(search, 500)
-    const { data: homestaysData, isLoading } = useHomestays({ ...pagination, keyword: debouncedSearch || undefined })
+    const adminQuery = useAdminHomestays({ ...pagination, keyword: debouncedSearch || undefined }, isAdmin)
+    const hostQuery = useMyHomestays(isHost)
     const deleteHomestay = useDeleteHomestay()
+
+    const hostHomestays = hostQuery.data || []
+    const hostFiltered = debouncedSearch
+        ? hostHomestays.filter((h: any) =>
+            `${h?.name ?? ''} ${h?.description ?? ''}`.toLowerCase().includes(debouncedSearch.toLowerCase())
+        )
+        : hostHomestays
+
+    const hostTotal = hostFiltered.length
+    const hostTotalPages = Math.max(1, Math.ceil(hostTotal / pagination.limit))
+    const hostStart = (pagination.page - 1) * pagination.limit
+    const hostRows = hostFiltered.slice(hostStart, hostStart + pagination.limit)
+
+    const homestays = isAdmin ? (adminQuery.data?.data || []) : hostRows
+    const total = isAdmin ? (adminQuery.data?.meta?.total || 0) : hostTotal
+    const totalPages = isAdmin ? (adminQuery.data?.meta?.totalPages || 1) : hostTotalPages
+    const isLoading = isAdmin ? adminQuery.isLoading : hostQuery.isLoading
+
+    useEffect(() => {
+        if (pagination.page > totalPages) {
+            setPagination((prev) => ({ ...prev, page: totalPages }))
+        }
+    }, [pagination.page, totalPages])
 
     const handleDelete = (id: string) => {
         if (confirm('Are you sure you want to delete this homestay?')) {
             deleteHomestay.mutate(id)
         }
     }
-
-    const homestays = homestaysData?.data || []
-    const total = homestaysData?.meta?.total || 0
-    const totalPages = homestaysData?.meta?.totalPages || 1
 
     return (
         <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.HOST]}>
@@ -39,7 +61,9 @@ export default function HomestaysPage() {
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
                         <h1 className="text-3xl md:text-4xl font-bold" style={{ fontFamily: 'var(--font-subjectivity), sans-serif', color: '#353030' }}>Homestays</h1>
-                        <p className="text-gray-600 mt-2" style={{ fontFamily: 'var(--font-mona-sans), sans-serif' }}>Browse and manage all homestay listings</p>
+                        <p className="text-gray-600 mt-2" style={{ fontFamily: 'var(--font-mona-sans), sans-serif' }}>
+                            {isAdmin ? 'Browse and manage all homestay listings' : 'Manage your homestay listings'}
+                        </p>
                     </div>
                     <Link href="/admin/homestays/create">
                         <button className="flex items-center gap-2 px-4 py-2 bg-[#005246] text-white rounded-lg hover:bg-[#003d34] transition-colors font-medium">

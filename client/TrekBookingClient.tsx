@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import {
     Calendar as CalendarIcon,
+    AlertCircle,
+    CheckCircle,
     ChevronRight,
     Clock,
     MapPin,
@@ -12,12 +14,16 @@ import {
     Star,
     Users,
     BadgeCheck,
-    Phone,
     Mail,
 } from "lucide-react";
+import { bookingService } from "@/services/booking.service";
 import { tourService } from "@/services/tour.service";
+import type { RequestTourBookingRequest } from "@/types/booking";
 import type { Tour as ApiTour } from "@/types/tour";
+import { Gender } from "@/types/auth";
 import { LoadingComponent } from "@/components/LoadingComponent";
+import GalleryLightbox from "@/components/GalleryLightbox";
+import { useS3Upload } from "@/hooks/s3/useS3Upload";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -43,21 +49,32 @@ export default function TrekBookingClient({
     // undefined = not loaded yet, null = failed/not found
     const [apiTrek, setApiTrek] = useState<ApiTour | null | undefined>(undefined);
     const [isTrekLoading, setIsTrekLoading] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
+    const [formSubmitted, setFormSubmitted] = useState(false);
+    const [formError, setFormError] = useState("");
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxIndex, setLightboxIndex] = useState(0);
     const countryOptions = useCountryOptions();
+    const { uploadFile, isUploading, uploadProgress, error: uploadError } = useS3Upload();
     const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        age: "",
         arrivalDate: undefined as Date | undefined,
-        countryIso: "IN",
-        countryCode: "+91",
-        phone: "",
-        passportPhoto: null as File | null,
-        aadhaarFile: null as File | null,
+        participants: [
+            {
+                name: "",
+                email: "",
+                age: "",
+                countryIso: "IN",
+                countryCode: "+91",
+                phone: "",
+                passportPhoto: null as File | null,
+                identityProof: null as File | null,
+                passportPhotoUrl: "",
+                identityProofUrl: "",
+            },
+        ],
+        specialRequests: "",
     });
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [activeParticipantIndex, setActiveParticipantIndex] = useState(0);
 
     useEffect(() => {
         let mounted = true;
@@ -100,18 +117,24 @@ export default function TrekBookingClient({
         };
     }, [trekId]);
 
+    useEffect(() => {
+        if (activeParticipantIndex >= formData.participants.length) {
+            setActiveParticipantIndex(Math.max(0, formData.participants.length - 1));
+        }
+    }, [activeParticipantIndex, formData.participants.length]);
+
+    useEffect(() => {
+        if (uploadError) {
+            setFormError(uploadError);
+        }
+    }, [uploadError]);
+
     const trek = apiTrek
         ? (() => {
             const imagesFromApi = (apiTrek.imageUrls || []).filter(
                 (url) => typeof url === "string" && url.trim().length > 0
             );
-            const images = imagesFromApi.length
-                ? [
-                    imagesFromApi[0],
-                    imagesFromApi[1] ?? imagesFromApi[0],
-                    imagesFromApi[2] ?? imagesFromApi[0],
-                ]
-                : [];
+            const images = imagesFromApi.slice(0, 5);
 
             const locationLabel = [apiTrek.address?.city, apiTrek.address?.state]
                 .filter(Boolean)
@@ -142,21 +165,25 @@ export default function TrekBookingClient({
             const maxAltitudeMatch = textCandidates
                 .map((t) => t.match(/(\d{1,2}(?:,\d{3})|\d{3,5})\s?m\b/i))
                 .find(Boolean);
-            const maxAltitude = maxAltitudeMatch
+            const parsedMaxAltitude = maxAltitudeMatch
                 ? maxAltitudeMatch[0].replace(/\s+/g, "")
                 : "";
 
             const distanceMatch = textCandidates
                 .map((t) => t.match(/(\d+(?:\.\d+)?)\s?km\b/i))
                 .find(Boolean);
-            const distance = distanceMatch ? `${distanceMatch[1]} km` : "";
+            const parsedDistance = distanceMatch ? `${distanceMatch[1]} km` : "";
 
             const seasonCandidate = textCandidates.find((t) =>
                 /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\b/i.test(t) || /season/i.test(t)
             );
-            const bestSeason = seasonCandidate
+            const parsedBestSeason = seasonCandidate
                 ? seasonCandidate.replace(/best\s*season\s*:?\s*/i, "").trim()
                 : "";
+
+            const maxAltitude = (apiTrek.maxAltitude || "").trim() || parsedMaxAltitude;
+            const distance = (apiTrek.distance || "").trim() || parsedDistance;
+            const bestSeason = (apiTrek.bestSeason || "").trim() || parsedBestSeason;
 
             const guideYears = apiTrek.guide?.createdAt
                 ? Math.max(
@@ -221,90 +248,129 @@ export default function TrekBookingClient({
 
     const images = trek.images;
     const meetingPoint = trek.meetingPoint;
+    const locationDisplay = meetingPoint?.trim()
+        ? meetingPoint
+        : "Location shared after booking confirmation";
     const groupSizeLabel = trek.groupSizeLabel;
+    const galleryImages = images.slice(0, 5);
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    const handleParticipantChange = (index: number, field: string, value: string | File | null) => {
+        if ((field === "passportPhoto" || field === "identityProof") && !user) {
+            setShowLoginModal(true);
+            return;
+        }
+
+        const participants = [...formData.participants];
+        participants[index] = { ...participants[index], [field]: value };
+        setFormData((prev) => ({ ...prev, participants }));
+        setFormError("");
+    };
+
+    const handleCountryChange = (index: number, value: string) => {
+        const selected = countryOptions.find((option) => option.code === value);
+        if (!selected) {
+            return;
+        }
+
+        const participants = [...formData.participants];
+        participants[index] = {
+            ...participants[index],
+            countryIso: selected.code,
+            countryCode: selected.callingCode,
+        };
+        setFormData((prev) => ({ ...prev, participants }));
+        setFormError("");
+    };
+
+    const handleAddParticipant = () => {
+        const participants = [
+            ...formData.participants,
+            {
+                name: "",
+                email: "",
+                age: "",
+                countryIso: "IN",
+                countryCode: "+91",
+                phone: "",
+                passportPhoto: null,
+                identityProof: null,
+                passportPhotoUrl: "",
+                identityProofUrl: "",
+            },
+        ];
+        setFormData((prev) => ({ ...prev, participants }));
+        setActiveParticipantIndex(participants.length - 1);
+        setFormError("");
+    };
+
+    const handleRemoveParticipant = (index: number) => {
+        if (formData.participants.length === 1) {
+            return;
+        }
+        const participants = formData.participants.filter((_, idx) => idx !== index);
+        setFormData((prev) => ({ ...prev, participants }));
+        setActiveParticipantIndex((prev) => {
+            if (prev > index) return prev - 1;
+            if (prev === index) return Math.max(0, prev - 1);
+            return prev;
+        });
+    };
+
+    const isParticipantComplete = (participant: (typeof formData.participants)[number]) => {
+        const age = Number(participant.age);
+        return Boolean(
+            participant.name.trim() &&
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(participant.email) &&
+            /^\d{10}$/.test(participant.phone) &&
+            Number.isFinite(age) &&
+            age >= 1 &&
+            age <= 120 &&
+            participant.passportPhoto &&
+            participant.identityProof &&
+            participant.passportPhotoUrl &&
+            participant.identityProofUrl
+        );
+    };
+
+    const getFileUploadProgress = (file: File | null): number | null => {
+        if (!file) return null;
+        const record = uploadProgress.find((item) => item.fileName === file.name);
+        return record ? record.progress : null;
+    };
+
+    const handleParticipantFileUpload = async (
+        index: number,
+        field: "passportPhoto" | "identityProof",
+        file: File | null
     ) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        if (errors[name]) {
-            setErrors((prev) => ({ ...prev, [name]: "" }));
+        if (!user) {
+            setShowLoginModal(true);
+            return;
         }
+
+        handleParticipantChange(index, field, file);
+        const urlField = field === "passportPhoto" ? "passportPhotoUrl" : "identityProofUrl";
+
+        if (!file) {
+            handleParticipantChange(index, urlField, "");
+            return;
+        }
+
+        const uploadType = field === "passportPhoto" ? "passport-photos" : "identity-proofs";
+        const contextId = `${user.id}-${trekId ?? "trek"}`;
+
+        const uploadedUrl = await uploadFile(file, uploadType, contextId);
+        if (!uploadedUrl) {
+            setFormError(`Failed to upload ${field === "passportPhoto" ? "passport photo" : "identity proof"}. Please try again.`);
+            handleParticipantChange(index, field, null);
+            handleParticipantChange(index, urlField, "");
+            return;
+        }
+
+        handleParticipantChange(index, urlField, uploadedUrl);
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0] || null;
-        setFormData((prev) => ({ ...prev, aadhaarFile: file }));
-        if (errors.aadhaarFile) {
-            setErrors((prev) => ({ ...prev, aadhaarFile: "" }));
-        }
-    };
-
-    const handlePassportPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0] || null;
-        setFormData((prev) => ({ ...prev, passportPhoto: file }));
-        if (errors.passportPhoto) {
-            setErrors((prev) => ({ ...prev, passportPhoto: "" }));
-        }
-    };
-
-    const validateForm = () => {
-        const newErrors: Record<string, string> = {};
-
-        if (!formData.name.trim()) {
-            newErrors.name = "Name is required";
-        }
-
-        if (!formData.email.trim()) {
-            newErrors.email = "Email is required";
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            newErrors.email = "Please enter a valid email address";
-        }
-
-        if (!formData.age) {
-            newErrors.age = "Age is required";
-        } else if (parseInt(formData.age) < 1 || parseInt(formData.age) > 120) {
-            newErrors.age = "Please enter a valid age";
-        }
-
-        if (!formData.arrivalDate) {
-            newErrors.arrivalDate = "Date of arrival is required";
-        }
-
-        if (!formData.phone) {
-            newErrors.phone = "Phone number is required";
-        } else if (!/^\d{10}$/.test(formData.phone)) {
-            newErrors.phone = "Please enter a valid 10-digit phone number";
-        }
-
-        if (!formData.aadhaarFile) {
-            newErrors.aadhaarFile = "Aadhaar card document is required";
-        } else {
-            const validTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
-            if (!validTypes.includes(formData.aadhaarFile.type)) {
-                newErrors.aadhaarFile = "Please upload a valid file (JPG, PNG, or PDF)";
-            } else if (formData.aadhaarFile.size > 5 * 1024 * 1024) {
-                newErrors.aadhaarFile = "File size must be less than 5MB";
-            }
-        }
-
-        if (!formData.passportPhoto) {
-            newErrors.passportPhoto = "Passport photo is required";
-        } else {
-            const validTypes = ["image/jpeg", "image/jpg", "image/png"];
-            if (!validTypes.includes(formData.passportPhoto.type)) {
-                newErrors.passportPhoto = "Please upload a valid photo (JPG or PNG)";
-            } else if (formData.passportPhoto.size > 5 * 1024 * 1024) {
-                newErrors.passportPhoto = "Photo size must be less than 5MB";
-            }
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!user) {
@@ -312,9 +378,56 @@ export default function TrekBookingClient({
             return;
         }
 
-        if (validateForm()) {
-            setSubmitted(true);
-            setTimeout(() => setSubmitted(false), 3000);
+        if (!formData.arrivalDate) {
+            setFormError("Please select an arrival date.");
+            return;
+        }
+
+        const incompleteIndex = formData.participants.findIndex((participant) => !isParticipantComplete(participant));
+        if (incompleteIndex !== -1) {
+            setActiveParticipantIndex(incompleteIndex);
+            setFormError("Please complete all traveler details before submitting.");
+            return;
+        }
+
+        try {
+            setFormError("");
+            setFormSubmitted(true);
+
+            const startDate = new Date(formData.arrivalDate);
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + (Number(apiTrek?.duration) || 3));
+
+            const guests = formData.participants.map((participant) => ({
+                fullName: participant.name.trim(),
+                email: participant.email.trim(),
+                age: Number(participant.age),
+                contactNumber: `${participant.countryCode}${participant.phone}`,
+                gender: Gender.OTHER,
+                passportPhotoId: participant.passportPhotoUrl,
+                identityProofId: participant.identityProofUrl,
+                dateOfArrival: startDate.toISOString().split("T")[0],
+            }));
+
+            const bookingData: RequestTourBookingRequest = {
+                tourId: trekId!,
+                startDate: startDate.toISOString().split("T")[0],
+                guests,
+                specialRequests: formData.specialRequests,
+            };
+
+            const booking = await bookingService.requestTourBooking(bookingData as RequestTourBookingRequest);
+            if (booking?.id) {
+                window.location.href = `/checkout?bookingId=${booking.id}`;
+                return;
+            }
+
+            setFormError("Could not start checkout. Please try again.");
+            setFormSubmitted(false);
+        } catch (error) {
+            console.error("Failed to create trek booking:", error);
+            setFormError("Something went wrong while creating your booking.");
+            setFormSubmitted(false);
         }
     };
 
@@ -334,7 +447,7 @@ export default function TrekBookingClient({
                         <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#FC611E]/10 blur-3xl" />
                         <div className="absolute -bottom-24 left-8 h-72 w-72 rounded-full bg-[#4F87C7]/10 blur-3xl" />
                     </div>
-                    <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto">
+                    <div className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-400 mx-auto">
                         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                             <div>
                                 <div
@@ -385,7 +498,7 @@ export default function TrekBookingClient({
                                             className="text-xs sm:text-sm"
                                             style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}
                                         >
-                                            {meetingPoint}
+                                            {locationDisplay}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2 bg-white border border-[#DDE7E0]/70 px-3 py-2 rounded-xl">
@@ -419,44 +532,157 @@ export default function TrekBookingClient({
                                     </div>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 grid-rows-2 gap-3">
-                                <div className="col-span-2 relative h-64 sm:h-72 md:h-80 overflow-hidden rounded-2xl shadow-[0_18px_50px_-25px_rgba(0,0,0,0.35)]">
+                            {galleryImages.length === 1 && (
+                                <div
+                                    className="relative h-72 sm:h-80 md:h-107.5 overflow-hidden rounded-2xl shadow-[0_18px_50px_-25px_rgba(0,0,0,0.35)] cursor-pointer"
+                                    onClick={() => {
+                                        setLightboxIndex(0);
+                                        setLightboxOpen(true);
+                                    }}
+                                >
                                     <Image
-                                        src={images[0]}
+                                        src={galleryImages[0]}
                                         alt={trek.title}
-                                        width={800}
-                                        height={320}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        className="object-cover"
                                         unoptimized
                                     />
                                 </div>
-                                <div className="relative h-32 sm:h-36 overflow-hidden rounded-2xl">
-                                    <Image
-                                        src={images[1]}
-                                        alt="Trek view"
-                                        width={400}
-                                        height={144}
-                                        className="w-full h-full object-cover"
-                                        unoptimized
-                                    />
+                            )}
+
+                            {galleryImages.length === 2 && (
+                                <div className="grid grid-cols-2 gap-3 h-72 sm:h-80 md:h-107.5">
+                                    {galleryImages.map((img, idx) => (
+                                        <button
+                                            key={`trek-gallery-2-${idx}`}
+                                            type="button"
+                                            className="relative overflow-hidden rounded-2xl"
+                                            onClick={() => {
+                                                setLightboxIndex(idx);
+                                                setLightboxOpen(true);
+                                            }}
+                                        >
+                                            <Image
+                                                src={img}
+                                                alt={`${trek.title} ${idx + 1}`}
+                                                fill
+                                                className="object-cover"
+                                                unoptimized
+                                            />
+                                        </button>
+                                    ))}
                                 </div>
-                                <div className="relative h-32 sm:h-36 overflow-hidden rounded-2xl">
-                                    <Image
-                                        src={images[2]}
-                                        alt="Trek trail"
-                                        width={400}
-                                        height={144}
-                                        className="w-full h-full object-cover"
-                                        unoptimized
-                                    />
+                            )}
+
+                            {galleryImages.length === 3 && (
+                                <div className="grid grid-cols-3 grid-rows-2 gap-3 h-72 sm:h-80 md:h-107.5">
+                                    <button
+                                        type="button"
+                                        className="col-span-2 row-span-2 relative overflow-hidden rounded-2xl shadow-[0_18px_50px_-25px_rgba(0,0,0,0.35)]"
+                                        onClick={() => {
+                                            setLightboxIndex(0);
+                                            setLightboxOpen(true);
+                                        }}
+                                    >
+                                        <Image
+                                            src={galleryImages[0]}
+                                            alt={trek.title}
+                                            fill
+                                            className="object-cover"
+                                            unoptimized
+                                        />
+                                    </button>
+                                    {galleryImages.slice(1).map((img, i) => (
+                                        <button
+                                            key={`trek-gallery-3-${i + 1}`}
+                                            type="button"
+                                            className="relative overflow-hidden rounded-2xl"
+                                            onClick={() => {
+                                                setLightboxIndex(i + 1);
+                                                setLightboxOpen(true);
+                                            }}
+                                        >
+                                            <Image
+                                                src={img}
+                                                alt={`${trek.title} ${i + 2}`}
+                                                fill
+                                                className="object-cover"
+                                                unoptimized
+                                            />
+                                        </button>
+                                    ))}
                                 </div>
-                            </div>
+                            )}
+
+                            {galleryImages.length === 4 && (
+                                <div className="grid grid-cols-2 grid-rows-2 gap-3 h-72 sm:h-80 md:h-107.5">
+                                    {galleryImages.map((img, idx) => (
+                                        <button
+                                            key={`trek-gallery-4-${idx}`}
+                                            type="button"
+                                            className="relative overflow-hidden rounded-2xl"
+                                            onClick={() => {
+                                                setLightboxIndex(idx);
+                                                setLightboxOpen(true);
+                                            }}
+                                        >
+                                            <Image
+                                                src={img}
+                                                alt={`${trek.title} ${idx + 1}`}
+                                                fill
+                                                className="object-cover"
+                                                unoptimized
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {galleryImages.length === 5 && (
+                                <div className="grid grid-cols-4 grid-rows-2 gap-3 h-72 sm:h-80 md:h-107.5">
+                                    <button
+                                        type="button"
+                                        className="col-span-2 row-span-2 relative overflow-hidden rounded-2xl shadow-[0_18px_50px_-25px_rgba(0,0,0,0.35)]"
+                                        onClick={() => {
+                                            setLightboxIndex(0);
+                                            setLightboxOpen(true);
+                                        }}
+                                    >
+                                        <Image
+                                            src={galleryImages[0]}
+                                            alt={trek.title}
+                                            fill
+                                            className="object-cover"
+                                            unoptimized
+                                        />
+                                    </button>
+                                    {galleryImages.slice(1).map((img, i) => (
+                                        <button
+                                            key={`trek-gallery-5-${i + 1}`}
+                                            type="button"
+                                            className="relative overflow-hidden rounded-2xl"
+                                            onClick={() => {
+                                                setLightboxIndex(i + 1);
+                                                setLightboxOpen(true);
+                                            }}
+                                        >
+                                            <Image
+                                                src={img}
+                                                alt={`${trek.title} ${i + 2}`}
+                                                fill
+                                                className="object-cover"
+                                                unoptimized
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </section>
 
                 {/* Details and Booking */}
-                <section className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-[1600px] mx-auto pb-16 sm:pb-20 md:pb-24">
+                <section className="w-full px-4 sm:px-6 md:px-8 lg:px-0 lg:w-[90%] max-w-400 mx-auto pb-16 sm:pb-20 md:pb-24">
                     <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-12">
                         <div className="space-y-8">
                             <div className="bg-[#F6F6F6] rounded-2xl p-6 sm:p-8">
@@ -582,434 +808,439 @@ export default function TrekBookingClient({
                                 Tell us a few details and we will get back within 24 hours.
                             </p>
                             <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
-                                <div className="grid grid-cols-1 gap-4">
-                                    <div>
-                                        <label
-                                            htmlFor="name"
-                                            className="block text-sm font-semibold mb-2"
-                                            style={{
-                                                fontFamily: "var(--font-mona-sans)",
-                                                fontWeight: 600,
-                                                color: "#27261C",
-                                            }}
-                                        >
-                                            Full Name <span className="text-[#4F87C7]">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="name"
-                                            name="name"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            placeholder="Enter your full name"
-                                            className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors ${errors.name
-                                                ? "border-red-400 focus:border-red-500"
-                                                : "border-gray-200 focus:border-[#FC611E]"
-                                                }`}
-                                            style={{
-                                                fontFamily: "var(--font-mona-sans)",
-                                                fontWeight: 500,
-                                                color: "#27261C",
-                                            }}
-                                        />
-                                        {errors.name && (
-                                            <p className="mt-1 text-xs text-red-500" style={{ fontFamily: "var(--font-mona-sans)" }}>
-                                                {errors.name}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="email"
-                                            className="block text-sm font-semibold mb-2"
-                                            style={{
-                                                fontFamily: "var(--font-mona-sans)",
-                                                fontWeight: 600,
-                                                color: "#27261C",
-                                            }}
-                                        >
-                                            Email <span className="text-[#4F87C7]">*</span>
-                                        </label>
-                                        <input
-                                            type="email"
-                                            id="email"
-                                            name="email"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            placeholder="Enter your email"
-                                            className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors ${errors.email
-                                                ? "border-red-400 focus:border-red-500"
-                                                : "border-gray-200 focus:border-[#FC611E]"
-                                                }`}
-                                            style={{
-                                                fontFamily: "var(--font-mona-sans)",
-                                                fontWeight: 500,
-                                                color: "#27261C",
-                                            }}
-                                        />
-                                        {errors.email && (
-                                            <p className="mt-1 text-xs text-red-500" style={{ fontFamily: "var(--font-mona-sans)" }}>
-                                                {errors.email}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="age"
-                                            className="block text-sm font-semibold mb-2"
-                                            style={{
-                                                fontFamily: "var(--font-mona-sans)",
-                                                fontWeight: 600,
-                                                color: "#27261C",
-                                            }}
-                                        >
-                                            Age <span className="text-[#4F87C7]">*</span>
-                                        </label>
-                                        <input
-                                            type="number"
-                                            id="age"
-                                            name="age"
-                                            value={formData.age}
-                                            onChange={handleChange}
-                                            placeholder="Enter your age"
-                                            min="1"
-                                            max="120"
-                                            className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors ${errors.age
-                                                ? "border-red-400 focus:border-red-500"
-                                                : "border-gray-200 focus:border-[#FC611E]"
-                                                }`}
-                                            style={{
-                                                fontFamily: "var(--font-mona-sans)",
-                                                fontWeight: 500,
-                                                color: "#27261C",
-                                            }}
-                                        />
-                                        {errors.age && (
-                                            <p className="mt-1 text-xs text-red-500" style={{ fontFamily: "var(--font-mona-sans)" }}>
-                                                {errors.age}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="arrivalDate"
-                                            className="block text-sm font-semibold mb-2"
-                                            style={{
-                                                fontFamily: "var(--font-mona-sans)",
-                                                fontWeight: 600,
-                                                color: "#27261C",
-                                            }}
-                                        >
-                                            Date of Arrival <span className="text-[#4F87C7]">*</span>
-                                        </label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <button
-                                                    type="button"
-                                                    id="arrivalDate"
-                                                    className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors text-left flex items-center gap-2 ${errors.arrivalDate
-                                                        ? "border-red-400 focus:border-red-500"
-                                                        : "border-gray-200 focus:border-[#FC611E]"
-                                                        }`}
-                                                    style={{
-                                                        fontFamily: "var(--font-mona-sans)",
-                                                        fontWeight: 500,
-                                                        color: formData.arrivalDate ? "#27261C" : "#686766",
-                                                    }}
-                                                >
-                                                    <span className="flex-1">
-                                                        {formData.arrivalDate
-                                                            ? formData.arrivalDate.toLocaleDateString("en-GB", {
-                                                                day: "2-digit",
-                                                                month: "short",
-                                                                year: "numeric",
-                                                            })
-                                                            : "Select arrival date"}
-                                                    </span>
-                                                    <CalendarIcon className="w-4 h-4 text-[#686766]" />
-                                                </button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={formData.arrivalDate}
-                                                    onSelect={(date) => {
-                                                        setFormData((prev) => ({ ...prev, arrivalDate: date }));
-                                                        if (errors.arrivalDate) {
-                                                            setErrors((prev) => ({ ...prev, arrivalDate: "" }));
-                                                        }
-                                                    }}
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                        {errors.arrivalDate && (
-                                            <p className="mt-1 text-xs text-red-500" style={{ fontFamily: "var(--font-mona-sans)" }}>
-                                                {errors.arrivalDate}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="phone"
-                                            className="block text-sm font-semibold mb-2"
-                                            style={{
-                                                fontFamily: "var(--font-mona-sans)",
-                                                fontWeight: 600,
-                                                color: "#27261C",
-                                            }}
-                                        >
-                                            Phone Number <span className="text-[#4F87C7]">*</span>
-                                        </label>
-                                        <div className="flex flex-col gap-2 sm:flex-row">
-                                            <Select
-                                                value={formData.countryIso}
-                                                onValueChange={(value) => {
-                                                    const selected = countryOptions.find((option) => option.code === value);
-                                                    if (!selected) {
-                                                        return;
-                                                    }
-                                                    setFormData((prev) => ({
-                                                        ...prev,
-                                                        countryIso: selected.code,
-                                                        countryCode: selected.callingCode,
-                                                    }));
+                                <div>
+                                    <label
+                                        htmlFor="arrivalDate"
+                                        className="block text-sm font-semibold mb-2"
+                                        style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 600, color: "#27261C" }}
+                                    >
+                                        Date of Arrival <span className="text-[#4F87C7]">*</span>
+                                    </label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <button
+                                                type="button"
+                                                id="arrivalDate"
+                                                className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors text-left flex items-center gap-2 border-gray-200 focus:border-[#FC611E]"
+                                                style={{
+                                                    fontFamily: "var(--font-mona-sans)",
+                                                    fontWeight: 500,
+                                                    color: formData.arrivalDate ? "#27261C" : "#686766",
                                                 }}
                                             >
-                                                <SelectTrigger
-                                                    className={`w-full sm:w-44 px-4 py-3 rounded-xl border-2 outline-none transition-colors ${errors.phone
-                                                        ? "border-red-400"
-                                                        : "border-gray-200 focus:border-[#FC611E]"
-                                                        }`}
+                                                <span className="flex-1">
+                                                    {formData.arrivalDate
+                                                        ? formData.arrivalDate.toLocaleDateString("en-GB", {
+                                                            day: "2-digit",
+                                                            month: "short",
+                                                            year: "numeric",
+                                                        })
+                                                        : "Select arrival date"}
+                                                </span>
+                                                <CalendarIcon className="w-4 h-4 text-[#686766]" />
+                                            </button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={formData.arrivalDate}
+                                                onSelect={(date) => {
+                                                    setFormData((prev) => ({ ...prev, arrivalDate: date }));
+                                                    setFormError("");
+                                                }}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <div>
+                                        <p
+                                            className="text-sm font-semibold"
+                                            style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 600, color: "#27261C" }}
+                                        >
+                                            Travelers
+                                        </p>
+                                        <p className="text-xs text-[#686766]">Add each participant with valid documents.</p>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div
+                                            className="px-3 py-1.5 rounded-full text-sm font-semibold bg-[#F6F6F6] text-[#27261C]"
+                                            style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+                                        >
+                                            {formData.participants.length} traveler{formData.participants.length > 1 ? "s" : ""}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleAddParticipant}
+                                            className="px-4 py-2 rounded-lg font-semibold text-sm border border-[#4F87C7] text-[#4F87C7] hover:bg-[#4F87C7]/10 transition-colors"
+                                            style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+                                        >
+                                            Add traveler
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {formData.participants.map((participant, idx) => (
+                                        <button
+                                            key={`traveler-${idx}`}
+                                            type="button"
+                                            onClick={() => setActiveParticipantIndex(idx)}
+                                            className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border transition-colors ${idx === activeParticipantIndex
+                                                ? "bg-[#4F87C7] text-white border-[#4F87C7]"
+                                                : "bg-white text-[#4F87C7] border-[#4F87C7]/40 hover:border-[#4F87C7]"
+                                                }`}
+                                            style={{ fontFamily: "var(--font-mona-sans), sans-serif", fontWeight: 600 }}
+                                        >
+                                            <span className="flex items-center gap-2">
+                                                <span>Traveler {idx + 1}</span>
+                                                {isParticipantComplete(participant) ? (
+                                                    <CheckCircle className="w-4 h-4" />
+                                                ) : (
+                                                    <AlertCircle className="w-4 h-4" />
+                                                )}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="rounded-2xl bg-white py-4 sm:py-5 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <h3
+                                            className="text-base sm:text-lg font-semibold"
+                                            style={{ fontFamily: "var(--font-subjectivity), sans-serif", color: "#27261C" }}
+                                        >
+                                            Traveler {activeParticipantIndex + 1} details
+                                        </h3>
+                                        {formData.participants.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveParticipant(activeParticipantIndex)}
+                                                className="text-xs sm:text-sm font-semibold text-red-500 hover:text-red-600"
+                                                style={{ fontFamily: "var(--font-mona-sans), sans-serif" }}
+                                            >
+                                                Remove
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="grid gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold mb-2" style={{ fontFamily: "var(--font-mona-sans)", color: "#27261C" }}>
+                                                Full Name <span className="text-[#4F87C7]">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.participants[activeParticipantIndex].name}
+                                                onChange={(e) => handleParticipantChange(activeParticipantIndex, "name", e.target.value)}
+                                                placeholder="Enter your full name"
+                                                className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#FC611E]"
+                                                style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500, color: "#27261C" }}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold mb-2" style={{ fontFamily: "var(--font-mona-sans)", color: "#27261C" }}>
+                                                Email <span className="text-[#4F87C7]">*</span>
+                                            </label>
+                                            <input
+                                                type="email"
+                                                value={formData.participants[activeParticipantIndex].email}
+                                                onChange={(e) => handleParticipantChange(activeParticipantIndex, "email", e.target.value)}
+                                                placeholder="Enter your email"
+                                                className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#FC611E]"
+                                                style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500, color: "#27261C" }}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold mb-2" style={{ fontFamily: "var(--font-mona-sans)", color: "#27261C" }}>
+                                                Age <span className="text-[#4F87C7]">*</span>
+                                            </label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max="120"
+                                                value={formData.participants[activeParticipantIndex].age}
+                                                onChange={(e) => handleParticipantChange(activeParticipantIndex, "age", e.target.value)}
+                                                placeholder="Enter age"
+                                                className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#FC611E]"
+                                                style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500, color: "#27261C" }}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold mb-2" style={{ fontFamily: "var(--font-mona-sans)", color: "#27261C" }}>
+                                                Phone Number <span className="text-[#4F87C7]">*</span>
+                                            </label>
+                                            <div className="flex flex-col gap-2 sm:flex-row">
+                                                <Select
+                                                    value={formData.participants[activeParticipantIndex].countryIso}
+                                                    onValueChange={(value) => handleCountryChange(activeParticipantIndex, value)}
+                                                >
+                                                    <SelectTrigger
+                                                        className="w-full sm:w-44 px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#FC611E]"
+                                                        style={{
+                                                            fontFamily: "var(--font-mona-sans)",
+                                                            fontWeight: 500,
+                                                            color: "#27261C",
+                                                            height: "auto",
+                                                        }}
+                                                    >
+                                                        <SelectValue placeholder="Country" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {countryOptions.map((option) => (
+                                                            <SelectItem key={option.code} value={option.code}>
+                                                                {option.name} ({option.callingCode})
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <input
+                                                    type="tel"
+                                                    value={formData.participants[activeParticipantIndex].phone}
+                                                    onChange={(e) => handleParticipantChange(activeParticipantIndex, "phone", e.target.value)}
+                                                    placeholder="10-digit mobile number"
+                                                    maxLength={10}
+                                                    className="w-full flex-1 px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#FC611E]"
                                                     style={{
                                                         fontFamily: "var(--font-mona-sans)",
                                                         fontWeight: 500,
                                                         color: "#27261C",
-                                                        height: "auto",
                                                     }}
-                                                >
-                                                    <SelectValue placeholder="Country" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {countryOptions.map((option) => (
-                                                        <SelectItem key={option.code} value={option.code}>
-                                                            {option.name} ({option.callingCode})
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <input
-                                                type="tel"
-                                                id="phone"
-                                                name="phone"
-                                                value={formData.phone}
-                                                onChange={handleChange}
-                                                placeholder="10-digit mobile number"
-                                                maxLength={10}
-                                                className={`w-full flex-1 px-4 py-3 rounded-xl border-2 outline-none transition-colors ${errors.phone
-                                                    ? "border-red-400 focus:border-red-500"
-                                                    : "border-gray-200 focus:border-[#FC611E]"
-                                                    }`}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold mb-2" style={{ fontFamily: "var(--font-mona-sans)", color: "#27261C" }}>
+                                                Passport Photo <span className="text-[#4F87C7]">*</span>
+                                            </label>
+                                            <div className="relative border-2 border-dashed border-[#DDE7E0] rounded-2xl p-6 bg-[#FDFBF6]">
+                                                <input
+                                                    type="file"
+                                                    accept=".jpg,.jpeg,.png"
+                                                    onChange={(e) => {
+                                                        void handleParticipantFileUpload(
+                                                            activeParticipantIndex,
+                                                            "passportPhoto",
+                                                            e.target.files?.[0] || null
+                                                        );
+                                                    }}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                    id={`passportPhoto-${activeParticipantIndex}`}
+                                                />
+                                                <div className="flex flex-col items-center text-center pointer-events-none">
+                                                    <div className="w-12 h-12 rounded-full bg-[#F5F1E6] flex items-center justify-center mb-3">
+                                                        <ChevronRight className="w-6 h-6 text-[#4F87C7] rotate-90" />
+                                                    </div>
+                                                    {formData.participants[activeParticipantIndex].passportPhoto ? (
+                                                        <>
+                                                            <p
+                                                                className="text-sm font-semibold mb-1"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans)",
+                                                                    fontWeight: 600,
+                                                                    color: "#27261C",
+                                                                }}
+                                                            >
+                                                                {formData.participants[activeParticipantIndex].passportPhoto?.name}
+                                                            </p>
+                                                            <p
+                                                                className="text-xs"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans)",
+                                                                    fontWeight: 500,
+                                                                    color: "#686766",
+                                                                }}
+                                                            >
+                                                                {(() => {
+                                                                    const progress = getFileUploadProgress(
+                                                                        formData.participants[activeParticipantIndex].passportPhoto
+                                                                    );
+                                                                    if (progress !== null) {
+                                                                        return `Uploading... ${progress}%`;
+                                                                    }
+                                                                    if (formData.participants[activeParticipantIndex].passportPhotoUrl) {
+                                                                        return "Uploaded to secure storage • Click to change";
+                                                                    }
+                                                                    return `${(formData.participants[activeParticipantIndex].passportPhoto!.size / 1024).toFixed(2)} KB • Click to change`;
+                                                                })()}
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <p
+                                                                className="text-sm font-semibold mb-1"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans)",
+                                                                    fontWeight: 600,
+                                                                    color: "#27261C",
+                                                                }}
+                                                            >
+                                                                Click to upload passport photo
+                                                            </p>
+                                                            <p
+                                                                className="text-xs"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans)",
+                                                                    fontWeight: 500,
+                                                                    color: "#686766",
+                                                                }}
+                                                            >
+                                                                JPG or PNG (max 5MB)
+                                                            </p>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold mb-2" style={{ fontFamily: "var(--font-mona-sans)", color: "#27261C" }}>
+                                                Aadhaar/Passport Document <span className="text-[#4F87C7]">*</span>
+                                            </label>
+                                            <div className="relative border-2 border-dashed border-[#DDE7E0] rounded-2xl p-6 bg-[#FDFBF6]">
+                                                <input
+                                                    type="file"
+                                                    accept=".jpg,.jpeg,.png,.pdf"
+                                                    onChange={(e) => {
+                                                        void handleParticipantFileUpload(
+                                                            activeParticipantIndex,
+                                                            "identityProof",
+                                                            e.target.files?.[0] || null
+                                                        );
+                                                    }}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                    id={`identityProof-${activeParticipantIndex}`}
+                                                />
+                                                <div className="flex flex-col items-center text-center pointer-events-none">
+                                                    <div className="w-12 h-12 rounded-full bg-[#F5F1E6] flex items-center justify-center mb-3">
+                                                        <ChevronRight className="w-6 h-6 text-[#4F87C7] rotate-90" />
+                                                    </div>
+                                                    {formData.participants[activeParticipantIndex].identityProof ? (
+                                                        <>
+                                                            <p
+                                                                className="text-sm font-semibold mb-1"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans)",
+                                                                    fontWeight: 600,
+                                                                    color: "#27261C",
+                                                                }}
+                                                            >
+                                                                {formData.participants[activeParticipantIndex].identityProof?.name}
+                                                            </p>
+                                                            <p
+                                                                className="text-xs"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans)",
+                                                                    fontWeight: 500,
+                                                                    color: "#686766",
+                                                                }}
+                                                            >
+                                                                {(() => {
+                                                                    const progress = getFileUploadProgress(
+                                                                        formData.participants[activeParticipantIndex].identityProof
+                                                                    );
+                                                                    if (progress !== null) {
+                                                                        return `Uploading... ${progress}%`;
+                                                                    }
+                                                                    if (formData.participants[activeParticipantIndex].identityProofUrl) {
+                                                                        return "Uploaded to secure storage • Click to change";
+                                                                    }
+                                                                    return `${(formData.participants[activeParticipantIndex].identityProof!.size / 1024).toFixed(2)} KB • Click to change`;
+                                                                })()}
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <p
+                                                                className="text-sm font-semibold mb-1"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans)",
+                                                                    fontWeight: 600,
+                                                                    color: "#27261C",
+                                                                }}
+                                                            >
+                                                                Click to upload Aadhaar Card
+                                                            </p>
+                                                            <p
+                                                                className="text-xs"
+                                                                style={{
+                                                                    fontFamily: "var(--font-mona-sans)",
+                                                                    fontWeight: 500,
+                                                                    color: "#686766",
+                                                                }}
+                                                            >
+                                                                JPG, PNG or PDF (max 5MB)
+                                                            </p>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <p
+                                                className="mt-2 text-xs"
                                                 style={{
                                                     fontFamily: "var(--font-mona-sans)",
                                                     fontWeight: 500,
-                                                    color: "#27261C",
+                                                    color: "#686766",
                                                 }}
-                                            />
-                                        </div>
-                                        {errors.phone && (
-                                            <p className="mt-1 text-xs text-red-500" style={{ fontFamily: "var(--font-mona-sans)" }}>
-                                                {errors.phone}
+                                            >
+                                                Your Aadhaar document is encrypted and securely stored.
                                             </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="passportPhoto"
-                                            className="block text-sm font-semibold mb-2"
-                                            style={{
-                                                fontFamily: "var(--font-mona-sans)",
-                                                fontWeight: 600,
-                                                color: "#27261C",
-                                            }}
-                                        >
-                                            Passport Photo <span className="text-[#4F87C7]">*</span>
-                                        </label>
-                                        <div className="relative border-2 border-dashed border-[#DDE7E0] rounded-2xl p-6 bg-[#FDFBF6]">
-                                            <input
-                                                type="file"
-                                                id="passportPhoto"
-                                                name="passportPhoto"
-                                                onChange={handlePassportPhotoChange}
-                                                accept=".jpg,.jpeg,.png"
-                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                            />
-                                            <div className="flex flex-col items-center text-center pointer-events-none">
-                                                <div className="w-12 h-12 rounded-full bg-[#F5F1E6] flex items-center justify-center mb-3">
-                                                    <ChevronRight className="w-6 h-6 text-[#4F87C7] rotate-90" />
-                                                </div>
-                                                {formData.passportPhoto ? (
-                                                    <>
-                                                        <p
-                                                            className="text-sm font-semibold mb-1"
-                                                            style={{
-                                                                fontFamily: "var(--font-mona-sans)",
-                                                                fontWeight: 600,
-                                                                color: "#27261C",
-                                                            }}
-                                                        >
-                                                            {formData.passportPhoto.name}
-                                                        </p>
-                                                        <p
-                                                            className="text-xs"
-                                                            style={{
-                                                                fontFamily: "var(--font-mona-sans)",
-                                                                fontWeight: 500,
-                                                                color: "#686766",
-                                                            }}
-                                                        >
-                                                            {(formData.passportPhoto.size / 1024).toFixed(2)} KB • Click to change
-                                                        </p>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <p
-                                                            className="text-sm font-semibold mb-1"
-                                                            style={{
-                                                                fontFamily: "var(--font-mona-sans)",
-                                                                fontWeight: 600,
-                                                                color: "#27261C",
-                                                            }}
-                                                        >
-                                                            Click to upload passport photo
-                                                        </p>
-                                                        <p
-                                                            className="text-xs"
-                                                            style={{
-                                                                fontFamily: "var(--font-mona-sans)",
-                                                                fontWeight: 500,
-                                                                color: "#686766",
-                                                            }}
-                                                        >
-                                                            JPG or PNG (max 5MB)
-                                                        </p>
-                                                    </>
-                                                )}
-                                            </div>
                                         </div>
-                                        {errors.passportPhoto && (
-                                            <p className="mt-1 text-xs text-red-500" style={{ fontFamily: "var(--font-mona-sans)" }}>
-                                                {errors.passportPhoto}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="aadhaarFile"
-                                            className="block text-sm font-semibold mb-2"
-                                            style={{
-                                                fontFamily: "var(--font-mona-sans)",
-                                                fontWeight: 600,
-                                                color: "#27261C",
-                                            }}
-                                        >
-                                            Aadhaar Card Document <span className="text-[#4F87C7]">*</span>
-                                        </label>
-                                        <div className="relative border-2 border-dashed border-[#DDE7E0] rounded-2xl p-6 bg-[#FDFBF6]">
-                                            <input
-                                                type="file"
-                                                id="aadhaarFile"
-                                                name="aadhaarFile"
-                                                onChange={handleFileChange}
-                                                accept=".jpg,.jpeg,.png,.pdf"
-                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                            />
-                                            <div className="flex flex-col items-center text-center pointer-events-none">
-                                                <div className="w-12 h-12 rounded-full bg-[#F5F1E6] flex items-center justify-center mb-3">
-                                                    <ChevronRight className="w-6 h-6 text-[#4F87C7] rotate-90" />
-                                                </div>
-                                                {formData.aadhaarFile ? (
-                                                    <>
-                                                        <p
-                                                            className="text-sm font-semibold mb-1"
-                                                            style={{
-                                                                fontFamily: "var(--font-mona-sans)",
-                                                                fontWeight: 600,
-                                                                color: "#27261C",
-                                                            }}
-                                                        >
-                                                            {formData.aadhaarFile.name}
-                                                        </p>
-                                                        <p
-                                                            className="text-xs"
-                                                            style={{
-                                                                fontFamily: "var(--font-mona-sans)",
-                                                                fontWeight: 500,
-                                                                color: "#686766",
-                                                            }}
-                                                        >
-                                                            {(formData.aadhaarFile.size / 1024).toFixed(2)} KB • Click to change
-                                                        </p>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <p
-                                                            className="text-sm font-semibold mb-1"
-                                                            style={{
-                                                                fontFamily: "var(--font-mona-sans)",
-                                                                fontWeight: 600,
-                                                                color: "#27261C",
-                                                            }}
-                                                        >
-                                                            Click to upload Aadhaar Card
-                                                        </p>
-                                                        <p
-                                                            className="text-xs"
-                                                            style={{
-                                                                fontFamily: "var(--font-mona-sans)",
-                                                                fontWeight: 500,
-                                                                color: "#686766",
-                                                            }}
-                                                        >
-                                                            JPG, PNG or PDF (max 5MB)
-                                                        </p>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
-                                        {errors.aadhaarFile && (
-                                            <p className="mt-1 text-xs text-red-500" style={{ fontFamily: "var(--font-mona-sans)" }}>
-                                                {errors.aadhaarFile}
-                                            </p>
-                                        )}
-                                        <p
-                                            className="mt-2 text-xs"
-                                            style={{
-                                                fontFamily: "var(--font-mona-sans)",
-                                                fontWeight: 500,
-                                                color: "#686766",
-                                            }}
-                                        >
-                                            Your Aadhaar document is encrypted and securely stored.
-                                        </p>
                                     </div>
                                 </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold mb-2" style={{ fontFamily: "var(--font-mona-sans)", color: "#27261C" }}>
+                                        Special Requests (optional)
+                                    </label>
+                                    <textarea
+                                        rows={3}
+                                        value={formData.specialRequests}
+                                        onChange={(e) => {
+                                            setFormData((prev) => ({ ...prev, specialRequests: e.target.value }));
+                                            setFormError("");
+                                        }}
+                                        placeholder="Any dietary, medical, or travel-related requests"
+                                        className="w-full px-4 py-3 rounded-xl border-2 outline-none transition-colors border-gray-200 focus:border-[#FC611E]"
+                                        style={{ fontFamily: "var(--font-mona-sans)", fontWeight: 500, color: "#27261C" }}
+                                    />
+                                </div>
+
+                                <div className="p-4 rounded-xl border border-[#DDE7E0] bg-[#F6F6F6]">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-semibold text-[#27261C]">Estimated total</span>
+                                        <span className="text-xl font-bold text-[#27261C]">
+                                            ₹ {(trek.price * formData.participants.length).toLocaleString("en-IN")}
+                                        </span>
+                                    </div>
+                                    <p className="mt-1 text-xs text-[#686766]">
+                                        {formData.participants.length} traveler{formData.participants.length > 1 ? "s" : ""} x ₹ {trek.price.toLocaleString("en-IN")}
+                                    </p>
+                                </div>
+
+                                {formError && (
+                                    <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                                        {formError}
+                                    </div>
+                                )}
+
                                 <button
                                     type="submit"
-                                    className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#4F87C7] hover:bg-[#5e91cc] transition-colors flex items-center justify-center gap-2 text-base font-semibold"
+                                    disabled={formSubmitted || isUploading}
+                                    className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#4F87C7] hover:bg-[#5e91cc] disabled:opacity-70 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 text-base font-semibold"
                                     style={{
                                         fontFamily: "var(--font-mona-sans)",
                                         fontWeight: 700,
                                         color: "#FFFFFF",
                                     }}
                                 >
-                                    {submitted ? "Request sent" : "Request booking"}
+                                    {formSubmitted ? "Processing..." : isUploading ? "Uploading documents..." : "Request booking"}
                                     <ChevronRight className="w-5 h-5" />
                                 </button>
                             </form>
@@ -1026,6 +1257,14 @@ export default function TrekBookingClient({
                     </div>
                 </section>
             </main>
+
+            <GalleryLightbox
+                images={galleryImages}
+                open={lightboxOpen}
+                initialIndex={lightboxIndex}
+                onClose={() => setLightboxOpen(false)}
+                showThumbnails={true}
+            />
         </div>
     );
 }

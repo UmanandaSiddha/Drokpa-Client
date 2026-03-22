@@ -13,6 +13,7 @@ import type {
 
 export const HOMESTAY_KEYS = {
     all: (params?: HomestayQueryParams) => ['homestays', params] as const,
+    adminAll: (params?: HomestayQueryParams) => ['homestays', 'admin', params] as const,
     one: (id: string) => ['homestays', id] as const,
     mine: ['homestays', 'mine'] as const,
     nearby: (params?: object) => ['homestays', 'nearby', params] as const,
@@ -27,6 +28,14 @@ export function useHomestays(params?: HomestayQueryParams) {
     return useQuery({
         queryKey: HOMESTAY_KEYS.all(params),
         queryFn: () => homestayService.getHomestays(params),
+    });
+}
+
+export function useAdminHomestays(params?: HomestayQueryParams, enabled: boolean = true) {
+    return useQuery({
+        queryKey: HOMESTAY_KEYS.adminAll(params),
+        queryFn: () => homestayService.getAdminHomestays(params),
+        enabled,
     });
 }
 
@@ -46,10 +55,11 @@ export function useNearbyHomestays(params?: { latitude: number; longitude: numbe
     });
 }
 
-export function useMyHomestays() {
+export function useMyHomestays(enabled: boolean = true) {
     return useQuery({
         queryKey: HOMESTAY_KEYS.mine,
         queryFn: () => homestayService.getMyHomestays(),
+        enabled,
     });
 }
 

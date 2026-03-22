@@ -51,6 +51,9 @@ export default function EditTourPage() {
         discount: 0,
         duration: 1,
         maxCapacity: 1,
+        maxAltitude: '',
+        distance: '',
+        bestSeason: '',
         about: '',
         isActive: true,
         tags: [] as string[],
@@ -288,6 +291,9 @@ export default function EditTourPage() {
             discount: tour.discount,
             duration: tour.duration,
             maxCapacity: tour.maxCapacity,
+            maxAltitude: tour.maxAltitude || '',
+            distance: tour.distance || '',
+            bestSeason: tour.bestSeason || '',
             about: tour.about || '',
             isActive: tour.isActive,
             tags: tour.tags?.map((t) => t.tag?.label).filter((label): label is string => Boolean(label)) || [],
@@ -313,6 +319,20 @@ export default function EditTourPage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
 
+        if (formData.type === TourType.TREK) {
+            const missing: string[] = []
+            if (!formData.maxAltitude.trim()) missing.push('Max Altitude')
+            if (!formData.distance.trim()) missing.push('Distance')
+            if (!formData.bestSeason.trim()) missing.push('Best Season')
+            if (!formData.addressId) missing.push('Location')
+            if (!formData.guideId) missing.push('Guide')
+
+            if (missing.length > 0) {
+                alert(`For TREK, please fill: ${missing.join(', ')}`)
+                return
+            }
+        }
+
         // Upload new images if any
         const uploadPromise = formData.images.length > 0
             ? uploadFiles(formData.images, 'tours', tourId || '')
@@ -331,6 +351,9 @@ export default function EditTourPage() {
                         discount: parseInt(String(formData.discount)) || 0,
                         duration: parseInt(String(formData.duration)) || 1,
                         maxCapacity: parseInt(String(formData.maxCapacity)) || 1,
+                        maxAltitude: payloadType === TourType.TREK ? formData.maxAltitude.trim() : undefined,
+                        distance: payloadType === TourType.TREK ? formData.distance.trim() : undefined,
+                        bestSeason: payloadType === TourType.TREK ? formData.bestSeason.trim() : undefined,
                         about: formData.about || undefined,
                         isActive: formData.isActive,
                         tags: formData.tags,
@@ -351,7 +374,7 @@ export default function EditTourPage() {
     }
 
     return (
-        <RoleGuard allowedRoles={[UserRole.ADMIN]}>
+        <RoleGuard allowedRoles={[UserRole.ADMIN, UserRole.VENDOR]}>
             <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 lg:px-0">
                 <div className="space-y-6">
                     <div className="flex items-center gap-3">
@@ -393,6 +416,9 @@ export default function EditTourPage() {
                                                         ...p,
                                                         type: value,
                                                         guideId: value === TourType.TOUR ? '' : p.guideId,
+                                                        maxAltitude: value === TourType.TOUR ? '' : p.maxAltitude,
+                                                        distance: value === TourType.TOUR ? '' : p.distance,
+                                                        bestSeason: value === TourType.TOUR ? '' : p.bestSeason,
                                                     }))
                                                 }
                                             }}
@@ -486,10 +512,10 @@ export default function EditTourPage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Address</label>
+                                    <label className="text-sm font-medium">{formData.type === TourType.TREK ? 'Location *' : 'Location (Optional)'}</label>
                                     <input
                                         type="text"
-                                        placeholder="Search address..."
+                                        placeholder="Search location..."
                                         className="w-full border border-gray-300 rounded-lg px-3 py-2"
                                         value={addressSearch}
                                         onChange={(e) => setAddressSearch(e.target.value)}
@@ -573,6 +599,47 @@ export default function EditTourPage() {
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                    </div>
+                                )}
+
+                                {formData.type === TourType.TREK && (
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Trek Specific Details</label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Max Altitude *</label>
+                                                <input
+                                                    type="text"
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                                    value={formData.maxAltitude}
+                                                    onChange={(e) => setFormData((p) => ({ ...p, maxAltitude: e.target.value }))}
+                                                    placeholder="e.g., 12500 ft"
+                                                    required={formData.type === TourType.TREK}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Distance *</label>
+                                                <input
+                                                    type="text"
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                                    value={formData.distance}
+                                                    onChange={(e) => setFormData((p) => ({ ...p, distance: e.target.value }))}
+                                                    placeholder="e.g., 48 km"
+                                                    required={formData.type === TourType.TREK}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Best Season *</label>
+                                                <input
+                                                    type="text"
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                                    value={formData.bestSeason}
+                                                    onChange={(e) => setFormData((p) => ({ ...p, bestSeason: e.target.value }))}
+                                                    placeholder="e.g., Mar-Jun, Sep-Nov"
+                                                    required={formData.type === TourType.TREK}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
 
