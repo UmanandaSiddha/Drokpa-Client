@@ -22,7 +22,7 @@ export default function DevBanner() {
                             fontWeight: 500
                         }}
                     >
-                        We're getting ready for you! Launching February 25, 2026
+                        We're getting ready for you! Launching Soon
                     </p>
                 </div>
                 <button
